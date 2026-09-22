@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Company Expense Dashboard</title>
+    
+    <!-- 1. Tailwind CSS for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- 2. Chart.js for data visualization -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- 3. SheetJS (xlsx) for reading Excel files -->
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+
+    <style>
+        /* Custom styles for drag-and-drop interaction */
+        .drag-active { border-color: #3b82f6 !important; background-color: #eff6ff !important; }
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-900 font-sans min-h-screen">
+
+    <!-- ========================================== -->
+    <!-- SCREEN 1: FILE UPLOAD                      -->
+    <!-- ========================================== -->
+    <div id="upload-screen" class="flex items-center justify-center min-h-screen p-4">
+        <div id="drop-zone" class="w-full max-w-lg p-10 bg-white rounded-2xl shadow-lg border-2 border-dashed border-gray-300 transition-all cursor-pointer text-center">
+            <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true">
+                <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+            <h3 class="mt-4 text-xl font-semibold text-gray-900">Upload Expense Report</h3>
+            <p class="mt-2 text-sm text-gray-500">Drag & drop your Excel file here, or click to browse.</p>
+            <p class="mt-4 text-xs text-gray-400 bg-gray-50 p-3 rounded-lg inline-block">
+                <strong>Expected Columns:</strong> Date | Category | Vendor | Description | Amount
+            </p>
+            <div class="mt-6">
+                <button id="select-btn" class="rounded-md bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 transition">
+                    Select File
+                </button>
+                <input id="file-input" type="file" class="hidden" accept=".xlsx,.xls,.csv">
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- SCREEN 2: DASHBOARD                        -->
+    <!-- ========================================== -->
+    <div id="dashboard-screen" class="hidden min-h-screen p-4 md:p-8">
+        <!-- Header -->
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900">Expense Dashboard</h1>
+                <p class="text-gray-500">Financial overview based on uploaded data.</p>
+            </div>
+            <button id="reset-btn" class="px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 shadow-sm">
+                Upload New File
+            </button>
+        </div>
+
+        <!-- KPI Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                <p class="text-sm font-medium text-gray-500">Total Expenses</p>
+                <p id="kpi-total" class="text-3xl font-bold text-gray-900 mt-2">$0.00</p>
+            </div>
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                <p class="text-sm font-medium text-gray-500">Total Transactions</p>
+                <p id="kpi-transactions" class="text-3xl font-bold text-gray-900 mt-2">0</p>
+            </div>
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                <p class="text-sm font-medium text-gray-500">Active Categories</p>
+                <p id="kpi-categories" class="text-3xl font-bold text-gray-900 mt-2">0</p>
+            </div>
+        </div>
+
+        <!-- Charts -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">Monthly Trend</h3>
+                <div class="h-72"><canvas id="monthly-chart"></canvas></div>
+            </div>
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">By Category</h3>
+                <div class="h-72"><canvas id="category-chart"></canvas></div>
+            </div>
+        </div>
+
+        <!-- Data Table -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+            <div class="p-6 border-b border-gray-100">
+                <h3 class="text-lg font-semibold text-gray-900">Transaction Ledger</h3>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Category</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Vendor</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Description</th>
+                            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody id="table-body" class="bg-white divide-y divide-gray-200"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- APPLICATION LOGIC                          -->
+    <!-- ========================================== -->
+    <script>
+        // Global variables for charts
+        let monthlyChart = null;
+        let categoryChart = null;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const uploadScreen = document.getElementById('upload-screen');
+            const dashboardScreen = document.getElementById('dashboard-screen');
+            const dropZone = document.getElementById('drop-zone');
+            const fileInput = document.getElementById('file-input');
+            const selectBtn = document.getElementById('select-btn');
+            const resetBtn = document.getElementById('reset-btn');
+
+            // --- UI Interactions ---
+            selectBtn.addEventListener('click', () => fileInput.click());
+            dropZone.addEventListener('click', (e) => { if(e.target !== selectBtn) fileInput.click(); });
+            fileInput.addEventListener('change', (e) => handleFile(e.target.files[0]));
+
+            // Drag & Drop
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                dropZone.addEventListener(eventName, preventDefaults, false);
+            });
+            function preventDefaults(e) { e.preventDefault(); e.stopPropagation(); }
+            
+            ['dragenter', 'dragover'].forEach(eventName => {
+                dropZone.addEventListener(eventName, () => dropZone.classList.add('drag-active'), false);
+            });
+            ['dragleave', 'drop'].forEach(eventName => {
+                dropZone.addEventListener(eventName, () => dropZone.classList.remove('drag-active'), false);
+            });
+            dropZone.addEventListener('drop', (e) => handleFile(e.dataTransfer.files[0]), false);
+
+            resetBtn.addEventListener('click', () => {
+                dashboardScreen.classList.add('hidden');
+                uploadScreen.classList.remove('hidden');
+                fileInput.value = '';
+            });
+
+            // --- Core Logic ---
+            function handleFile(file) {
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    try {
+                        const data = new Uint8Array(e.target.result);
+                        // cellDates: true forces Excel date cells to parse as JS Date objects
+                        const workbook = XLSX.read(data, { type: 'array', cellDates: true });
+                        const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+                        const jsonData = XLSX.utils.sheet_to_json(firstSheet);
+                        
+                        processAndRender(jsonData);
+                    } catch (err) {
+                        alert("Error reading file. Please ensure it is a valid Excel/CSV file.");
+                        console.error(err);
+                    }
+                };
+                reader.readAsArrayBuffer(file);
+            }
+
+            function processAndRender(data) {
+                let total = 0;
+                const categories = {};
+                const monthlyMap = {}; // Key: YYYY-MM, Value: { label, amount }
+                
+                data.forEach(row => {
+                    const amount = parseFloat(row.Amount) || 0;
+                    const category = row.Category || 'Uncategorized';
+                    
+                    // Robust date handling
+                    let date = row.Date;
+                    if (!(date instanceof Date)) date = new Date(date);
+                    if (isNaN(date.getTime())) date = new Date(); // Fallback
+
+                    const sortKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+                    const label = date.toLocaleString('default', { month: 'short', year: 'numeric' });
+
+                    total += amount;
+                    categories[category] = (categories[category] || 0) + amount;
+                    
+                    if (!monthlyMap[sortKey]) monthlyMap[sortKey] = { label, amount: 0 };
+                    monthlyMap[sortKey].amount += amount;
+                });
+
+                // Sort months chronologically
+                const sortedKeys = Object.keys(monthlyMap).sort();
+                const monthLabels = sortedKeys.map(k => monthlyMap[k].label);
+                const monthAmounts = sortedKeys.map(k => monthlyMap[k].amount);
+
+                // Update KPIs
+                document.getElementById('kpi-total').textContent = `$${total.toLocaleString(undefined, {minimumFractionDigits: 2})}`;
+                document.getElementById('kpi-transactions').textContent = data.length;
+                document.getElementById('kpi-categories').textContent = Object.keys(categories).length;
+
+                // Render Charts
+                renderCharts(monthLabels, monthAmounts, categories);
+
+                // Render Table
+                renderTable(data);
+
+                // Switch Screens
+                uploadScreen.classList.add('hidden');
+                dashboardScreen.classList.remove('hidden');
+            }
+
+            function renderCharts(monthLabels, monthAmounts, categories) {
+                // 1. Monthly Bar Chart
+                const mCtx = document.getElementById('monthly-chart').getContext('2d');
+                if (monthlyChart) monthlyChart.destroy();
+                monthlyChart = new Chart(mCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: monthLabels,
+                        datasets: [{
+                            label: 'Expenses',
+                            data: monthAmounts,
+                            backgroundColor: '#3b82f6',
+                            borderRadius: 6
+                        }]
+                    },
+                    options: { 
+                        responsive: true, 
+                        maintainAspectRatio: false, 
+                        plugins: { legend: { display: false } },
+                        scales: { y: { beginAtZero: true, grid: { color: '#f3f4f6' } }, x: { grid: { display: false } } }
+                    }
+                });
+
+                // 2. Category Doughnut Chart
+                const cCtx = document.getElementById('category-chart').getContext('2d');
+                if (categoryChart) categoryChart.destroy();
+                categoryChart = new Chart(cCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: Object.keys(categories),
+                        datasets: [{
+                            data: Object.values(categories),
+                            backgroundColor: ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#14b8a6', '#f97316'],
+                            borderWidth: 0
+                        }]
+                    },
+                    options: { 
+                        responsive: true, 
+                        maintainAspectRatio: false, 
+                        cutout: '65%',
+                        plugins: { legend: { position: 'right', labels: { boxWidth: 12, padding: 15 } } }
+                    }
+                });
+            }
+
+            function formatDate(d) {
+                if (!d) return '';
+                const date = d instanceof Date ? d : new Date(d);
+                if (isNaN(date.getTime())) return String(d);
+                return date.toISOString().split('T')[0]; // YYYY-MM-DD
+            }
+
+            function renderTable(data) {
+                const tbody = document.getElementById('table-body');
+                tbody.innerHTML = '';
+                data.forEach(row => {
+                    const tr = document.createElement('tr');
+                    tr.className = 'hover:bg-gray-50 transition';
+                    tr.innerHTML = `
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${formatDate(row.Date)}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm">
+                            <span class="px-2.5 py-0.5 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+                                ${row.Category || 'Uncategorized'}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${row.Vendor || '-'}</td>
+                        <td class="px-6 py-4 text-sm text-gray-500 max-w-xs truncate">${row.Description || '-'}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium text-gray-900">
+                            $${parseFloat(row.Amount || 0).toLocaleString(undefined, {minimumFractionDigits: 2})}
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            }
+        });
+    </script>
+</body>
+</html>
