@@ -10,6 +10,9 @@
     <style>
         .drag-active { border-color: #3b82f6 !important; background-color: #eff6ff !important; }
         .hidden { display: none !important; }
+        .tab-active { background-color: #3b82f6; color: white; }
+        .tab-inactive { background-color: white; color: #374151; }
+        .tab-inactive:hover { background-color: #f3f4f6; }
     </style>
 </head>
 <body class="bg-gray-50 text-gray-900 font-sans min-h-screen">
@@ -34,10 +37,10 @@
         </div>
     </div>
 
-    <!-- DASHBOARD SCREEN -->
+    <!-- MAIN APP SCREEN -->
     <div id="dashboard-screen" class="hidden min-h-screen p-4 md:p-8">
         <!-- Header -->
-        <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
             <div>
                 <h1 class="text-3xl font-bold text-gray-900">Payroll Dashboard</h1>
                 <p class="text-gray-500">Employee salary overview based on uploaded data.</p>
@@ -47,68 +50,138 @@
             </button>
         </div>
 
-        <!-- KPI Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-                <p class="text-sm font-medium text-gray-500">Total Payroll</p>
-                <p id="kpi-total" class="text-3xl font-bold text-gray-900 mt-2">₹0.00</p>
+        <!-- Tabs -->
+        <div class="flex gap-2 mb-6">
+            <button id="tab-dashboard" class="px-6 py-2.5 rounded-lg font-medium transition tab-active">Dashboard</button>
+            <button id="tab-analytics" class="px-6 py-2.5 rounded-lg font-medium transition tab-inactive">Analytics</button>
+        </div>
+
+        <!-- DASHBOARD TAB -->
+        <div id="dashboard-content">
+            <!-- Search Bar -->
+            <div class="mb-6">
+                <input id="search-input" type="text" placeholder="Search by Emp ID or Name..." 
+                    class="w-full md:w-96 px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
             </div>
-            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-                <p class="text-sm font-medium text-gray-500">Total Records</p>
-                <p id="kpi-records" class="text-3xl font-bold text-gray-900 mt-2">0</p>
+
+            <!-- KPI Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                    <p class="text-sm font-medium text-gray-500">Total Payroll</p>
+                    <p id="kpi-total" class="text-3xl font-bold text-gray-900 mt-2">₹0.00</p>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                    <p class="text-sm font-medium text-gray-500">Total Records</p>
+                    <p id="kpi-records" class="text-3xl font-bold text-gray-900 mt-2">0</p>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                    <p class="text-sm font-medium text-gray-500">Unique Employees</p>
+                    <p id="kpi-employees" class="text-3xl font-bold text-gray-900 mt-2">0</p>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                    <p class="text-sm font-medium text-gray-500">Active Projects</p>
+                    <p id="kpi-projects" class="text-3xl font-bold text-gray-900 mt-2">0</p>
+                </div>
             </div>
-            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-                <p class="text-sm font-medium text-gray-500">Unique Employees</p>
-                <p id="kpi-employees" class="text-3xl font-bold text-gray-900 mt-2">0</p>
+
+            <!-- Charts -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Monthly Payroll Trend</h3>
+                    <div class="h-72"><canvas id="monthly-chart"></canvas></div>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">By Project</h3>
+                    <div class="h-72"><canvas id="project-chart"></canvas></div>
+                </div>
             </div>
-            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-                <p class="text-sm font-medium text-gray-500">Active Projects</p>
-                <p id="kpi-projects" class="text-3xl font-bold text-gray-900 mt-2">0</p>
+
+            <!-- Component Breakdown Chart -->
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 mb-8">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">Salary Component Breakdown (Total)</h3>
+                <div class="h-72"><canvas id="component-chart"></canvas></div>
+            </div>
+
+            <!-- Data Table -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                <div class="p-6 border-b border-gray-100">
+                    <h3 class="text-lg font-semibold text-gray-900">Employee Payroll Ledger</h3>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Emp ID</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Project</th>
+                                <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Basic</th>
+                                <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">TA</th>
+                                <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">FA</th>
+                                <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">NA</th>
+                                <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">OT</th>
+                                <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">IN</th>
+                                <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Total</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Month</th>
+                            </tr>
+                        </thead>
+                        <tbody id="table-body" class="bg-white divide-y divide-gray-200"></tbody>
+                    </table>
+                </div>
             </div>
         </div>
 
-        <!-- Charts -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-                <h3 class="text-lg font-semibold text-gray-900 mb-4">Monthly Payroll Trend</h3>
-                <div class="h-72"><canvas id="monthly-chart"></canvas></div>
+        <!-- ANALYTICS TAB -->
+        <div id="analytics-content" class="hidden">
+            <!-- Filters -->
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 mb-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">Analytics Filters</h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">View Type</label>
+                        <select id="analytics-view" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                            <option value="project">Project-wise</option>
+                            <option value="component">Salary Component-wise</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Timeline</label>
+                        <select id="analytics-timeline" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                            <option value="monthly">Monthly</option>
+                            <option value="quarterly">Quarterly</option>
+                            <option value="yearly">Yearly</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Search (Emp ID/Name)</label>
+                        <input id="analytics-search" type="text" placeholder="Optional filter..." 
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                    </div>
+                </div>
             </div>
-            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-                <h3 class="text-lg font-semibold text-gray-900 mb-4">By Project</h3>
-                <div class="h-72"><canvas id="project-chart"></canvas></div>
-            </div>
-        </div>
 
-        <!-- Component Breakdown Chart -->
-        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 mb-8">
-            <h3 class="text-lg font-semibold text-gray-900 mb-4">Salary Component Breakdown (Total)</h3>
-            <div class="h-72"><canvas id="component-chart"></canvas></div>
-        </div>
-
-        <!-- Data Table -->
-        <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-            <div class="p-6 border-b border-gray-100">
-                <h3 class="text-lg font-semibold text-gray-900">Employee Payroll Ledger</h3>
+            <!-- Analytics KPI -->
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 mb-6">
+                <p class="text-sm font-medium text-gray-500">Filtered Total</p>
+                <p id="analytics-total" class="text-3xl font-bold text-gray-900 mt-2">₹0.00</p>
             </div>
-            <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-200">
-                    <thead class="bg-gray-50">
-                        <tr>
-                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Emp ID</th>
-                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
-                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Project</th>
-                            <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Basic</th>
-                            <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">TA</th>
-                            <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">FA</th>
-                            <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">NA</th>
-                            <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">OT</th>
-                            <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">IN</th>
-                            <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Total</th>
-                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Month</th>
-                        </tr>
-                    </thead>
-                    <tbody id="table-body" class="bg-white divide-y divide-gray-200"></tbody>
-                </table>
+
+            <!-- Analytics Chart -->
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 mb-6">
+                <h3 id="analytics-chart-title" class="text-lg font-semibold text-gray-900 mb-4">Project-wise Monthly Data</h3>
+                <div class="h-96"><canvas id="analytics-chart"></canvas></div>
+            </div>
+
+            <!-- Analytics Table -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                <div class="p-6 border-b border-gray-100">
+                    <h3 class="text-lg font-semibold text-gray-900">Detailed Breakdown</h3>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead id="analytics-table-head" class="bg-gray-50"></thead>
+                        <tbody id="analytics-table-body" class="bg-white divide-y divide-gray-200"></tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
@@ -117,8 +190,27 @@
         let monthlyChart = null;
         let projectChart = null;
         let componentChart = null;
+        let analyticsChart = null;
+        let rawData = [];
 
-        // Helper: Parse Indian Rupee values (remove ₹ and commas)
+        // Month mapping for sorting and quarter calculation
+        const monthMap = {
+            'January': 1, 'February': 2, 'March': 3, 'April': 4,
+            'May': 5, 'June': 6, 'July': 7, 'August': 8,
+            'September': 9, 'October': 10, 'November': 11, 'December': 12
+        };
+
+        function getQuarter(month) {
+            const num = monthMap[month];
+            if (!num) return 'Unknown';
+            return `Q${Math.ceil(num / 3)}`;
+        }
+
+        function getYear(month) {
+            // Assuming current year or extract from data if available
+            return '2026'; // Default year
+        }
+
         function parseRupee(value) {
             if (value === null || value === undefined || value === '') return 0;
             if (typeof value === 'number') return value;
@@ -127,7 +219,6 @@
             return isNaN(num) ? 0 : num;
         }
 
-        // Helper: Format currency in Indian format
         function formatRupee(amount) {
             return '₹' + amount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
         }
@@ -139,6 +230,34 @@
             const fileInput = document.getElementById('file-input');
             const selectBtn = document.getElementById('select-btn');
             const resetBtn = document.getElementById('reset-btn');
+            const tabDashboard = document.getElementById('tab-dashboard');
+            const tabAnalytics = document.getElementById('tab-analytics');
+            const dashboardContent = document.getElementById('dashboard-content');
+            const analyticsContent = document.getElementById('analytics-content');
+            const searchInput = document.getElementById('search-input');
+            const analyticsView = document.getElementById('analytics-view');
+            const analyticsTimeline = document.getElementById('analytics-timeline');
+            const analyticsSearch = document.getElementById('analytics-search');
+
+            // Tab switching
+            tabDashboard.addEventListener('click', () => {
+                tabDashboard.classList.remove('tab-inactive');
+                tabDashboard.classList.add('tab-active');
+                tabAnalytics.classList.remove('tab-active');
+                tabAnalytics.classList.add('tab-inactive');
+                dashboardContent.classList.remove('hidden');
+                analyticsContent.classList.add('hidden');
+            });
+
+            tabAnalytics.addEventListener('click', () => {
+                tabAnalytics.classList.remove('tab-inactive');
+                tabAnalytics.classList.add('tab-active');
+                tabDashboard.classList.remove('tab-active');
+                tabDashboard.classList.add('tab-inactive');
+                analyticsContent.classList.remove('hidden');
+                dashboardContent.classList.add('hidden');
+                updateAnalytics();
+            });
 
             // UI Interactions
             selectBtn.addEventListener('click', () => fileInput.click());
@@ -162,7 +281,14 @@
                 dashboardScreen.classList.add('hidden');
                 uploadScreen.classList.remove('hidden');
                 fileInput.value = '';
+                rawData = [];
             });
+
+            // Search listeners
+            searchInput.addEventListener('input', () => renderTable(rawData));
+            analyticsView.addEventListener('change', updateAnalytics);
+            analyticsTimeline.addEventListener('change', updateAnalytics);
+            analyticsSearch.addEventListener('input', updateAnalytics);
 
             function handleFile(file) {
                 if (!file) return;
@@ -173,6 +299,7 @@
                         const workbook = XLSX.read(data, { type: 'array', cellDates: true });
                         const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
                         const jsonData = XLSX.utils.sheet_to_json(firstSheet);
+                        rawData = jsonData;
                         processAndRender(jsonData);
                     } catch (err) {
                         alert("Error reading file. Please ensure it is a valid Excel/CSV file.");
@@ -187,8 +314,6 @@
                 const projects = {};
                 const monthlyMap = {};
                 const employees = new Set();
-                
-                // Component totals
                 let totalBasic = 0, totalTA = 0, totalFA = 0, totalNA = 0, totalOT = 0, totalIN = 0;
 
                 data.forEach(row => {
@@ -213,23 +338,17 @@
 
                     projects[project] = (projects[project] || 0) + total;
                     monthlyMap[month] = (monthlyMap[month] || 0) + total;
-                    
                     if (empId) employees.add(empId);
                 });
 
-                // Update KPIs
                 document.getElementById('kpi-total').textContent = formatRupee(totalPayroll);
                 document.getElementById('kpi-records').textContent = data.length;
                 document.getElementById('kpi-employees').textContent = employees.size;
                 document.getElementById('kpi-projects').textContent = Object.keys(projects).length;
 
-                // Render Charts
                 renderCharts(monthlyMap, projects, { Basic: totalBasic, TA: totalTA, FA: totalFA, NA: totalNA, OT: totalOT, IN: totalIN });
-
-                // Render Table
                 renderTable(data);
 
-                // Switch Screens
                 uploadScreen.classList.add('hidden');
                 dashboardScreen.classList.remove('hidden');
             }
@@ -237,7 +356,6 @@
             function renderCharts(monthlyMap, projects, components) {
                 const chartColors = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#14b8a6', '#f97316'];
 
-                // 1. Monthly Bar Chart
                 const mCtx = document.getElementById('monthly-chart').getContext('2d');
                 if (monthlyChart) monthlyChart.destroy();
                 monthlyChart = new Chart(mCtx, {
@@ -256,11 +374,7 @@
                         maintainAspectRatio: false,
                         plugins: {
                             legend: { display: false },
-                            tooltip: {
-                                callbacks: {
-                                    label: (ctx) => '₹' + ctx.raw.toLocaleString('en-IN', { minimumFractionDigits: 2 })
-                                }
-                            }
+                            tooltip: { callbacks: { label: (ctx) => '₹' + ctx.raw.toLocaleString('en-IN', { minimumFractionDigits: 2 }) } }
                         },
                         scales: {
                             y: { beginAtZero: true, grid: { color: '#f3f4f6' }, ticks: { callback: v => '₹' + v.toLocaleString('en-IN') } },
@@ -269,7 +383,6 @@
                     }
                 });
 
-                // 2. Project Doughnut Chart
                 const pCtx = document.getElementById('project-chart').getContext('2d');
                 if (projectChart) projectChart.destroy();
                 projectChart = new Chart(pCtx, {
@@ -288,16 +401,11 @@
                         cutout: '60%',
                         plugins: {
                             legend: { position: 'right', labels: { boxWidth: 12, padding: 15 } },
-                            tooltip: {
-                                callbacks: {
-                                    label: (ctx) => `${ctx.label}: ₹${ctx.raw.toLocaleString('en-IN', { minimumFractionDigits: 2 })}`
-                                }
-                            }
+                            tooltip: { callbacks: { label: (ctx) => `${ctx.label}: ₹${ctx.raw.toLocaleString('en-IN', { minimumFractionDigits: 2 })}` } }
                         }
                     }
                 });
 
-                // 3. Component Breakdown Bar Chart
                 const cCtx = document.getElementById('component-chart').getContext('2d');
                 if (componentChart) componentChart.destroy();
                 componentChart = new Chart(cCtx, {
@@ -317,11 +425,7 @@
                         indexAxis: 'y',
                         plugins: {
                             legend: { display: false },
-                            tooltip: {
-                                callbacks: {
-                                    label: (ctx) => '₹' + ctx.raw.toLocaleString('en-IN', { minimumFractionDigits: 2 })
-                                }
-                            }
+                            tooltip: { callbacks: { label: (ctx) => '₹' + ctx.raw.toLocaleString('en-IN', { minimumFractionDigits: 2 }) } }
                         },
                         scales: {
                             x: { grid: { color: '#f3f4f6' }, ticks: { callback: v => '₹' + v.toLocaleString('en-IN') } },
@@ -332,9 +436,16 @@
             }
 
             function renderTable(data) {
+                const searchTerm = searchInput.value.toLowerCase();
+                const filtered = data.filter(row => {
+                    const empId = String(row['Emp ID'] || row.EmpID || '').toLowerCase();
+                    const name = String(row.Name || '').toLowerCase();
+                    return empId.includes(searchTerm) || name.includes(searchTerm);
+                });
+
                 const tbody = document.getElementById('table-body');
                 tbody.innerHTML = '';
-                data.forEach(row => {
+                filtered.forEach(row => {
                     const tr = document.createElement('tr');
                     tr.className = 'hover:bg-gray-50 transition';
                     const total = parseRupee(row.Total);
@@ -357,6 +468,159 @@
                     `;
                     tbody.appendChild(tr);
                 });
+            }
+
+            function updateAnalytics() {
+                if (!rawData.length) return;
+
+                const viewType = analyticsView.value;
+                const timeline = analyticsTimeline.value;
+                const searchTerm = analyticsSearch.value.toLowerCase();
+
+                // Filter data
+                const filtered = rawData.filter(row => {
+                    const empId = String(row['Emp ID'] || row.EmpID || '').toLowerCase();
+                    const name = String(row.Name || '').toLowerCase();
+                    return empId.includes(searchTerm) || name.includes(searchTerm);
+                });
+
+                let total = 0;
+                const aggregated = {};
+
+                filtered.forEach(row => {
+                    const totalAmount = parseRupee(row.Total);
+                    total += totalAmount;
+
+                    let groupKey, timeKey;
+                    if (viewType === 'project') {
+                        groupKey = row.Project || 'Unknown';
+                    } else {
+                        groupKey = 'All Employees';
+                    }
+
+                    const month = row.Month || 'Unknown';
+                    if (timeline === 'monthly') {
+                        timeKey = month;
+                    } else if (timeline === 'quarterly') {
+                        timeKey = getQuarter(month);
+                    } else {
+                        timeKey = getYear(month);
+                    }
+
+                    const key = `${groupKey}|${timeKey}`;
+                    if (!aggregated[key]) aggregated[key] = { group: groupKey, time: timeKey, total: 0 };
+                    aggregated[key].total += totalAmount;
+
+                    // For component view, also track components
+                    if (viewType === 'component') {
+                        const compKey = `${timeKey}|Basic`;
+                        if (!aggregated[compKey]) aggregated[compKey] = { group: 'Basic', time: timeKey, total: 0 };
+                        aggregated[compKey].total += parseRupee(row.Basic);
+
+                        const compKey2 = `${timeKey}|TA`;
+                        if (!aggregated[compKey2]) aggregated[compKey2] = { group: 'TA', time: timeKey, total: 0 };
+                        aggregated[compKey2].total += parseRupee(row.TA);
+
+                        const compKey3 = `${timeKey}|FA`;
+                        if (!aggregated[compKey3]) aggregated[compKey3] = { group: 'FA', time: timeKey, total: 0 };
+                        aggregated[compKey3].total += parseRupee(row.FA);
+
+                        const compKey4 = `${timeKey}|NA`;
+                        if (!aggregated[compKey4]) aggregated[compKey4] = { group: 'NA', time: timeKey, total: 0 };
+                        aggregated[compKey4].total += parseRupee(row.NA);
+
+                        const compKey5 = `${timeKey}|OT`;
+                        if (!aggregated[compKey5]) aggregated[compKey5] = { group: 'OT', time: timeKey, total: 0 };
+                        aggregated[compKey5].total += parseRupee(row.OT);
+
+                        const compKey6 = `${timeKey}|IN`;
+                        if (!aggregated[compKey6]) aggregated[compKey6] = { group: 'IN', time: timeKey, total: 0 };
+                        aggregated[compKey6].total += parseRupee(row.IN);
+                    }
+                });
+
+                document.getElementById('analytics-total').textContent = formatRupee(total);
+
+                // Prepare chart data
+                const groups = [...new Set(Object.values(aggregated).map(v => v.group))];
+                const times = [...new Set(Object.values(aggregated).map(v => v.time))].sort();
+
+                const datasets = groups.map((group, idx) => {
+                    const colors = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#14b8a6', '#f97316'];
+                    return {
+                        label: group,
+                        data: times.map(time => {
+                            const key = `${group}|${time}`;
+                            return aggregated[key] ? aggregated[key].total : 0;
+                        }),
+                        backgroundColor: colors[idx % colors.length],
+                        borderRadius: 6
+                    };
+                });
+
+                const chartTitle = viewType === 'project' 
+                    ? `Project-wise ${timeline.charAt(0).toUpperCase() + timeline.slice(1)} Data`
+                    : `Salary Component-wise ${timeline.charAt(0).toUpperCase() + timeline.slice(1)} Data`;
+                document.getElementById('analytics-chart-title').textContent = chartTitle;
+
+                const ctx = document.getElementById('analytics-chart').getContext('2d');
+                if (analyticsChart) analyticsChart.destroy();
+                analyticsChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: { labels: times, datasets },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { position: 'top', labels: { boxWidth: 12, padding: 15 } },
+                            tooltip: { callbacks: { label: (ctx) => `${ctx.dataset.label}: ₹${ctx.raw.toLocaleString('en-IN', { minimumFractionDigits: 2 })}` } }
+                        },
+                        scales: {
+                            y: { beginAtZero: true, grid: { color: '#f3f4f6' }, ticks: { callback: v => '' + v.toLocaleString('en-IN') } },
+                            x: { grid: { display: false } }
+                        }
+                    }
+                });
+
+                // Render analytics table
+                const thead = document.getElementById('analytics-table-head');
+                const tbody = document.getElementById('analytics-table-body');
+                
+                if (viewType === 'project') {
+                    thead.innerHTML = `<tr>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Project</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">${timeline.charAt(0).toUpperCase() + timeline.slice(1)}</th>
+                        <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Total</th>
+                    </tr>`;
+                    tbody.innerHTML = '';
+                    Object.values(aggregated).sort((a, b) => b.total - a.total).forEach(item => {
+                        const tr = document.createElement('tr');
+                        tr.className = 'hover:bg-gray-50 transition';
+                        tr.innerHTML = `
+                            <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">${item.group}</td>
+                            <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-700">${item.time}</td>
+                            <td class="px-4 py-4 whitespace-nowrap text-sm text-right font-bold text-gray-900">${formatRupee(item.total)}</td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+                } else {
+                    thead.innerHTML = `<tr>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Component</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">${timeline.charAt(0).toUpperCase() + timeline.slice(1)}</th>
+                        <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Total</th>
+                    </tr>`;
+                    tbody.innerHTML = '';
+                    Object.values(aggregated).sort((a, b) => b.total - a.total).forEach(item => {
+                        const tr = document.createElement('tr');
+                        tr.className = 'hover:bg-gray-50 transition';
+                        tr.innerHTML = `
+                            <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">${item.group}</td>
+                            <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-700">${item.time}</td>
+                            <td class="px-4 py-4 whitespace-nowrap text-sm text-right font-bold text-gray-900">${formatRupee(item.total)}</td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+                }
             }
         });
     </script>
