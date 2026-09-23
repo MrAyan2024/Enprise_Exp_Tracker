@@ -3,33 +3,40 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Payroll Dashboard</title>
+    <title>Expense Tracker - Payroll Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
+        * { font-family: 'Inter', sans-serif; }
         .drag-active { border-color: #3b82f6 !important; background-color: #eff6ff !important; }
         .hidden { display: none !important; }
-        .tab-active { background-color: #3b82f6; color: white; }
-        .tab-inactive { background-color: white; color: #374151; }
-        .tab-inactive:hover { background-color: #f3f4f6; }
+        .sidebar-link { transition: all 0.2s; }
+        .sidebar-link:hover, .sidebar-link.active { background-color: #334155; border-left: 3px solid #3b82f6; }
+        .chart-container { background: white; border-radius: 8px; padding: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .top-nav-item { transition: all 0.2s; }
+        .top-nav-item:hover { background-color: #f1f5f9; }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+        .table-row:hover { background-color: #f8fafc; }
     </style>
 </head>
-<body class="bg-gray-50 text-gray-900 font-sans min-h-screen">
+<body class="bg-gray-100 min-h-screen">
 
     <!-- UPLOAD SCREEN -->
     <div id="upload-screen" class="flex items-center justify-center min-h-screen p-4">
-        <div id="drop-zone" class="w-full max-w-lg p-10 bg-white rounded-2xl shadow-lg border-2 border-dashed border-gray-300 transition-all cursor-pointer text-center">
-            <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+        <div id="drop-zone" class="w-full max-w-lg p-10 bg-white rounded-2xl shadow-xl border-2 border-dashed border-gray-300 transition-all cursor-pointer text-center">
+            <svg class="mx-auto h-16 w-16 text-blue-500" stroke="currentColor" fill="none" viewBox="0 0 48 48">
                 <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
             </svg>
-            <h3 class="mt-4 text-xl font-semibold text-gray-900">Upload Payroll Excel File</h3>
+            <h3 class="mt-4 text-2xl font-bold text-gray-900">Upload Payroll Excel File</h3>
             <p class="mt-2 text-sm text-gray-500">Drag & drop your Excel file here, or click to browse.</p>
             <p class="mt-4 text-xs text-gray-400 bg-gray-50 p-3 rounded-lg inline-block">
                 <strong>Expected Columns:</strong> Emp ID | Name | Project | Basic | TA | FA | NA | OT | IN | Total | Month
             </p>
             <div class="mt-6">
-                <button id="select-btn" class="rounded-md bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 transition">
+                <button id="select-btn" class="rounded-md bg-blue-600 px-6 py-3 text-sm font-semibold text-white shadow-sm hover:bg-blue-700 transition">
                     Select File
                 </button>
                 <input id="file-input" type="file" class="hidden" accept=".xlsx,.xls,.csv">
@@ -37,190 +44,221 @@
         </div>
     </div>
 
-    <!-- MAIN APP SCREEN -->
-    <div id="dashboard-screen" class="hidden min-h-screen p-4 md:p-8">
-        <!-- Header -->
-        <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
-            <div>
-                <h1 class="text-3xl font-bold text-gray-900">Payroll Dashboard</h1>
-                <p class="text-gray-500">Employee salary overview based on uploaded data.</p>
-            </div>
-            <button id="reset-btn" class="px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 shadow-sm">
-                Upload New File
-            </button>
-        </div>
-
-        <!-- Tabs -->
-        <div class="flex gap-2 mb-6">
-            <button id="tab-dashboard" class="px-6 py-2.5 rounded-lg font-medium transition tab-active">Dashboard</button>
-            <button id="tab-analytics" class="px-6 py-2.5 rounded-lg font-medium transition tab-inactive">Analytics</button>
-        </div>
-
-        <!-- DASHBOARD TAB -->
-        <div id="dashboard-content">
-            <!-- Search Bar -->
-            <div class="mb-6">
-                <input id="search-input" type="text" placeholder="Search by Emp ID or Name..." 
-                    class="w-full md:w-96 px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-            </div>
-
-            <!-- KPI Cards -->
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-                    <p class="text-sm font-medium text-gray-500">Total Payroll</p>
-                    <p id="kpi-total" class="text-3xl font-bold text-gray-900 mt-2">₹0.00</p>
+    <!-- MAIN APP -->
+    <div id="dashboard-screen" class="hidden">
+        <!-- Top Navigation Bar -->
+        <div class="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm">
+            <div class="flex items-center justify-between px-4 py-2">
+                <div class="flex items-center gap-6">
+                    <div class="flex items-center gap-2">
+                        <div class="bg-blue-600 text-white font-bold px-3 py-1.5 rounded text-sm">ET</div>
+                        <div>
+                            <div class="font-bold text-blue-700 text-lg leading-tight">Expense Tracker</div>
+                            <div class="text-[10px] text-gray-500 leading-tight">Developed by Ayan Paul</div>
+                        </div>
+                    </div>
+                    <div class="hidden lg:flex items-center gap-1 text-xs font-medium text-gray-700">
+                        <span class="top-nav-item px-3 py-1.5 rounded cursor-pointer bg-blue-50 text-blue-700">Dashboard</span>
+                        <span class="top-nav-item px-3 py-1.5 rounded cursor-pointer">Masters</span>
+                        <span class="top-nav-item px-3 py-1.5 rounded cursor-pointer">Leave-Attendance</span>
+                        <span class="top-nav-item px-3 py-1.5 rounded cursor-pointer">Time Shift</span>
+                        <span class="top-nav-item px-3 py-1.5 rounded cursor-pointer">Monthly Process</span>
+                        <span class="top-nav-item px-3 py-1.5 rounded cursor-pointer">Additional Payments</span>
+                        <span class="top-nav-item px-3 py-1.5 rounded cursor-pointer">Monthly Reports</span>
+                        <span class="top-nav-item px-3 py-1.5 rounded cursor-pointer">Income Tax</span>
+                        <span class="top-nav-item px-3 py-1.5 rounded cursor-pointer">Utilities</span>
+                        <span class="top-nav-item px-3 py-1.5 rounded cursor-pointer">Admin</span>
+                    </div>
                 </div>
-                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-                    <p class="text-sm font-medium text-gray-500">Total Records</p>
-                    <p id="kpi-records" class="text-3xl font-bold text-gray-900 mt-2">0</p>
-                </div>
-                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-                    <p class="text-sm font-medium text-gray-500">Unique Employees</p>
-                    <p id="kpi-employees" class="text-3xl font-bold text-gray-900 mt-2">0</p>
-                </div>
-                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-                    <p class="text-sm font-medium text-gray-500">Active Projects</p>
-                    <p id="kpi-projects" class="text-3xl font-bold text-gray-900 mt-2">0</p>
-                </div>
-            </div>
-
-            <!-- Charts -->
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Monthly Payroll Trend</h3>
-                    <div class="h-72"><canvas id="monthly-chart"></canvas></div>
-                </div>
-                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-                    <h3 class="text-lg font-semibold text-gray-900 mb-4">By Project</h3>
-                    <div class="h-72"><canvas id="project-chart"></canvas></div>
-                </div>
-            </div>
-
-            <!-- Component Breakdown Chart -->
-            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 mb-8">
-                <h3 class="text-lg font-semibold text-gray-900 mb-4">Salary Component Breakdown (Total)</h3>
-                <div class="h-72"><canvas id="component-chart"></canvas></div>
-            </div>
-
-            <!-- Data Table -->
-            <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-                <div class="p-6 border-b border-gray-100">
-                    <h3 class="text-lg font-semibold text-gray-900">Employee Payroll Ledger</h3>
-                </div>
-                <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-200">
-                        <thead class="bg-gray-50">
-                            <tr>
-                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Emp ID</th>
-                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
-                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Project</th>
-                                <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Basic</th>
-                                <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">TA</th>
-                                <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">FA</th>
-                                <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">NA</th>
-                                <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">OT</th>
-                                <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">IN</th>
-                                <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Total</th>
-                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Month</th>
-                            </tr>
-                        </thead>
-                        <tbody id="table-body" class="bg-white divide-y divide-gray-200"></tbody>
-                    </table>
+                <div class="flex items-center gap-3">
+                    <div class="relative">
+                        <input id="global-search" type="text" placeholder="Search Emp ID or Name..." 
+                            class="w-64 px-3 py-1.5 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <svg class="absolute right-2 top-2 h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                        </svg>
+                    </div>
+                    <div class="flex items-center gap-2 text-sm">
+                        <div class="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold text-xs">A</div>
+                        <span class="text-gray-700 font-medium">Welcome Admin</span>
+                    </div>
+                    <button id="reset-btn" class="px-3 py-1.5 bg-red-50 text-red-600 border border-red-200 rounded text-xs font-medium hover:bg-red-100 transition">
+                        New File
+                    </button>
                 </div>
             </div>
         </div>
 
-        <!-- ANALYTICS TAB -->
-        <div id="analytics-content" class="hidden">
-            <!-- Filters -->
-            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 mb-6">
-                <h3 class="text-lg font-semibold text-gray-900 mb-4">Analytics Filters</h3>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">View Type</label>
-                        <select id="analytics-view" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
-                            <option value="project">Project-wise</option>
-                            <option value="component">Salary Component-wise</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Timeline</label>
-                        <select id="analytics-timeline" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
-                            <option value="monthly">Monthly</option>
-                            <option value="quarterly">Quarterly</option>
-                            <option value="yearly">Yearly</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Search (Emp ID/Name)</label>
-                        <input id="analytics-search" type="text" placeholder="Optional filter..." 
-                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
-                    </div>
+        <div class="flex">
+            <!-- Left Sidebar -->
+            <div class="w-56 bg-slate-800 min-h-screen flex-shrink-0">
+                <div class="py-4">
+                    <a class="sidebar-link active flex items-center gap-3 px-4 py-3 text-white text-sm cursor-pointer">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+                        Dashboard
+                    </a>
+                    <a class="sidebar-link flex items-center gap-3 px-4 py-3 text-gray-300 text-sm cursor-pointer">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+                        Expense Dash
+                    </a>
+                    <a class="sidebar-link flex items-center gap-3 px-4 py-3 text-gray-300 text-sm cursor-pointer">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+                        Employee
+                    </a>
+                    <a class="sidebar-link flex items-center gap-3 px-4 py-3 text-gray-300 text-sm cursor-pointer">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                        Select Month
+                    </a>
+                    <a class="sidebar-link flex items-center gap-3 px-4 py-3 text-gray-300 text-sm cursor-pointer">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"/></svg>
+                        Monthly Variable
+                    </a>
+                    <a class="sidebar-link flex items-center gap-3 px-4 py-3 text-gray-300 text-sm cursor-pointer">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
+                        Attendance
+                    </a>
+                    <a class="sidebar-link flex items-center gap-3 px-4 py-3 text-gray-300 text-sm cursor-pointer">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        Process Salary
+                    </a>
+                    <a class="sidebar-link flex items-center gap-3 px-4 py-3 text-gray-300 text-sm cursor-pointer">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                        Payslip
+                    </a>
+                    <a class="sidebar-link flex items-center gap-3 px-4 py-3 text-gray-300 text-sm cursor-pointer">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
+                        Salary Sheet
+                    </a>
+                    <a class="sidebar-link flex items-center gap-3 px-4 py-3 text-gray-300 text-sm cursor-pointer">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                        View Salary
+                    </a>
                 </div>
             </div>
 
-            <!-- Analytics KPI -->
-            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 mb-6">
-                <p class="text-sm font-medium text-gray-500">Filtered Total</p>
-                <p id="analytics-total" class="text-3xl font-bold text-gray-900 mt-2">₹0.00</p>
-            </div>
-
-            <!-- Analytics Chart -->
-            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 mb-6">
-                <h3 id="analytics-chart-title" class="text-lg font-semibold text-gray-900 mb-4">Project-wise Monthly Data</h3>
-                <div class="h-96"><canvas id="analytics-chart"></canvas></div>
-            </div>
-
-            <!-- Analytics Table -->
-            <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-                <div class="p-6 border-b border-gray-100">
-                    <h3 class="text-lg font-semibold text-gray-900">Detailed Breakdown</h3>
+            <!-- Main Content -->
+            <div class="flex-1 p-4 overflow-x-auto">
+                <!-- Row 1: 4 Charts -->
+                <div class="grid grid-cols-1 lg:grid-cols-4 gap-4 mb-4">
+                    <!-- Salary Component Summary (Pie) -->
+                    <div class="chart-container">
+                        <h3 class="text-sm font-bold text-gray-800 mb-2">Salary Component Summary</h3>
+                        <div class="h-56"><canvas id="chart-component"></canvas></div>
+                    </div>
+                    <!-- Project Wise (Pie) -->
+                    <div class="chart-container">
+                        <h3 class="text-sm font-bold text-gray-800 mb-2">Project Wise</h3>
+                        <div class="h-56"><canvas id="chart-project"></canvas></div>
+                    </div>
+                    <!-- Month Wise (Pie) -->
+                    <div class="chart-container">
+                        <h3 class="text-sm font-bold text-gray-800 mb-2">Month Wise</h3>
+                        <div class="h-56"><canvas id="chart-month"></canvas></div>
+                    </div>
+                    <!-- Monthly Analysis (Line) -->
+                    <div class="chart-container">
+                        <h3 class="text-sm font-bold text-gray-800 mb-2">Monthly Analysis</h3>
+                        <div class="h-56"><canvas id="chart-monthly-line"></canvas></div>
+                    </div>
                 </div>
-                <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-200">
-                        <thead id="analytics-table-head" class="bg-gray-50"></thead>
-                        <tbody id="analytics-table-body" class="bg-white divide-y divide-gray-200"></tbody>
-                    </table>
+
+                <!-- Row 2: 3 Horizontal Bar Charts -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-4">
+                    <!-- Project Wise (Horizontal Bar) -->
+                    <div class="chart-container">
+                        <h3 class="text-sm font-bold text-gray-800 mb-2">Project Wise</h3>
+                        <div class="h-72"><canvas id="chart-project-bar"></canvas></div>
+                    </div>
+                    <!-- Employee Wise (Horizontal Bar) -->
+                    <div class="chart-container">
+                        <h3 class="text-sm font-bold text-gray-800 mb-2">Employee Wise</h3>
+                        <div class="h-72"><canvas id="chart-employee-bar"></canvas></div>
+                    </div>
+                    <!-- Month Wise (Horizontal Bar) -->
+                    <div class="chart-container">
+                        <h3 class="text-sm font-bold text-gray-800 mb-2">Month Wise</h3>
+                        <div class="h-72"><canvas id="chart-month-bar"></canvas></div>
+                    </div>
+                </div>
+
+                <!-- Row 3: Top 10 Earners Table -->
+                <div class="chart-container">
+                    <h3 class="text-sm font-bold text-gray-800 mb-3">Top 10 Earners for the Period</h3>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full text-xs">
+                            <thead class="bg-gray-100">
+                                <tr>
+                                    <th class="px-3 py-2 text-left font-semibold text-gray-700">Emp ID</th>
+                                    <th class="px-3 py-2 text-left font-semibold text-gray-700">Name</th>
+                                    <th class="px-3 py-2 text-left font-semibold text-gray-700">Project</th>
+                                    <th class="px-3 py-2 text-right font-semibold text-gray-700">Basic</th>
+                                    <th class="px-3 py-2 text-right font-semibold text-gray-700">TA</th>
+                                    <th class="px-3 py-2 text-right font-semibold text-gray-700">FA</th>
+                                    <th class="px-3 py-2 text-right font-semibold text-gray-700">NA</th>
+                                    <th class="px-3 py-2 text-right font-semibold text-gray-700">OT</th>
+                                    <th class="px-3 py-2 text-right font-semibold text-gray-700">IN</th>
+                                    <th class="px-3 py-2 text-right font-semibold text-gray-700">Total</th>
+                                    <th class="px-3 py-2 text-left font-semibold text-gray-700">Month</th>
+                                </tr>
+                            </thead>
+                            <tbody id="top10-body" class="divide-y divide-gray-100"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Full Data Table (collapsible) -->
+                <div class="chart-container mt-4">
+                    <div class="flex items-center justify-between mb-3">
+                        <h3 class="text-sm font-bold text-gray-800">Complete Payroll Ledger</h3>
+                        <span id="record-count" class="text-xs text-gray-500"></span>
+                    </div>
+                    <div class="overflow-x-auto max-h-96">
+                        <table class="min-w-full text-xs">
+                            <thead class="bg-gray-100 sticky top-0">
+                                <tr>
+                                    <th class="px-3 py-2 text-left font-semibold text-gray-700">Emp ID</th>
+                                    <th class="px-3 py-2 text-left font-semibold text-gray-700">Name</th>
+                                    <th class="px-3 py-2 text-left font-semibold text-gray-700">Project</th>
+                                    <th class="px-3 py-2 text-right font-semibold text-gray-700">Basic</th>
+                                    <th class="px-3 py-2 text-right font-semibold text-gray-700">TA</th>
+                                    <th class="px-3 py-2 text-right font-semibold text-gray-700">FA</th>
+                                    <th class="px-3 py-2 text-right font-semibold text-gray-700">NA</th>
+                                    <th class="px-3 py-2 text-right font-semibold text-gray-700">OT</th>
+                                    <th class="px-3 py-2 text-right font-semibold text-gray-700">IN</th>
+                                    <th class="px-3 py-2 text-right font-semibold text-gray-700">Total</th>
+                                    <th class="px-3 py-2 text-left font-semibold text-gray-700">Month</th>
+                                </tr>
+                            </thead>
+                            <tbody id="full-table-body" class="divide-y divide-gray-100"></tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        let monthlyChart = null;
-        let projectChart = null;
-        let componentChart = null;
-        let analyticsChart = null;
+        const charts = {};
         let rawData = [];
 
-        // Month mapping for sorting and quarter calculation
-        const monthMap = {
-            'January': 1, 'February': 2, 'March': 3, 'April': 4,
-            'May': 5, 'June': 6, 'July': 7, 'August': 8,
-            'September': 9, 'October': 10, 'November': 11, 'December': 12
-        };
+        const monthOrder = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+        const chartColors = ['#3b82f6','#10b981','#f59e0b','#ef4444','#8b5cf6','#ec4899','#14b8a6','#f97316','#06b6d4','#84cc16'];
 
-        function getQuarter(month) {
-            const num = monthMap[month];
-            if (!num) return 'Unknown';
-            return `Q${Math.ceil(num / 3)}`;
+        function parseRupee(v) {
+            if (v === null || v === undefined || v === '') return 0;
+            if (typeof v === 'number') return v;
+            const n = parseFloat(String(v).replace(/[₹,\s]/g, ''));
+            return isNaN(n) ? 0 : n;
         }
 
-        function getYear(month) {
-            // Assuming current year or extract from data if available
-            return '2026'; // Default year
+        function fmt(v) {
+            return '₹' + v.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
         }
 
-        function parseRupee(value) {
-            if (value === null || value === undefined || value === '') return 0;
-            if (typeof value === 'number') return value;
-            const cleaned = String(value).replace(/[₹,\s]/g, '');
-            const num = parseFloat(cleaned);
-            return isNaN(num) ? 0 : num;
-        }
-
-        function formatRupee(amount) {
-            return '₹' + amount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        function fmtShort(v) {
+            if (v >= 100000) return '₹' + (v/100000).toFixed(2) + 'L';
+            if (v >= 1000) return '₹' + (v/1000).toFixed(1) + 'K';
+            return '₹' + v.toFixed(0);
         }
 
         document.addEventListener('DOMContentLoaded', () => {
@@ -230,51 +268,15 @@
             const fileInput = document.getElementById('file-input');
             const selectBtn = document.getElementById('select-btn');
             const resetBtn = document.getElementById('reset-btn');
-            const tabDashboard = document.getElementById('tab-dashboard');
-            const tabAnalytics = document.getElementById('tab-analytics');
-            const dashboardContent = document.getElementById('dashboard-content');
-            const analyticsContent = document.getElementById('analytics-content');
-            const searchInput = document.getElementById('search-input');
-            const analyticsView = document.getElementById('analytics-view');
-            const analyticsTimeline = document.getElementById('analytics-timeline');
-            const analyticsSearch = document.getElementById('analytics-search');
+            const globalSearch = document.getElementById('global-search');
 
-            // Tab switching
-            tabDashboard.addEventListener('click', () => {
-                tabDashboard.classList.remove('tab-inactive');
-                tabDashboard.classList.add('tab-active');
-                tabAnalytics.classList.remove('tab-active');
-                tabAnalytics.classList.add('tab-inactive');
-                dashboardContent.classList.remove('hidden');
-                analyticsContent.classList.add('hidden');
-            });
-
-            tabAnalytics.addEventListener('click', () => {
-                tabAnalytics.classList.remove('tab-inactive');
-                tabAnalytics.classList.add('tab-active');
-                tabDashboard.classList.remove('tab-active');
-                tabDashboard.classList.add('tab-inactive');
-                analyticsContent.classList.remove('hidden');
-                dashboardContent.classList.add('hidden');
-                updateAnalytics();
-            });
-
-            // UI Interactions
             selectBtn.addEventListener('click', () => fileInput.click());
             dropZone.addEventListener('click', (e) => { if (e.target !== selectBtn) fileInput.click(); });
             fileInput.addEventListener('change', (e) => handleFile(e.target.files[0]));
 
-            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-                dropZone.addEventListener(eventName, preventDefaults, false);
-            });
-            function preventDefaults(e) { e.preventDefault(); e.stopPropagation(); }
-
-            ['dragenter', 'dragover'].forEach(eventName => {
-                dropZone.addEventListener(eventName, () => dropZone.classList.add('drag-active'), false);
-            });
-            ['dragleave', 'drop'].forEach(eventName => {
-                dropZone.addEventListener(eventName, () => dropZone.classList.remove('drag-active'), false);
-            });
+            ['dragenter','dragover','dragleave','drop'].forEach(ev => dropZone.addEventListener(ev, e => { e.preventDefault(); e.stopPropagation(); }, false));
+            ['dragenter','dragover'].forEach(ev => dropZone.addEventListener(ev, () => dropZone.classList.add('drag-active'), false));
+            ['dragleave','drop'].forEach(ev => dropZone.addEventListener(ev, () => dropZone.classList.remove('drag-active'), false));
             dropZone.addEventListener('drop', (e) => handleFile(e.dataTransfer.files[0]), false);
 
             resetBtn.addEventListener('click', () => {
@@ -284,23 +286,18 @@
                 rawData = [];
             });
 
-            // Search listeners
-            searchInput.addEventListener('input', () => renderTable(rawData));
-            analyticsView.addEventListener('change', updateAnalytics);
-            analyticsTimeline.addEventListener('change', updateAnalytics);
-            analyticsSearch.addEventListener('input', updateAnalytics);
+            globalSearch.addEventListener('input', () => renderFullTable(rawData));
 
             function handleFile(file) {
                 if (!file) return;
                 const reader = new FileReader();
-                reader.onload = function (e) {
+                reader.onload = function(e) {
                     try {
                         const data = new Uint8Array(e.target.result);
                         const workbook = XLSX.read(data, { type: 'array', cellDates: true });
                         const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-                        const jsonData = XLSX.utils.sheet_to_json(firstSheet);
-                        rawData = jsonData;
-                        processAndRender(jsonData);
+                        rawData = XLSX.utils.sheet_to_json(firstSheet);
+                        processAndRender(rawData);
                     } catch (err) {
                         alert("Error reading file. Please ensure it is a valid Excel/CSV file.");
                         console.error(err);
@@ -311,316 +308,238 @@
 
             function processAndRender(data) {
                 let totalPayroll = 0;
-                const projects = {};
-                const monthlyMap = {};
-                const employees = new Set();
-                let totalBasic = 0, totalTA = 0, totalFA = 0, totalNA = 0, totalOT = 0, totalIN = 0;
+                const projects = {}, months = {}, employees = {}, components = { Basic:0, TA:0, FA:0, NA:0, OT:0, IN:0 };
 
                 data.forEach(row => {
-                    const basic = parseRupee(row.Basic);
-                    const ta = parseRupee(row.TA);
-                    const fa = parseRupee(row.FA);
-                    const na = parseRupee(row.NA);
-                    const ot = parseRupee(row.OT);
-                    const inn = parseRupee(row.IN);
+                    const basic = parseRupee(row.Basic), ta = parseRupee(row.TA), fa = parseRupee(row.FA);
+                    const na = parseRupee(row.NA), ot = parseRupee(row.OT), inn = parseRupee(row.IN);
                     const total = parseRupee(row.Total);
                     const project = row.Project || 'Unknown';
                     const month = row.Month || 'Unknown';
                     const empId = row['Emp ID'] || row.EmpID || '';
+                    const name = row.Name || '';
 
                     totalPayroll += total;
-                    totalBasic += basic;
-                    totalTA += ta;
-                    totalFA += fa;
-                    totalNA += na;
-                    totalOT += ot;
-                    totalIN += inn;
+                    components.Basic += basic; components.TA += ta; components.FA += fa;
+                    components.NA += na; components.OT += ot; components.IN += inn;
 
                     projects[project] = (projects[project] || 0) + total;
-                    monthlyMap[month] = (monthlyMap[month] || 0) + total;
-                    if (empId) employees.add(empId);
+                    months[month] = (months[month] || 0) + total;
+
+                    const empKey = `${empId}|${name}`;
+                    if (!employees[empKey]) employees[empKey] = { empId, name, project, total: 0, basic, ta, fa, na, ot, inn, month };
+                    else {
+                        employees[empKey].total += total;
+                        employees[empKey].basic += basic; employees[empKey].ta += ta;
+                        employees[empKey].fa += fa; employees[empKey].na += na;
+                        employees[empKey].ot += ot; employees[empKey].inn += inn;
+                    }
                 });
 
-                document.getElementById('kpi-total').textContent = formatRupee(totalPayroll);
-                document.getElementById('kpi-records').textContent = data.length;
-                document.getElementById('kpi-employees').textContent = employees.size;
-                document.getElementById('kpi-projects').textContent = Object.keys(projects).length;
-
-                renderCharts(monthlyMap, projects, { Basic: totalBasic, TA: totalTA, FA: totalFA, NA: totalNA, OT: totalOT, IN: totalIN });
-                renderTable(data);
+                renderAllCharts(components, projects, months, employees, totalPayroll);
+                renderTop10(employees);
+                renderFullTable(data);
+                document.getElementById('record-count').textContent = `${data.length} records | Total: ${fmt(totalPayroll)}`;
 
                 uploadScreen.classList.add('hidden');
                 dashboardScreen.classList.remove('hidden');
             }
 
-            function renderCharts(monthlyMap, projects, components) {
-                const chartColors = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#14b8a6', '#f97316'];
-
-                const mCtx = document.getElementById('monthly-chart').getContext('2d');
-                if (monthlyChart) monthlyChart.destroy();
-                monthlyChart = new Chart(mCtx, {
-                    type: 'bar',
-                    data: {
-                        labels: Object.keys(monthlyMap),
-                        datasets: [{
-                            label: 'Total Payroll',
-                            data: Object.values(monthlyMap),
-                            backgroundColor: '#3b82f6',
-                            borderRadius: 6
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: { display: false },
-                            tooltip: { callbacks: { label: (ctx) => '₹' + ctx.raw.toLocaleString('en-IN', { minimumFractionDigits: 2 }) } }
-                        },
-                        scales: {
-                            y: { beginAtZero: true, grid: { color: '#f3f4f6' }, ticks: { callback: v => '₹' + v.toLocaleString('en-IN') } },
-                            x: { grid: { display: false } }
-                        }
-                    }
-                });
-
-                const pCtx = document.getElementById('project-chart').getContext('2d');
-                if (projectChart) projectChart.destroy();
-                projectChart = new Chart(pCtx, {
-                    type: 'doughnut',
-                    data: {
-                        labels: Object.keys(projects),
-                        datasets: [{
-                            data: Object.values(projects),
-                            backgroundColor: chartColors,
-                            borderWidth: 0
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        cutout: '60%',
-                        plugins: {
-                            legend: { position: 'right', labels: { boxWidth: 12, padding: 15 } },
-                            tooltip: { callbacks: { label: (ctx) => `${ctx.label}: ₹${ctx.raw.toLocaleString('en-IN', { minimumFractionDigits: 2 })}` } }
-                        }
-                    }
-                });
-
-                const cCtx = document.getElementById('component-chart').getContext('2d');
-                if (componentChart) componentChart.destroy();
-                componentChart = new Chart(cCtx, {
-                    type: 'bar',
+            function renderAllCharts(components, projects, months, employees, totalPayroll) {
+                // 1. Component Pie
+                const compCtx = document.getElementById('chart-component').getContext('2d');
+                if (charts.component) charts.component.destroy();
+                charts.component = new Chart(compCtx, {
+                    type: 'pie',
                     data: {
                         labels: Object.keys(components),
+                        datasets: [{ data: Object.values(components), backgroundColor: chartColors, borderWidth: 2, borderColor: '#fff' }]
+                    },
+                    options: {
+                        responsive: true, maintainAspectRatio: false,
+                        plugins: {
+                            legend: { position: 'bottom', labels: { boxWidth: 10, padding: 8, font: { size: 10 } } },
+                            tooltip: { callbacks: { label: ctx => `${ctx.label}: ${fmt(ctx.raw)} (${((ctx.raw/totalPayroll)*100).toFixed(1)}%)` } }
+                        }
+                    }
+                });
+
+                // 2. Project Pie
+                const projCtx = document.getElementById('chart-project').getContext('2d');
+                if (charts.project) charts.project.destroy();
+                charts.project = new Chart(projCtx, {
+                    type: 'pie',
+                    data: {
+                        labels: Object.keys(projects),
+                        datasets: [{ data: Object.values(projects), backgroundColor: chartColors, borderWidth: 2, borderColor: '#fff' }]
+                    },
+                    options: {
+                        responsive: true, maintainAspectRatio: false,
+                        plugins: {
+                            legend: { position: 'bottom', labels: { boxWidth: 10, padding: 8, font: { size: 10 } } },
+                            tooltip: { callbacks: { label: ctx => `${ctx.label}: ${fmt(ctx.raw)} (${((ctx.raw/totalPayroll)*100).toFixed(1)}%)` } }
+                        }
+                    }
+                });
+
+                // 3. Month Pie
+                const monthCtx = document.getElementById('chart-month').getContext('2d');
+                if (charts.month) charts.month.destroy();
+                charts.month = new Chart(monthCtx, {
+                    type: 'pie',
+                    data: {
+                        labels: Object.keys(months),
+                        datasets: [{ data: Object.values(months), backgroundColor: chartColors, borderWidth: 2, borderColor: '#fff' }]
+                    },
+                    options: {
+                        responsive: true, maintainAspectRatio: false,
+                        plugins: {
+                            legend: { position: 'bottom', labels: { boxWidth: 10, padding: 8, font: { size: 10 } } },
+                            tooltip: { callbacks: { label: ctx => `${ctx.label}: ${fmt(ctx.raw)} (${((ctx.raw/totalPayroll)*100).toFixed(1)}%)` } }
+                        }
+                    }
+                });
+
+                // 4. Monthly Line Chart
+                const sortedMonths = Object.keys(months).sort((a,b) => monthOrder.indexOf(a) - monthOrder.indexOf(b));
+                const lineCtx = document.getElementById('chart-monthly-line').getContext('2d');
+                if (charts.monthlyLine) charts.monthlyLine.destroy();
+                charts.monthlyLine = new Chart(lineCtx, {
+                    type: 'line',
+                    data: {
+                        labels: sortedMonths,
                         datasets: [{
-                            label: 'Total Amount',
-                            data: Object.values(components),
-                            backgroundColor: chartColors,
-                            borderRadius: 6
+                            label: 'Total Payroll',
+                            data: sortedMonths.map(m => months[m]),
+                            borderColor: '#3b82f6', backgroundColor: 'rgba(59,130,246,0.1)',
+                            fill: true, tension: 0.3, pointRadius: 5, pointBackgroundColor: '#3b82f6',
+                            pointBorderColor: '#fff', pointBorderWidth: 2
                         }]
                     },
                     options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        indexAxis: 'y',
+                        responsive: true, maintainAspectRatio: false,
                         plugins: {
                             legend: { display: false },
-                            tooltip: { callbacks: { label: (ctx) => '₹' + ctx.raw.toLocaleString('en-IN', { minimumFractionDigits: 2 }) } }
+                            tooltip: { callbacks: { label: ctx => fmt(ctx.raw) } }
                         },
                         scales: {
-                            x: { grid: { color: '#f3f4f6' }, ticks: { callback: v => '₹' + v.toLocaleString('en-IN') } },
-                            y: { grid: { display: false } }
+                            y: { beginAtZero: true, grid: { color: '#f3f4f6' }, ticks: { callback: v => fmtShort(v), font: { size: 9 } } },
+                            x: { grid: { display: false }, ticks: { font: { size: 9 } } }
+                        }
+                    }
+                });
+
+                // 5. Project Horizontal Bar
+                const projBarCtx = document.getElementById('chart-project-bar').getContext('2d');
+                if (charts.projectBar) charts.projectBar.destroy();
+                charts.projectBar = new Chart(projBarCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: Object.keys(projects),
+                        datasets: [{ data: Object.values(projects), backgroundColor: chartColors, borderRadius: 4 }]
+                    },
+                    options: {
+                        indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+                        plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => fmt(ctx.raw) } } },
+                        scales: {
+                            x: { beginAtZero: true, grid: { color: '#f3f4f6' }, ticks: { callback: v => fmtShort(v), font: { size: 9 } } },
+                            y: { grid: { display: false }, ticks: { font: { size: 10 } } }
+                        }
+                    }
+                });
+
+                // 6. Employee Horizontal Bar (Top 10)
+                const empSorted = Object.values(employees).sort((a,b) => b.total - a.total).slice(0, 10);
+                const empBarCtx = document.getElementById('chart-employee-bar').getContext('2d');
+                if (charts.employeeBar) charts.employeeBar.destroy();
+                charts.employeeBar = new Chart(empBarCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: empSorted.map(e => e.name),
+                        datasets: [{ data: empSorted.map(e => e.total), backgroundColor: chartColors, borderRadius: 4 }]
+                    },
+                    options: {
+                        indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+                        plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => fmt(ctx.raw) } } },
+                        scales: {
+                            x: { beginAtZero: true, grid: { color: '#f3f4f6' }, ticks: { callback: v => fmtShort(v), font: { size: 9 } } },
+                            y: { grid: { display: false }, ticks: { font: { size: 10 } } }
+                        }
+                    }
+                });
+
+                // 7. Month Horizontal Bar
+                const monthBarCtx = document.getElementById('chart-month-bar').getContext('2d');
+                if (charts.monthBar) charts.monthBar.destroy();
+                charts.monthBar = new Chart(monthBarCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: sortedMonths,
+                        datasets: [{ data: sortedMonths.map(m => months[m]), backgroundColor: chartColors, borderRadius: 4 }]
+                    },
+                    options: {
+                        indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+                        plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => fmt(ctx.raw) } } },
+                        scales: {
+                            x: { beginAtZero: true, grid: { color: '#f3f4f6' }, ticks: { callback: v => fmtShort(v), font: { size: 9 } } },
+                            y: { grid: { display: false }, ticks: { font: { size: 10 } } }
                         }
                     }
                 });
             }
 
-            function renderTable(data) {
-                const searchTerm = searchInput.value.toLowerCase();
+            function renderTop10(employees) {
+                const sorted = Object.values(employees).sort((a,b) => b.total - a.total).slice(0, 10);
+                const tbody = document.getElementById('top10-body');
+                tbody.innerHTML = '';
+                sorted.forEach((emp, idx) => {
+                    const tr = document.createElement('tr');
+                    tr.className = 'table-row';
+                    tr.innerHTML = `
+                        <td class="px-3 py-2 font-medium text-blue-700">${emp.empId || '-'}</td>
+                        <td class="px-3 py-2 font-medium text-gray-900">${emp.name || '-'}</td>
+                        <td class="px-3 py-2"><span class="px-2 py-0.5 bg-blue-100 text-blue-800 rounded text-[10px] font-semibold">${emp.project || 'Unknown'}</span></td>
+                        <td class="px-3 py-2 text-right text-gray-700">${fmt(emp.basic)}</td>
+                        <td class="px-3 py-2 text-right text-gray-700">${fmt(emp.ta)}</td>
+                        <td class="px-3 py-2 text-right text-gray-700">${fmt(emp.fa)}</td>
+                        <td class="px-3 py-2 text-right text-gray-700">${fmt(emp.na)}</td>
+                        <td class="px-3 py-2 text-right text-gray-700">${fmt(emp.ot)}</td>
+                        <td class="px-3 py-2 text-right text-gray-700">${fmt(emp.inn)}</td>
+                        <td class="px-3 py-2 text-right font-bold text-gray-900">${fmt(emp.total)}</td>
+                        <td class="px-3 py-2 text-gray-600">${emp.month || '-'}</td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            }
+
+            function renderFullTable(data) {
+                const searchTerm = globalSearch.value.toLowerCase();
                 const filtered = data.filter(row => {
                     const empId = String(row['Emp ID'] || row.EmpID || '').toLowerCase();
                     const name = String(row.Name || '').toLowerCase();
                     return empId.includes(searchTerm) || name.includes(searchTerm);
                 });
 
-                const tbody = document.getElementById('table-body');
+                const tbody = document.getElementById('full-table-body');
                 tbody.innerHTML = '';
                 filtered.forEach(row => {
                     const tr = document.createElement('tr');
-                    tr.className = 'hover:bg-gray-50 transition';
-                    const total = parseRupee(row.Total);
+                    tr.className = 'table-row';
                     tr.innerHTML = `
-                        <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">${row['Emp ID'] || row.EmpID || '-'}</td>
-                        <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900">${row.Name || '-'}</td>
-                        <td class="px-4 py-4 whitespace-nowrap text-sm">
-                            <span class="px-2.5 py-0.5 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
-                                ${row.Project || 'Unknown'}
-                            </span>
-                        </td>
-                        <td class="px-4 py-4 whitespace-nowrap text-sm text-right text-gray-700">${formatRupee(parseRupee(row.Basic))}</td>
-                        <td class="px-4 py-4 whitespace-nowrap text-sm text-right text-gray-700">${formatRupee(parseRupee(row.TA))}</td>
-                        <td class="px-4 py-4 whitespace-nowrap text-sm text-right text-gray-700">${formatRupee(parseRupee(row.FA))}</td>
-                        <td class="px-4 py-4 whitespace-nowrap text-sm text-right text-gray-700">${formatRupee(parseRupee(row.NA))}</td>
-                        <td class="px-4 py-4 whitespace-nowrap text-sm text-right text-gray-700">${formatRupee(parseRupee(row.OT))}</td>
-                        <td class="px-4 py-4 whitespace-nowrap text-sm text-right text-gray-700">${formatRupee(parseRupee(row.IN))}</td>
-                        <td class="px-4 py-4 whitespace-nowrap text-sm text-right font-bold text-gray-900">${formatRupee(total)}</td>
-                        <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500">${row.Month || '-'}</td>
+                        <td class="px-3 py-2 font-medium text-blue-700">${row['Emp ID'] || row.EmpID || '-'}</td>
+                        <td class="px-3 py-2 font-medium text-gray-900">${row.Name || '-'}</td>
+                        <td class="px-3 py-2"><span class="px-2 py-0.5 bg-blue-100 text-blue-800 rounded text-[10px] font-semibold">${row.Project || 'Unknown'}</span></td>
+                        <td class="px-3 py-2 text-right text-gray-700">${fmt(parseRupee(row.Basic))}</td>
+                        <td class="px-3 py-2 text-right text-gray-700">${fmt(parseRupee(row.TA))}</td>
+                        <td class="px-3 py-2 text-right text-gray-700">${fmt(parseRupee(row.FA))}</td>
+                        <td class="px-3 py-2 text-right text-gray-700">${fmt(parseRupee(row.NA))}</td>
+                        <td class="px-3 py-2 text-right text-gray-700">${fmt(parseRupee(row.OT))}</td>
+                        <td class="px-3 py-2 text-right text-gray-700">${fmt(parseRupee(row.IN))}</td>
+                        <td class="px-3 py-2 text-right font-bold text-gray-900">${fmt(parseRupee(row.Total))}</td>
+                        <td class="px-3 py-2 text-gray-600">${row.Month || '-'}</td>
                     `;
                     tbody.appendChild(tr);
                 });
-            }
-
-            function updateAnalytics() {
-                if (!rawData.length) return;
-
-                const viewType = analyticsView.value;
-                const timeline = analyticsTimeline.value;
-                const searchTerm = analyticsSearch.value.toLowerCase();
-
-                // Filter data
-                const filtered = rawData.filter(row => {
-                    const empId = String(row['Emp ID'] || row.EmpID || '').toLowerCase();
-                    const name = String(row.Name || '').toLowerCase();
-                    return empId.includes(searchTerm) || name.includes(searchTerm);
-                });
-
-                let total = 0;
-                const aggregated = {};
-
-                filtered.forEach(row => {
-                    const totalAmount = parseRupee(row.Total);
-                    total += totalAmount;
-
-                    let groupKey, timeKey;
-                    if (viewType === 'project') {
-                        groupKey = row.Project || 'Unknown';
-                    } else {
-                        groupKey = 'All Employees';
-                    }
-
-                    const month = row.Month || 'Unknown';
-                    if (timeline === 'monthly') {
-                        timeKey = month;
-                    } else if (timeline === 'quarterly') {
-                        timeKey = getQuarter(month);
-                    } else {
-                        timeKey = getYear(month);
-                    }
-
-                    const key = `${groupKey}|${timeKey}`;
-                    if (!aggregated[key]) aggregated[key] = { group: groupKey, time: timeKey, total: 0 };
-                    aggregated[key].total += totalAmount;
-
-                    // For component view, also track components
-                    if (viewType === 'component') {
-                        const compKey = `${timeKey}|Basic`;
-                        if (!aggregated[compKey]) aggregated[compKey] = { group: 'Basic', time: timeKey, total: 0 };
-                        aggregated[compKey].total += parseRupee(row.Basic);
-
-                        const compKey2 = `${timeKey}|TA`;
-                        if (!aggregated[compKey2]) aggregated[compKey2] = { group: 'TA', time: timeKey, total: 0 };
-                        aggregated[compKey2].total += parseRupee(row.TA);
-
-                        const compKey3 = `${timeKey}|FA`;
-                        if (!aggregated[compKey3]) aggregated[compKey3] = { group: 'FA', time: timeKey, total: 0 };
-                        aggregated[compKey3].total += parseRupee(row.FA);
-
-                        const compKey4 = `${timeKey}|NA`;
-                        if (!aggregated[compKey4]) aggregated[compKey4] = { group: 'NA', time: timeKey, total: 0 };
-                        aggregated[compKey4].total += parseRupee(row.NA);
-
-                        const compKey5 = `${timeKey}|OT`;
-                        if (!aggregated[compKey5]) aggregated[compKey5] = { group: 'OT', time: timeKey, total: 0 };
-                        aggregated[compKey5].total += parseRupee(row.OT);
-
-                        const compKey6 = `${timeKey}|IN`;
-                        if (!aggregated[compKey6]) aggregated[compKey6] = { group: 'IN', time: timeKey, total: 0 };
-                        aggregated[compKey6].total += parseRupee(row.IN);
-                    }
-                });
-
-                document.getElementById('analytics-total').textContent = formatRupee(total);
-
-                // Prepare chart data
-                const groups = [...new Set(Object.values(aggregated).map(v => v.group))];
-                const times = [...new Set(Object.values(aggregated).map(v => v.time))].sort();
-
-                const datasets = groups.map((group, idx) => {
-                    const colors = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#14b8a6', '#f97316'];
-                    return {
-                        label: group,
-                        data: times.map(time => {
-                            const key = `${group}|${time}`;
-                            return aggregated[key] ? aggregated[key].total : 0;
-                        }),
-                        backgroundColor: colors[idx % colors.length],
-                        borderRadius: 6
-                    };
-                });
-
-                const chartTitle = viewType === 'project' 
-                    ? `Project-wise ${timeline.charAt(0).toUpperCase() + timeline.slice(1)} Data`
-                    : `Salary Component-wise ${timeline.charAt(0).toUpperCase() + timeline.slice(1)} Data`;
-                document.getElementById('analytics-chart-title').textContent = chartTitle;
-
-                const ctx = document.getElementById('analytics-chart').getContext('2d');
-                if (analyticsChart) analyticsChart.destroy();
-                analyticsChart = new Chart(ctx, {
-                    type: 'bar',
-                    data: { labels: times, datasets },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: { position: 'top', labels: { boxWidth: 12, padding: 15 } },
-                            tooltip: { callbacks: { label: (ctx) => `${ctx.dataset.label}: ₹${ctx.raw.toLocaleString('en-IN', { minimumFractionDigits: 2 })}` } }
-                        },
-                        scales: {
-                            y: { beginAtZero: true, grid: { color: '#f3f4f6' }, ticks: { callback: v => '' + v.toLocaleString('en-IN') } },
-                            x: { grid: { display: false } }
-                        }
-                    }
-                });
-
-                // Render analytics table
-                const thead = document.getElementById('analytics-table-head');
-                const tbody = document.getElementById('analytics-table-body');
-                
-                if (viewType === 'project') {
-                    thead.innerHTML = `<tr>
-                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Project</th>
-                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">${timeline.charAt(0).toUpperCase() + timeline.slice(1)}</th>
-                        <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Total</th>
-                    </tr>`;
-                    tbody.innerHTML = '';
-                    Object.values(aggregated).sort((a, b) => b.total - a.total).forEach(item => {
-                        const tr = document.createElement('tr');
-                        tr.className = 'hover:bg-gray-50 transition';
-                        tr.innerHTML = `
-                            <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">${item.group}</td>
-                            <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-700">${item.time}</td>
-                            <td class="px-4 py-4 whitespace-nowrap text-sm text-right font-bold text-gray-900">${formatRupee(item.total)}</td>
-                        `;
-                        tbody.appendChild(tr);
-                    });
-                } else {
-                    thead.innerHTML = `<tr>
-                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Component</th>
-                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">${timeline.charAt(0).toUpperCase() + timeline.slice(1)}</th>
-                        <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Total</th>
-                    </tr>`;
-                    tbody.innerHTML = '';
-                    Object.values(aggregated).sort((a, b) => b.total - a.total).forEach(item => {
-                        const tr = document.createElement('tr');
-                        tr.className = 'hover:bg-gray-50 transition';
-                        tr.innerHTML = `
-                            <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">${item.group}</td>
-                            <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-700">${item.time}</td>
-                            <td class="px-4 py-4 whitespace-nowrap text-sm text-right font-bold text-gray-900">${formatRupee(item.total)}</td>
-                        `;
-                        tbody.appendChild(tr);
-                    });
-                }
             }
         });
     </script>
