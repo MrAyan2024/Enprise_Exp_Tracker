@@ -12,14 +12,21 @@
         * { font-family: 'Inter', sans-serif; }
         .drag-active { border-color: #3b82f6 !important; background-color: #eff6ff !important; }
         .hidden { display: none !important; }
-        .sidebar-link { transition: all 0.2s; }
-        .sidebar-link:hover, .sidebar-link.active { background-color: #334155; border-left: 3px solid #3b82f6; }
+        .sidebar-link { transition: all 0.2s; cursor: pointer; }
+        .sidebar-link:hover { background-color: #334155; }
+        .sidebar-link.active { background-color: #1e40af; border-left: 3px solid #60a5fa; }
         .chart-container { background: white; border-radius: 8px; padding: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
-        .top-nav-item { transition: all 0.2s; }
+        .top-nav-item { transition: all 0.2s; cursor: pointer; }
         .top-nav-item:hover { background-color: #f1f5f9; }
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
         .table-row:hover { background-color: #f8fafc; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .stat-card { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .stat-card-2 { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
+        .stat-card-3 { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
+        .stat-card-4 { background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); }
     </style>
 </head>
 <body class="bg-gray-100 min-h-screen">
@@ -57,18 +64,6 @@
                             <div class="text-[10px] text-gray-500 leading-tight">Developed by Ayan Paul</div>
                         </div>
                     </div>
-                    <div class="hidden lg:flex items-center gap-1 text-xs font-medium text-gray-700">
-                        <span class="top-nav-item px-3 py-1.5 rounded cursor-pointer bg-blue-50 text-blue-700">Dashboard</span>
-                        <span class="top-nav-item px-3 py-1.5 rounded cursor-pointer">Masters</span>
-                        <span class="top-nav-item px-3 py-1.5 rounded cursor-pointer">Leave-Attendance</span>
-                        <span class="top-nav-item px-3 py-1.5 rounded cursor-pointer">Time Shift</span>
-                        <span class="top-nav-item px-3 py-1.5 rounded cursor-pointer">Monthly Process</span>
-                        <span class="top-nav-item px-3 py-1.5 rounded cursor-pointer">Additional Payments</span>
-                        <span class="top-nav-item px-3 py-1.5 rounded cursor-pointer">Monthly Reports</span>
-                        <span class="top-nav-item px-3 py-1.5 rounded cursor-pointer">Income Tax</span>
-                        <span class="top-nav-item px-3 py-1.5 rounded cursor-pointer">Utilities</span>
-                        <span class="top-nav-item px-3 py-1.5 rounded cursor-pointer">Admin</span>
-                    </div>
                 </div>
                 <div class="flex items-center gap-3">
                     <div class="relative">
@@ -93,146 +88,509 @@
             <!-- Left Sidebar -->
             <div class="w-56 bg-slate-800 min-h-screen flex-shrink-0">
                 <div class="py-4">
-                    <a class="sidebar-link active flex items-center gap-3 px-4 py-3 text-white text-sm cursor-pointer">
+                    <a class="sidebar-link active flex items-center gap-3 px-4 py-3 text-white text-sm" data-tab="dashboard">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
                         Dashboard
                     </a>
-                    <a class="sidebar-link flex items-center gap-3 px-4 py-3 text-gray-300 text-sm cursor-pointer">
+                    <a class="sidebar-link flex items-center gap-3 px-4 py-3 text-gray-300 text-sm" data-tab="expense-dash">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
                         Expense Dash
                     </a>
-                    <a class="sidebar-link flex items-center gap-3 px-4 py-3 text-gray-300 text-sm cursor-pointer">
+                    <a class="sidebar-link flex items-center gap-3 px-4 py-3 text-gray-300 text-sm" data-tab="employee">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
                         Employee
                     </a>
-                    <a class="sidebar-link flex items-center gap-3 px-4 py-3 text-gray-300 text-sm cursor-pointer">
+                    <a class="sidebar-link flex items-center gap-3 px-4 py-3 text-gray-300 text-sm" data-tab="select-month">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
                         Select Month
                     </a>
-                    <a class="sidebar-link flex items-center gap-3 px-4 py-3 text-gray-300 text-sm cursor-pointer">
+                    <a class="sidebar-link flex items-center gap-3 px-4 py-3 text-gray-300 text-sm" data-tab="monthly-variable">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"/></svg>
                         Monthly Variable
                     </a>
-                    <a class="sidebar-link flex items-center gap-3 px-4 py-3 text-gray-300 text-sm cursor-pointer">
+                    <a class="sidebar-link flex items-center gap-3 px-4 py-3 text-gray-300 text-sm" data-tab="attendance">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
                         Attendance
                     </a>
-                    <a class="sidebar-link flex items-center gap-3 px-4 py-3 text-gray-300 text-sm cursor-pointer">
+                    <a class="sidebar-link flex items-center gap-3 px-4 py-3 text-gray-300 text-sm" data-tab="process-salary">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                         Process Salary
                     </a>
-                    <a class="sidebar-link flex items-center gap-3 px-4 py-3 text-gray-300 text-sm cursor-pointer">
+                    <a class="sidebar-link flex items-center gap-3 px-4 py-3 text-gray-300 text-sm" data-tab="payslip">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
                         Payslip
                     </a>
-                    <a class="sidebar-link flex items-center gap-3 px-4 py-3 text-gray-300 text-sm cursor-pointer">
+                    <a class="sidebar-link flex items-center gap-3 px-4 py-3 text-gray-300 text-sm" data-tab="salary-sheet">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
                         Salary Sheet
                     </a>
-                    <a class="sidebar-link flex items-center gap-3 px-4 py-3 text-gray-300 text-sm cursor-pointer">
+                    <a class="sidebar-link flex items-center gap-3 px-4 py-3 text-gray-300 text-sm" data-tab="view-salary">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
                         View Salary
                     </a>
                 </div>
             </div>
 
-            <!-- Main Content -->
+            <!-- Main Content Area -->
             <div class="flex-1 p-4 overflow-x-auto">
-                <!-- Row 1: 4 Charts -->
-                <div class="grid grid-cols-1 lg:grid-cols-4 gap-4 mb-4">
-                    <!-- Salary Component Summary (Pie) -->
-                    <div class="chart-container">
-                        <h3 class="text-sm font-bold text-gray-800 mb-2">Salary Component Summary</h3>
-                        <div class="h-56"><canvas id="chart-component"></canvas></div>
+
+                <!-- ==================== DASHBOARD TAB ==================== -->
+                <div id="tab-dashboard" class="tab-content active">
+                    <div class="grid grid-cols-1 lg:grid-cols-4 gap-4 mb-4">
+                        <div class="chart-container">
+                            <h3 class="text-sm font-bold text-gray-800 mb-2">Salary Component Summary</h3>
+                            <div class="h-56"><canvas id="chart-component"></canvas></div>
+                        </div>
+                        <div class="chart-container">
+                            <h3 class="text-sm font-bold text-gray-800 mb-2">Project Wise</h3>
+                            <div class="h-56"><canvas id="chart-project"></canvas></div>
+                        </div>
+                        <div class="chart-container">
+                            <h3 class="text-sm font-bold text-gray-800 mb-2">Month Wise</h3>
+                            <div class="h-56"><canvas id="chart-month"></canvas></div>
+                        </div>
+                        <div class="chart-container">
+                            <h3 class="text-sm font-bold text-gray-800 mb-2">Monthly Analysis</h3>
+                            <div class="h-56"><canvas id="chart-monthly-line"></canvas></div>
+                        </div>
                     </div>
-                    <!-- Project Wise (Pie) -->
-                    <div class="chart-container">
-                        <h3 class="text-sm font-bold text-gray-800 mb-2">Project Wise</h3>
-                        <div class="h-56"><canvas id="chart-project"></canvas></div>
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-4">
+                        <div class="chart-container">
+                            <h3 class="text-sm font-bold text-gray-800 mb-2">Project Wise (Bar)</h3>
+                            <div class="h-72"><canvas id="chart-project-bar"></canvas></div>
+                        </div>
+                        <div class="chart-container">
+                            <h3 class="text-sm font-bold text-gray-800 mb-2">Employee Wise (Top 10)</h3>
+                            <div class="h-72"><canvas id="chart-employee-bar"></canvas></div>
+                        </div>
+                        <div class="chart-container">
+                            <h3 class="text-sm font-bold text-gray-800 mb-2">Month Wise (Bar)</h3>
+                            <div class="h-72"><canvas id="chart-month-bar"></canvas></div>
+                        </div>
                     </div>
-                    <!-- Month Wise (Pie) -->
                     <div class="chart-container">
-                        <h3 class="text-sm font-bold text-gray-800 mb-2">Month Wise</h3>
-                        <div class="h-56"><canvas id="chart-month"></canvas></div>
-                    </div>
-                    <!-- Monthly Analysis (Line) -->
-                    <div class="chart-container">
-                        <h3 class="text-sm font-bold text-gray-800 mb-2">Monthly Analysis</h3>
-                        <div class="h-56"><canvas id="chart-monthly-line"></canvas></div>
+                        <h3 class="text-sm font-bold text-gray-800 mb-3">Top 10 Earners for the Period</h3>
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full text-xs">
+                                <thead class="bg-gray-100">
+                                    <tr>
+                                        <th class="px-3 py-2 text-left font-semibold text-gray-700">Emp ID</th>
+                                        <th class="px-3 py-2 text-left font-semibold text-gray-700">Name</th>
+                                        <th class="px-3 py-2 text-left font-semibold text-gray-700">Project</th>
+                                        <th class="px-3 py-2 text-right font-semibold text-gray-700">Total</th>
+                                        <th class="px-3 py-2 text-left font-semibold text-gray-700">Month</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="top10-body" class="divide-y divide-gray-100"></tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
 
-                <!-- Row 2: 3 Horizontal Bar Charts -->
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-4">
-                    <!-- Project Wise (Horizontal Bar) -->
-                    <div class="chart-container">
-                        <h3 class="text-sm font-bold text-gray-800 mb-2">Project Wise</h3>
-                        <div class="h-72"><canvas id="chart-project-bar"></canvas></div>
+                <!-- ==================== EXPENSE DASH TAB ==================== -->
+                <div id="tab-expense-dash" class="tab-content">
+                    <h2 class="text-xl font-bold text-gray-900 mb-4">Expense Dashboard - Component Analysis</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                        <div class="stat-card rounded-lg p-4 text-white">
+                            <p class="text-xs opacity-90">Total Basic</p>
+                            <p id="exp-basic" class="text-2xl font-bold">₹0</p>
+                        </div>
+                        <div class="stat-card-2 rounded-lg p-4 text-white">
+                            <p class="text-xs opacity-90">Total TA</p>
+                            <p id="exp-ta" class="text-2xl font-bold">0</p>
+                        </div>
+                        <div class="stat-card-3 rounded-lg p-4 text-white">
+                            <p class="text-xs opacity-90">Total FA</p>
+                            <p id="exp-fa" class="text-2xl font-bold">₹0</p>
+                        </div>
+                        <div class="stat-card-4 rounded-lg p-4 text-white">
+                            <p class="text-xs opacity-90">Total OT</p>
+                            <p id="exp-ot" class="text-2xl font-bold">₹0</p>
+                        </div>
                     </div>
-                    <!-- Employee Wise (Horizontal Bar) -->
-                    <div class="chart-container">
-                        <h3 class="text-sm font-bold text-gray-800 mb-2">Employee Wise</h3>
-                        <div class="h-72"><canvas id="chart-employee-bar"></canvas></div>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
+                        <div class="chart-container">
+                            <h3 class="text-sm font-bold text-gray-800 mb-2">Component Breakdown by Project</h3>
+                            <div class="h-80"><canvas id="exp-chart-1"></canvas></div>
+                        </div>
+                        <div class="chart-container">
+                            <h3 class="text-sm font-bold text-gray-800 mb-2">Variable vs Fixed Pay</h3>
+                            <div class="h-80"><canvas id="exp-chart-2"></canvas></div>
+                        </div>
                     </div>
-                    <!-- Month Wise (Horizontal Bar) -->
                     <div class="chart-container">
-                        <h3 class="text-sm font-bold text-gray-800 mb-2">Month Wise</h3>
-                        <div class="h-72"><canvas id="chart-month-bar"></canvas></div>
+                        <h3 class="text-sm font-bold text-gray-800 mb-3">Detailed Component Table</h3>
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full text-xs">
+                                <thead class="bg-gray-100">
+                                    <tr>
+                                        <th class="px-3 py-2 text-left font-semibold text-gray-700">Emp ID</th>
+                                        <th class="px-3 py-2 text-left font-semibold text-gray-700">Name</th>
+                                        <th class="px-3 py-2 text-left font-semibold text-gray-700">Project</th>
+                                        <th class="px-3 py-2 text-right font-semibold text-gray-700">Basic</th>
+                                        <th class="px-3 py-2 text-right font-semibold text-gray-700">TA</th>
+                                        <th class="px-3 py-2 text-right font-semibold text-gray-700">FA</th>
+                                        <th class="px-3 py-2 text-right font-semibold text-gray-700">NA</th>
+                                        <th class="px-3 py-2 text-right font-semibold text-gray-700">OT</th>
+                                        <th class="px-3 py-2 text-right font-semibold text-gray-700">IN</th>
+                                        <th class="px-3 py-2 text-right font-semibold text-gray-700">Total</th>
+                                        <th class="px-3 py-2 text-left font-semibold text-gray-700">Month</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="exp-table-body" class="divide-y divide-gray-100"></tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
 
-                <!-- Row 3: Top 10 Earners Table -->
-                <div class="chart-container">
-                    <h3 class="text-sm font-bold text-gray-800 mb-3">Top 10 Earners for the Period</h3>
-                    <div class="overflow-x-auto">
-                        <table class="min-w-full text-xs">
-                            <thead class="bg-gray-100">
-                                <tr>
-                                    <th class="px-3 py-2 text-left font-semibold text-gray-700">Emp ID</th>
-                                    <th class="px-3 py-2 text-left font-semibold text-gray-700">Name</th>
-                                    <th class="px-3 py-2 text-left font-semibold text-gray-700">Project</th>
-                                    <th class="px-3 py-2 text-right font-semibold text-gray-700">Basic</th>
-                                    <th class="px-3 py-2 text-right font-semibold text-gray-700">TA</th>
-                                    <th class="px-3 py-2 text-right font-semibold text-gray-700">FA</th>
-                                    <th class="px-3 py-2 text-right font-semibold text-gray-700">NA</th>
-                                    <th class="px-3 py-2 text-right font-semibold text-gray-700">OT</th>
-                                    <th class="px-3 py-2 text-right font-semibold text-gray-700">IN</th>
-                                    <th class="px-3 py-2 text-right font-semibold text-gray-700">Total</th>
-                                    <th class="px-3 py-2 text-left font-semibold text-gray-700">Month</th>
-                                </tr>
-                            </thead>
-                            <tbody id="top10-body" class="divide-y divide-gray-100"></tbody>
-                        </table>
+                <!-- ==================== EMPLOYEE TAB ==================== -->
+                <div id="tab-employee" class="tab-content">
+                    <h2 class="text-xl font-bold text-gray-900 mb-4">Employee Directory</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                        <div class="bg-white p-4 rounded-lg shadow">
+                            <p class="text-sm text-gray-500">Total Employees</p>
+                            <p id="emp-total" class="text-3xl font-bold text-blue-600">0</p>
+                        </div>
+                        <div class="bg-white p-4 rounded-lg shadow">
+                            <p class="text-sm text-gray-500">Active Projects</p>
+                            <p id="emp-projects" class="text-3xl font-bold text-green-600">0</p>
+                        </div>
+                        <div class="bg-white p-4 rounded-lg shadow">
+                            <p class="text-sm text-gray-500">Avg Salary</p>
+                            <p id="emp-avg" class="text-3xl font-bold text-purple-600">₹0</p>
+                        </div>
+                    </div>
+                    <div class="chart-container mb-4">
+                        <h3 class="text-sm font-bold text-gray-800 mb-2">Employee Distribution by Project</h3>
+                        <div class="h-72"><canvas id="emp-chart-1"></canvas></div>
+                    </div>
+                    <div class="chart-container">
+                        <h3 class="text-sm font-bold text-gray-800 mb-3">Employee Master List</h3>
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full text-xs">
+                                <thead class="bg-gray-100">
+                                    <tr>
+                                        <th class="px-3 py-2 text-left font-semibold text-gray-700">Emp ID</th>
+                                        <th class="px-3 py-2 text-left font-semibold text-gray-700">Name</th>
+                                        <th class="px-3 py-2 text-left font-semibold text-gray-700">Project</th>
+                                        <th class="px-3 py-2 text-right font-semibold text-gray-700">Months Active</th>
+                                        <th class="px-3 py-2 text-right font-semibold text-gray-700">Total Earnings</th>
+                                        <th class="px-3 py-2 text-right font-semibold text-gray-700">Avg Monthly</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="emp-table-body" class="divide-y divide-gray-100"></tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
 
-                <!-- Full Data Table (collapsible) -->
-                <div class="chart-container mt-4">
-                    <div class="flex items-center justify-between mb-3">
-                        <h3 class="text-sm font-bold text-gray-800">Complete Payroll Ledger</h3>
-                        <span id="record-count" class="text-xs text-gray-500"></span>
+                <!-- ==================== SELECT MONTH TAB ==================== -->
+                <div id="tab-select-month" class="tab-content">
+                    <h2 class="text-xl font-bold text-gray-900 mb-4">Month-wise Analysis</h2>
+                    <div class="bg-white p-4 rounded-lg shadow mb-6">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Select Month to View</label>
+                        <select id="month-selector" class="w-full md:w-64 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"></select>
                     </div>
-                    <div class="overflow-x-auto max-h-96">
-                        <table class="min-w-full text-xs">
-                            <thead class="bg-gray-100 sticky top-0">
-                                <tr>
-                                    <th class="px-3 py-2 text-left font-semibold text-gray-700">Emp ID</th>
-                                    <th class="px-3 py-2 text-left font-semibold text-gray-700">Name</th>
-                                    <th class="px-3 py-2 text-left font-semibold text-gray-700">Project</th>
-                                    <th class="px-3 py-2 text-right font-semibold text-gray-700">Basic</th>
-                                    <th class="px-3 py-2 text-right font-semibold text-gray-700">TA</th>
-                                    <th class="px-3 py-2 text-right font-semibold text-gray-700">FA</th>
-                                    <th class="px-3 py-2 text-right font-semibold text-gray-700">NA</th>
-                                    <th class="px-3 py-2 text-right font-semibold text-gray-700">OT</th>
-                                    <th class="px-3 py-2 text-right font-semibold text-gray-700">IN</th>
-                                    <th class="px-3 py-2 text-right font-semibold text-gray-700">Total</th>
-                                    <th class="px-3 py-2 text-left font-semibold text-gray-700">Month</th>
-                                </tr>
-                            </thead>
-                            <tbody id="full-table-body" class="divide-y divide-gray-100"></tbody>
-                        </table>
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                        <div class="bg-white p-4 rounded-lg shadow">
+                            <p class="text-sm text-gray-500">Month Total</p>
+                            <p id="month-total" class="text-2xl font-bold text-blue-600">₹0</p>
+                        </div>
+                        <div class="bg-white p-4 rounded-lg shadow">
+                            <p class="text-sm text-gray-500">Records</p>
+                            <p id="month-records" class="text-2xl font-bold text-green-600">0</p>
+                        </div>
+                        <div class="bg-white p-4 rounded-lg shadow">
+                            <p class="text-sm text-gray-500">Avg Salary</p>
+                            <p id="month-avg" class="text-2xl font-bold text-purple-600">₹0</p>
+                        </div>
+                        <div class="bg-white p-4 rounded-lg shadow">
+                            <p class="text-sm text-gray-500">Highest Earner</p>
+                            <p id="month-highest" class="text-lg font-bold text-orange-600">-</p>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
+                        <div class="chart-container">
+                            <h3 class="text-sm font-bold text-gray-800 mb-2">Project Distribution (Selected Month)</h3>
+                            <div class="h-72"><canvas id="month-chart-1"></canvas></div>
+                        </div>
+                        <div class="chart-container">
+                            <h3 class="text-sm font-bold text-gray-800 mb-2">Component Breakdown (Selected Month)</h3>
+                            <div class="h-72"><canvas id="month-chart-2"></canvas></div>
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <h3 class="text-sm font-bold text-gray-800 mb-3">Employee Details - Selected Month</h3>
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full text-xs">
+                                <thead class="bg-gray-100">
+                                    <tr>
+                                        <th class="px-3 py-2 text-left font-semibold text-gray-700">Emp ID</th>
+                                        <th class="px-3 py-2 text-left font-semibold text-gray-700">Name</th>
+                                        <th class="px-3 py-2 text-left font-semibold text-gray-700">Project</th>
+                                        <th class="px-3 py-2 text-right font-semibold text-gray-700">Basic</th>
+                                        <th class="px-3 py-2 text-right font-semibold text-gray-700">TA</th>
+                                        <th class="px-3 py-2 text-right font-semibold text-gray-700">FA</th>
+                                        <th class="px-3 py-2 text-right font-semibold text-gray-700">NA</th>
+                                        <th class="px-3 py-2 text-right font-semibold text-gray-700">OT</th>
+                                        <th class="px-3 py-2 text-right font-semibold text-gray-700">IN</th>
+                                        <th class="px-3 py-2 text-right font-semibold text-gray-700">Total</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="month-table-body" class="divide-y divide-gray-100"></tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
+
+                <!-- ==================== MONTHLY VARIABLE TAB ==================== -->
+                <div id="tab-monthly-variable" class="tab-content">
+                    <h2 class="text-xl font-bold text-gray-900 mb-4">Monthly Variable Pay Analysis</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6">
+                        <div class="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                            <p class="text-xs text-blue-600 font-medium">Total TA</p>
+                            <p id="var-ta" class="text-xl font-bold text-blue-800">₹0</p>
+                        </div>
+                        <div class="bg-green-50 p-4 rounded-lg border border-green-200">
+                            <p class="text-xs text-green-600 font-medium">Total FA</p>
+                            <p id="var-fa" class="text-xl font-bold text-green-800">0</p>
+                        </div>
+                        <div class="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
+                            <p class="text-xs text-yellow-600 font-medium">Total NA</p>
+                            <p id="var-na" class="text-xl font-bold text-yellow-800">₹0</p>
+                        </div>
+                        <div class="bg-red-50 p-4 rounded-lg border border-red-200">
+                            <p class="text-xs text-red-600 font-medium">Total OT</p>
+                            <p id="var-ot" class="text-xl font-bold text-red-800">₹0</p>
+                        </div>
+                        <div class="bg-purple-50 p-4 rounded-lg border border-purple-200">
+                            <p class="text-xs text-purple-600 font-medium">Total IN</p>
+                            <p id="var-in" class="text-xl font-bold text-purple-800">₹0</p>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
+                        <div class="chart-container">
+                            <h3 class="text-sm font-bold text-gray-800 mb-2">Variable Components Trend</h3>
+                            <div class="h-80"><canvas id="var-chart-1"></canvas></div>
+                        </div>
+                        <div class="chart-container">
+                            <h3 class="text-sm font-bold text-gray-800 mb-2">Variable Pay by Employee</h3>
+                            <div class="h-80"><canvas id="var-chart-2"></canvas></div>
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <h3 class="text-sm font-bold text-gray-800 mb-3">Variable Pay Details</h3>
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full text-xs">
+                                <thead class="bg-gray-100">
+                                    <tr>
+                                        <th class="px-3 py-2 text-left font-semibold text-gray-700">Emp ID</th>
+                                        <th class="px-3 py-2 text-left font-semibold text-gray-700">Name</th>
+                                        <th class="px-3 py-2 text-right font-semibold text-gray-700">TA</th>
+                                        <th class="px-3 py-2 text-right font-semibold text-gray-700">FA</th>
+                                        <th class="px-3 py-2 text-right font-semibold text-gray-700">NA</th>
+                                        <th class="px-3 py-2 text-right font-semibold text-gray-700">OT</th>
+                                        <th class="px-3 py-2 text-right font-semibold text-gray-700">IN</th>
+                                        <th class="px-3 py-2 text-right font-semibold text-gray-700">Total Variable</th>
+                                        <th class="px-3 py-2 text-left font-semibold text-gray-700">Month</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="var-table-body" class="divide-y divide-gray-100"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ==================== ATTENDANCE TAB ==================== -->
+                <div id="tab-attendance" class="tab-content">
+                    <h2 class="text-xl font-bold text-gray-900 mb-4">Attendance & Overtime Analysis</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                        <div class="bg-white p-4 rounded-lg shadow">
+                            <p class="text-sm text-gray-500">Total OT Hours (Est.)</p>
+                            <p id="att-ot-total" class="text-2xl font-bold text-orange-600">0</p>
+                        </div>
+                        <div class="bg-white p-4 rounded-lg shadow">
+                            <p class="text-sm text-gray-500">Employees with OT</p>
+                            <p id="att-ot-emp" class="text-2xl font-bold text-blue-600">0</p>
+                        </div>
+                        <div class="bg-white p-4 rounded-lg shadow">
+                            <p class="text-sm text-gray-500">Avg OT per Employee</p>
+                            <p id="att-ot-avg" class="text-2xl font-bold text-green-600">₹0</p>
+                        </div>
+                        <div class="bg-white p-4 rounded-lg shadow">
+                            <p class="text-sm text-gray-500">Total IN Allowance</p>
+                            <p id="att-in-total" class="text-2xl font-bold text-purple-600">₹0</p>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
+                        <div class="chart-container">
+                            <h3 class="text-sm font-bold text-gray-800 mb-2">Overtime by Employee</h3>
+                            <div class="h-80"><canvas id="att-chart-1"></canvas></div>
+                        </div>
+                        <div class="chart-container">
+                            <h3 class="text-sm font-bold text-gray-800 mb-2">OT & IN by Month</h3>
+                            <div class="h-80"><canvas id="att-chart-2"></canvas></div>
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <h3 class="text-sm font-bold text-gray-800 mb-3">Attendance Details (OT & IN)</h3>
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full text-xs">
+                                <thead class="bg-gray-100">
+                                    <tr>
+                                        <th class="px-3 py-2 text-left font-semibold text-gray-700">Emp ID</th>
+                                        <th class="px-3 py-2 text-left font-semibold text-gray-700">Name</th>
+                                        <th class="px-3 py-2 text-left font-semibold text-gray-700">Project</th>
+                                        <th class="px-3 py-2 text-right font-semibold text-gray-700">OT Amount</th>
+                                        <th class="px-3 py-2 text-right font-semibold text-gray-700">IN Amount</th>
+                                        <th class="px-3 py-2 text-left font-semibold text-gray-700">OT Status</th>
+                                        <th class="px-3 py-2 text-left font-semibold text-gray-700">Month</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="att-table-body" class="divide-y divide-gray-100"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ==================== PROCESS SALARY TAB ==================== -->
+                <div id="tab-process-salary" class="tab-content">
+                    <h2 class="text-xl font-bold text-gray-900 mb-4">Salary Processing</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                        <div class="bg-gradient-to-r from-blue-500 to-blue-600 p-4 rounded-lg text-white">
+                            <p class="text-xs opacity-90">Gross Salary</p>
+                            <p id="sal-gross" class="text-2xl font-bold">₹0</p>
+                        </div>
+                        <div class="bg-gradient-to-r from-green-500 to-green-600 p-4 rounded-lg text-white">
+                            <p class="text-xs opacity-90">Fixed Pay (Basic+TA+FA)</p>
+                            <p id="sal-fixed" class="text-2xl font-bold">₹0</p>
+                        </div>
+                        <div class="bg-gradient-to-r from-orange-500 to-orange-600 p-4 rounded-lg text-white">
+                            <p class="text-xs opacity-90">Variable Pay (NA+OT+IN)</p>
+                            <p id="sal-variable" class="text-2xl font-bold">₹0</p>
+                        </div>
+                        <div class="bg-gradient-to-r from-purple-500 to-purple-600 p-4 rounded-lg text-white">
+                            <p class="text-xs opacity-90">Net Payable</p>
+                            <p id="sal-net" class="text-2xl font-bold">₹0</p>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
+                        <div class="chart-container">
+                            <h3 class="text-sm font-bold text-gray-800 mb-2">Salary Structure Overview</h3>
+                            <div class="h-80"><canvas id="sal-chart-1"></canvas></div>
+                        </div>
+                        <div class="chart-container">
+                            <h3 class="text-sm font-bold text-gray-800 mb-2">Fixed vs Variable Ratio</h3>
+                            <div class="h-80"><canvas id="sal-chart-2"></canvas></div>
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <h3 class="text-sm font-bold text-gray-800 mb-3">Salary Processing Sheet</h3>
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full text-xs">
+                                <thead class="bg-gray-100">
+                                    <tr>
+                                        <th class="px-3 py-2 text-left font-semibold text-gray-700">Emp ID</th>
+                                        <th class="px-3 py-2 text-left font-semibold text-gray-700">Name</th>
+                                        <th class="px-3 py-2 text-left font-semibold text-gray-700">Project</th>
+                                        <th class="px-3 py-2 text-right font-semibold text-gray-700">Basic</th>
+                                        <th class="px-3 py-2 text-right font-semibold text-gray-700">Allowances</th>
+                                        <th class="px-3 py-2 text-right font-semibold text-gray-700">OT/IN</th>
+                                        <th class="px-3 py-2 text-right font-semibold text-gray-700">Gross</th>
+                                        <th class="px-3 py-2 text-right font-semibold text-gray-700">Status</th>
+                                        <th class="px-3 py-2 text-left font-semibold text-gray-700">Month</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="sal-table-body" class="divide-y divide-gray-100"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ==================== PAYSLIP TAB ==================== -->
+                <div id="tab-payslip" class="tab-content">
+                    <h2 class="text-xl font-bold text-gray-900 mb-4">Payslip Generator</h2>
+                    <div class="bg-white p-4 rounded-lg shadow mb-6">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Select Employee</label>
+                        <select id="payslip-emp" class="w-full md:w-64 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"></select>
+                    </div>
+                    <div id="payslip-content" class="bg-white p-6 rounded-lg shadow max-w-2xl mx-auto">
+                        <div class="text-center border-b pb-4 mb-4">
+                            <h3 class="text-lg font-bold text-blue-700">Expense Tracker</h3>
+                            <p class="text-xs text-gray-500">Developed by Ayan Paul</p>
+                            <p class="text-sm font-semibold mt-2">PAYSLIP</p>
+                        </div>
+                        <div id="payslip-details" class="text-sm"></div>
+                    </div>
+                </div>
+
+                <!-- ==================== SALARY SHEET TAB ==================== -->
+                <div id="tab-salary-sheet" class="tab-content">
+                    <h2 class="text-xl font-bold text-gray-900 mb-4">Salary Sheet - Complete Overview</h2>
+                    <div class="chart-container">
+                        <h3 class="text-sm font-bold text-gray-800 mb-3">Complete Salary Register</h3>
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full text-xs">
+                                <thead class="bg-gray-100 sticky top-0">
+                                    <tr>
+                                        <th class="px-3 py-2 text-left font-semibold text-gray-700">Emp ID</th>
+                                        <th class="px-3 py-2 text-left font-semibold text-gray-700">Name</th>
+                                        <th class="px-3 py-2 text-left font-semibold text-gray-700">Project</th>
+                                        <th class="px-3 py-2 text-right font-semibold text-gray-700">Basic</th>
+                                        <th class="px-3 py-2 text-right font-semibold text-gray-700">TA</th>
+                                        <th class="px-3 py-2 text-right font-semibold text-gray-700">FA</th>
+                                        <th class="px-3 py-2 text-right font-semibold text-gray-700">NA</th>
+                                        <th class="px-3 py-2 text-right font-semibold text-gray-700">OT</th>
+                                        <th class="px-3 py-2 text-right font-semibold text-gray-700">IN</th>
+                                        <th class="px-3 py-2 text-right font-semibold text-gray-700">Total</th>
+                                        <th class="px-3 py-2 text-left font-semibold text-gray-700">Month</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="sheet-table-body" class="divide-y divide-gray-100"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ==================== VIEW SALARY TAB ==================== -->
+                <div id="tab-view-salary" class="tab-content">
+                    <h2 class="text-xl font-bold text-gray-900 mb-4">View Salary - Employee Wise</h2>
+                    <div class="bg-white p-4 rounded-lg shadow mb-6">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Select Employee</label>
+                        <select id="view-sal-emp" class="w-full md:w-64 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"></select>
+                    </div>
+                    <div id="view-sal-content" class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                        <div class="chart-container">
+                            <h3 class="text-sm font-bold text-gray-800 mb-2">Salary Trend</h3>
+                            <div class="h-72"><canvas id="view-sal-chart-1"></canvas></div>
+                        </div>
+                        <div class="chart-container">
+                            <h3 class="text-sm font-bold text-gray-800 mb-2">Component Breakdown</h3>
+                            <div class="h-72"><canvas id="view-sal-chart-2"></canvas></div>
+                        </div>
+                    </div>
+                    <div class="chart-container mt-4">
+                        <h3 class="text-sm font-bold text-gray-800 mb-3">Salary History</h3>
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full text-xs">
+                                <thead class="bg-gray-100">
+                                    <tr>
+                                        <th class="px-3 py-2 text-left font-semibold text-gray-700">Month</th>
+                                        <th class="px-3 py-2 text-right font-semibold text-gray-700">Basic</th>
+                                        <th class="px-3 py-2 text-right font-semibold text-gray-700">TA</th>
+                                        <th class="px-3 py-2 text-right font-semibold text-gray-700">FA</th>
+                                        <th class="px-3 py-2 text-right font-semibold text-gray-700">NA</th>
+                                        <th class="px-3 py-2 text-right font-semibold text-gray-700">OT</th>
+                                        <th class="px-3 py-2 text-right font-semibold text-gray-700">IN</th>
+                                        <th class="px-3 py-2 text-right font-semibold text-gray-700">Total</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="view-sal-table-body" class="divide-y divide-gray-100"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </div>
     </div>
@@ -240,6 +598,8 @@
     <script>
         const charts = {};
         let rawData = [];
+        let employeeData = {};
+        let monthData = {};
 
         const monthOrder = ['January','February','March','April','May','June','July','August','September','October','November','December'];
         const chartColors = ['#3b82f6','#10b981','#f59e0b','#ef4444','#8b5cf6','#ec4899','#14b8a6','#f97316','#06b6d4','#84cc16'];
@@ -252,7 +612,7 @@
         }
 
         function fmt(v) {
-            return '₹' + v.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            return '' + v.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
         }
 
         function fmtShort(v) {
@@ -268,7 +628,28 @@
             const fileInput = document.getElementById('file-input');
             const selectBtn = document.getElementById('select-btn');
             const resetBtn = document.getElementById('reset-btn');
-            const globalSearch = document.getElementById('global-search');
+
+            // Sidebar tab switching
+            document.querySelectorAll('.sidebar-link').forEach(link => {
+                link.addEventListener('click', () => {
+                    document.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('active'));
+                    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+                    link.classList.add('active');
+                    const tabId = link.getAttribute('data-tab');
+                    document.getElementById('tab-' + tabId).classList.add('active');
+                    
+                    // Render tab-specific content
+                    if (tabId === 'expense-dash') renderExpenseDash();
+                    if (tabId === 'employee') renderEmployee();
+                    if (tabId === 'select-month') renderSelectMonth();
+                    if (tabId === 'monthly-variable') renderMonthlyVariable();
+                    if (tabId === 'attendance') renderAttendance();
+                    if (tabId === 'process-salary') renderProcessSalary();
+                    if (tabId === 'payslip') renderPayslip();
+                    if (tabId === 'salary-sheet') renderSalarySheet();
+                    if (tabId === 'view-salary') renderViewSalary();
+                });
+            });
 
             selectBtn.addEventListener('click', () => fileInput.click());
             dropZone.addEventListener('click', (e) => { if (e.target !== selectBtn) fileInput.click(); });
@@ -286,8 +667,6 @@
                 rawData = [];
             });
 
-            globalSearch.addEventListener('input', () => renderFullTable(rawData));
-
             function handleFile(file) {
                 if (!file) return;
                 const reader = new FileReader();
@@ -297,7 +676,8 @@
                         const workbook = XLSX.read(data, { type: 'array', cellDates: true });
                         const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
                         rawData = XLSX.utils.sheet_to_json(firstSheet);
-                        processAndRender(rawData);
+                        processData();
+                        renderDashboard();
                     } catch (err) {
                         alert("Error reading file. Please ensure it is a valid Excel/CSV file.");
                         console.error(err);
@@ -306,11 +686,47 @@
                 reader.readAsArrayBuffer(file);
             }
 
-            function processAndRender(data) {
-                let totalPayroll = 0;
-                const projects = {}, months = {}, employees = {}, components = { Basic:0, TA:0, FA:0, NA:0, OT:0, IN:0 };
+            function processData() {
+                employeeData = {};
+                monthData = {};
 
-                data.forEach(row => {
+                rawData.forEach(row => {
+                    const empId = row['Emp ID'] || row.EmpID || '';
+                    const name = row.Name || '';
+                    const project = row.Project || 'Unknown';
+                    const month = row.Month || 'Unknown';
+                    const basic = parseRupee(row.Basic);
+                    const ta = parseRupee(row.TA);
+                    const fa = parseRupee(row.FA);
+                    const na = parseRupee(row.NA);
+                    const ot = parseRupee(row.OT);
+                    const inn = parseRupee(row.IN);
+                    const total = parseRupee(row.Total);
+
+                    const empKey = empId;
+                    if (!employeeData[empKey]) {
+                        employeeData[empKey] = { empId, name, project, months: [], total: 0, basic: 0, ta: 0, fa: 0, na: 0, ot: 0, inn: 0 };
+                    }
+                    employeeData[empKey].months.push(month);
+                    employeeData[empKey].total += total;
+                    employeeData[empKey].basic += basic;
+                    employeeData[empKey].ta += ta;
+                    employeeData[empKey].fa += fa;
+                    employeeData[empKey].na += na;
+                    employeeData[empKey].ot += ot;
+                    employeeData[empKey].inn += inn;
+
+                    if (!monthData[month]) monthData[month] = [];
+                    monthData[month].push(row);
+                });
+            }
+
+            function renderDashboard() {
+                let totalPayroll = 0;
+                const projects = {}, months = {}, components = { Basic:0, TA:0, FA:0, NA:0, OT:0, IN:0 };
+                const employees = {};
+
+                rawData.forEach(row => {
                     const basic = parseRupee(row.Basic), ta = parseRupee(row.TA), fa = parseRupee(row.FA);
                     const na = parseRupee(row.NA), ot = parseRupee(row.OT), inn = parseRupee(row.IN);
                     const total = parseRupee(row.Total);
@@ -327,219 +743,557 @@
                     months[month] = (months[month] || 0) + total;
 
                     const empKey = `${empId}|${name}`;
-                    if (!employees[empKey]) employees[empKey] = { empId, name, project, total: 0, basic, ta, fa, na, ot, inn, month };
-                    else {
-                        employees[empKey].total += total;
-                        employees[empKey].basic += basic; employees[empKey].ta += ta;
-                        employees[empKey].fa += fa; employees[empKey].na += na;
-                        employees[empKey].ot += ot; employees[empKey].inn += inn;
-                    }
+                    if (!employees[empKey]) employees[empKey] = { empId, name, project, total: 0, month };
+                    employees[empKey].total += total;
                 });
 
-                renderAllCharts(components, projects, months, employees, totalPayroll);
-                renderTop10(employees);
-                renderFullTable(data);
-                document.getElementById('record-count').textContent = `${data.length} records | Total: ${fmt(totalPayroll)}`;
-
-                uploadScreen.classList.add('hidden');
-                dashboardScreen.classList.remove('hidden');
-            }
-
-            function renderAllCharts(components, projects, months, employees, totalPayroll) {
-                // 1. Component Pie
+                // Charts
                 const compCtx = document.getElementById('chart-component').getContext('2d');
                 if (charts.component) charts.component.destroy();
                 charts.component = new Chart(compCtx, {
                     type: 'pie',
-                    data: {
-                        labels: Object.keys(components),
-                        datasets: [{ data: Object.values(components), backgroundColor: chartColors, borderWidth: 2, borderColor: '#fff' }]
-                    },
-                    options: {
-                        responsive: true, maintainAspectRatio: false,
-                        plugins: {
-                            legend: { position: 'bottom', labels: { boxWidth: 10, padding: 8, font: { size: 10 } } },
-                            tooltip: { callbacks: { label: ctx => `${ctx.label}: ${fmt(ctx.raw)} (${((ctx.raw/totalPayroll)*100).toFixed(1)}%)` } }
-                        }
-                    }
+                    data: { labels: Object.keys(components), datasets: [{ data: Object.values(components), backgroundColor: chartColors, borderWidth: 2, borderColor: '#fff' }] },
+                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, padding: 8, font: { size: 10 } } }, tooltip: { callbacks: { label: ctx => `${ctx.label}: ${fmt(ctx.raw)} (${((ctx.raw/totalPayroll)*100).toFixed(1)}%)` } } } }
                 });
 
-                // 2. Project Pie
                 const projCtx = document.getElementById('chart-project').getContext('2d');
                 if (charts.project) charts.project.destroy();
                 charts.project = new Chart(projCtx, {
                     type: 'pie',
-                    data: {
-                        labels: Object.keys(projects),
-                        datasets: [{ data: Object.values(projects), backgroundColor: chartColors, borderWidth: 2, borderColor: '#fff' }]
-                    },
-                    options: {
-                        responsive: true, maintainAspectRatio: false,
-                        plugins: {
-                            legend: { position: 'bottom', labels: { boxWidth: 10, padding: 8, font: { size: 10 } } },
-                            tooltip: { callbacks: { label: ctx => `${ctx.label}: ${fmt(ctx.raw)} (${((ctx.raw/totalPayroll)*100).toFixed(1)}%)` } }
-                        }
-                    }
+                    data: { labels: Object.keys(projects), datasets: [{ data: Object.values(projects), backgroundColor: chartColors, borderWidth: 2, borderColor: '#fff' }] },
+                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, padding: 8, font: { size: 10 } } }, tooltip: { callbacks: { label: ctx => `${ctx.label}: ${fmt(ctx.raw)}` } } } }
                 });
 
-                // 3. Month Pie
                 const monthCtx = document.getElementById('chart-month').getContext('2d');
                 if (charts.month) charts.month.destroy();
                 charts.month = new Chart(monthCtx, {
                     type: 'pie',
-                    data: {
-                        labels: Object.keys(months),
-                        datasets: [{ data: Object.values(months), backgroundColor: chartColors, borderWidth: 2, borderColor: '#fff' }]
-                    },
-                    options: {
-                        responsive: true, maintainAspectRatio: false,
-                        plugins: {
-                            legend: { position: 'bottom', labels: { boxWidth: 10, padding: 8, font: { size: 10 } } },
-                            tooltip: { callbacks: { label: ctx => `${ctx.label}: ${fmt(ctx.raw)} (${((ctx.raw/totalPayroll)*100).toFixed(1)}%)` } }
-                        }
-                    }
+                    data: { labels: Object.keys(months), datasets: [{ data: Object.values(months), backgroundColor: chartColors, borderWidth: 2, borderColor: '#fff' }] },
+                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, padding: 8, font: { size: 10 } } }, tooltip: { callbacks: { label: ctx => `${ctx.label}: ${fmt(ctx.raw)}` } } } }
                 });
 
-                // 4. Monthly Line Chart
                 const sortedMonths = Object.keys(months).sort((a,b) => monthOrder.indexOf(a) - monthOrder.indexOf(b));
                 const lineCtx = document.getElementById('chart-monthly-line').getContext('2d');
                 if (charts.monthlyLine) charts.monthlyLine.destroy();
                 charts.monthlyLine = new Chart(lineCtx, {
                     type: 'line',
-                    data: {
-                        labels: sortedMonths,
-                        datasets: [{
-                            label: 'Total Payroll',
-                            data: sortedMonths.map(m => months[m]),
-                            borderColor: '#3b82f6', backgroundColor: 'rgba(59,130,246,0.1)',
-                            fill: true, tension: 0.3, pointRadius: 5, pointBackgroundColor: '#3b82f6',
-                            pointBorderColor: '#fff', pointBorderWidth: 2
-                        }]
-                    },
-                    options: {
-                        responsive: true, maintainAspectRatio: false,
-                        plugins: {
-                            legend: { display: false },
-                            tooltip: { callbacks: { label: ctx => fmt(ctx.raw) } }
-                        },
-                        scales: {
-                            y: { beginAtZero: true, grid: { color: '#f3f4f6' }, ticks: { callback: v => fmtShort(v), font: { size: 9 } } },
-                            x: { grid: { display: false }, ticks: { font: { size: 9 } } }
-                        }
-                    }
+                    data: { labels: sortedMonths, datasets: [{ label: 'Total Payroll', data: sortedMonths.map(m => months[m]), borderColor: '#3b82f6', backgroundColor: 'rgba(59,130,246,0.1)', fill: true, tension: 0.3, pointRadius: 5 }] },
+                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => fmt(ctx.raw) } } }, scales: { y: { beginAtZero: true, grid: { color: '#f3f4f6' }, ticks: { callback: v => fmtShort(v), font: { size: 9 } } }, x: { grid: { display: false }, ticks: { font: { size: 9 } } } } }
                 });
 
-                // 5. Project Horizontal Bar
                 const projBarCtx = document.getElementById('chart-project-bar').getContext('2d');
                 if (charts.projectBar) charts.projectBar.destroy();
                 charts.projectBar = new Chart(projBarCtx, {
                     type: 'bar',
-                    data: {
-                        labels: Object.keys(projects),
-                        datasets: [{ data: Object.values(projects), backgroundColor: chartColors, borderRadius: 4 }]
-                    },
-                    options: {
-                        indexAxis: 'y', responsive: true, maintainAspectRatio: false,
-                        plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => fmt(ctx.raw) } } },
-                        scales: {
-                            x: { beginAtZero: true, grid: { color: '#f3f4f6' }, ticks: { callback: v => fmtShort(v), font: { size: 9 } } },
-                            y: { grid: { display: false }, ticks: { font: { size: 10 } } }
-                        }
-                    }
+                    data: { labels: Object.keys(projects), datasets: [{ data: Object.values(projects), backgroundColor: chartColors, borderRadius: 4 }] },
+                    options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => fmt(ctx.raw) } } }, scales: { x: { beginAtZero: true, grid: { color: '#f3f4f6' }, ticks: { callback: v => fmtShort(v), font: { size: 9 } } }, y: { grid: { display: false }, ticks: { font: { size: 10 } } } } }
                 });
 
-                // 6. Employee Horizontal Bar (Top 10)
                 const empSorted = Object.values(employees).sort((a,b) => b.total - a.total).slice(0, 10);
                 const empBarCtx = document.getElementById('chart-employee-bar').getContext('2d');
                 if (charts.employeeBar) charts.employeeBar.destroy();
                 charts.employeeBar = new Chart(empBarCtx, {
                     type: 'bar',
-                    data: {
-                        labels: empSorted.map(e => e.name),
-                        datasets: [{ data: empSorted.map(e => e.total), backgroundColor: chartColors, borderRadius: 4 }]
-                    },
-                    options: {
-                        indexAxis: 'y', responsive: true, maintainAspectRatio: false,
-                        plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => fmt(ctx.raw) } } },
-                        scales: {
-                            x: { beginAtZero: true, grid: { color: '#f3f4f6' }, ticks: { callback: v => fmtShort(v), font: { size: 9 } } },
-                            y: { grid: { display: false }, ticks: { font: { size: 10 } } }
-                        }
-                    }
+                    data: { labels: empSorted.map(e => e.name), datasets: [{ data: empSorted.map(e => e.total), backgroundColor: chartColors, borderRadius: 4 }] },
+                    options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => fmt(ctx.raw) } } }, scales: { x: { beginAtZero: true, grid: { color: '#f3f4f6' }, ticks: { callback: v => fmtShort(v), font: { size: 9 } } }, y: { grid: { display: false }, ticks: { font: { size: 10 } } } } }
                 });
 
-                // 7. Month Horizontal Bar
                 const monthBarCtx = document.getElementById('chart-month-bar').getContext('2d');
                 if (charts.monthBar) charts.monthBar.destroy();
                 charts.monthBar = new Chart(monthBarCtx, {
                     type: 'bar',
-                    data: {
-                        labels: sortedMonths,
-                        datasets: [{ data: sortedMonths.map(m => months[m]), backgroundColor: chartColors, borderRadius: 4 }]
-                    },
-                    options: {
-                        indexAxis: 'y', responsive: true, maintainAspectRatio: false,
-                        plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => fmt(ctx.raw) } } },
-                        scales: {
-                            x: { beginAtZero: true, grid: { color: '#f3f4f6' }, ticks: { callback: v => fmtShort(v), font: { size: 9 } } },
-                            y: { grid: { display: false }, ticks: { font: { size: 10 } } }
-                        }
-                    }
+                    data: { labels: sortedMonths, datasets: [{ data: sortedMonths.map(m => months[m]), backgroundColor: chartColors, borderRadius: 4 }] },
+                    options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => fmt(ctx.raw) } } }, scales: { x: { beginAtZero: true, grid: { color: '#f3f4f6' }, ticks: { callback: v => fmtShort(v), font: { size: 9 } } }, y: { grid: { display: false }, ticks: { font: { size: 10 } } } } }
                 });
-            }
 
-            function renderTop10(employees) {
-                const sorted = Object.values(employees).sort((a,b) => b.total - a.total).slice(0, 10);
+                // Top 10 table
                 const tbody = document.getElementById('top10-body');
                 tbody.innerHTML = '';
-                sorted.forEach((emp, idx) => {
+                empSorted.forEach(emp => {
                     const tr = document.createElement('tr');
                     tr.className = 'table-row';
-                    tr.innerHTML = `
-                        <td class="px-3 py-2 font-medium text-blue-700">${emp.empId || '-'}</td>
-                        <td class="px-3 py-2 font-medium text-gray-900">${emp.name || '-'}</td>
-                        <td class="px-3 py-2"><span class="px-2 py-0.5 bg-blue-100 text-blue-800 rounded text-[10px] font-semibold">${emp.project || 'Unknown'}</span></td>
-                        <td class="px-3 py-2 text-right text-gray-700">${fmt(emp.basic)}</td>
-                        <td class="px-3 py-2 text-right text-gray-700">${fmt(emp.ta)}</td>
-                        <td class="px-3 py-2 text-right text-gray-700">${fmt(emp.fa)}</td>
-                        <td class="px-3 py-2 text-right text-gray-700">${fmt(emp.na)}</td>
-                        <td class="px-3 py-2 text-right text-gray-700">${fmt(emp.ot)}</td>
-                        <td class="px-3 py-2 text-right text-gray-700">${fmt(emp.inn)}</td>
-                        <td class="px-3 py-2 text-right font-bold text-gray-900">${fmt(emp.total)}</td>
-                        <td class="px-3 py-2 text-gray-600">${emp.month || '-'}</td>
-                    `;
+                    tr.innerHTML = `<td class="px-3 py-2 font-medium text-blue-700">${emp.empId || '-'}</td><td class="px-3 py-2 font-medium text-gray-900">${emp.name || '-'}</td><td class="px-3 py-2"><span class="px-2 py-0.5 bg-blue-100 text-blue-800 rounded text-[10px] font-semibold">${emp.project || 'Unknown'}</span></td><td class="px-3 py-2 text-right font-bold text-gray-900">${fmt(emp.total)}</td><td class="px-3 py-2 text-gray-600">${emp.month || '-'}</td>`;
+                    tbody.appendChild(tr);
+                });
+
+                uploadScreen.classList.add('hidden');
+                dashboardScreen.classList.remove('hidden');
+            }
+
+            function renderExpenseDash() {
+                let totalBasic = 0, totalTA = 0, totalFA = 0, totalNA = 0, totalOT = 0, totalIN = 0;
+                const projComponents = {};
+
+                rawData.forEach(row => {
+                    const basic = parseRupee(row.Basic), ta = parseRupee(row.TA), fa = parseRupee(row.FA);
+                    const na = parseRupee(row.NA), ot = parseRupee(row.OT), inn = parseRupee(row.IN);
+                    const project = row.Project || 'Unknown';
+
+                    totalBasic += basic; totalTA += ta; totalFA += fa; totalNA += na; totalOT += ot; totalIN += inn;
+
+                    if (!projComponents[project]) projComponents[project] = { Basic: 0, TA: 0, FA: 0, NA: 0, OT: 0, IN: 0 };
+                    projComponents[project].Basic += basic;
+                    projComponents[project].TA += ta;
+                    projComponents[project].FA += fa;
+                    projComponents[project].NA += na;
+                    projComponents[project].OT += ot;
+                    projComponents[project].IN += inn;
+                });
+
+                document.getElementById('exp-basic').textContent = fmt(totalBasic);
+                document.getElementById('exp-ta').textContent = fmt(totalTA);
+                document.getElementById('exp-fa').textContent = fmt(totalFA);
+                document.getElementById('exp-ot').textContent = fmt(totalOT);
+
+                const fixedTotal = totalBasic + totalTA + totalFA;
+                const variableTotal = totalNA + totalOT + totalIN;
+
+                const ctx1 = document.getElementById('exp-chart-1').getContext('2d');
+                if (charts.exp1) charts.exp1.destroy();
+                const projects = Object.keys(projComponents);
+                charts.exp1 = new Chart(ctx1, {
+                    type: 'bar',
+                    data: {
+                        labels: projects,
+                        datasets: [
+                            { label: 'Basic', data: projects.map(p => projComponents[p].Basic), backgroundColor: '#3b82f6' },
+                            { label: 'TA', data: projects.map(p => projComponents[p].TA), backgroundColor: '#10b981' },
+                            { label: 'FA', data: projects.map(p => projComponents[p].FA), backgroundColor: '#f59e0b' },
+                            { label: 'NA', data: projects.map(p => projComponents[p].NA), backgroundColor: '#ef4444' },
+                            { label: 'OT', data: projects.map(p => projComponents[p].OT), backgroundColor: '#8b5cf6' },
+                            { label: 'IN', data: projects.map(p => projComponents[p].IN), backgroundColor: '#ec4899' }
+                        ]
+                    },
+                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } }, tooltip: { callbacks: { label: ctx => `${ctx.dataset.label}: ${fmt(ctx.raw)}` } } }, scales: { x: { stacked: true, grid: { display: false } }, y: { stacked: true, grid: { color: '#f3f4f6' }, ticks: { callback: v => fmtShort(v) } } } }
+                });
+
+                const ctx2 = document.getElementById('exp-chart-2').getContext('2d');
+                if (charts.exp2) charts.exp2.destroy();
+                charts.exp2 = new Chart(ctx2, {
+                    type: 'doughnut',
+                    data: { labels: ['Fixed Pay (Basic+TA+FA)', 'Variable Pay (NA+OT+IN)'], datasets: [{ data: [fixedTotal, variableTotal], backgroundColor: ['#3b82f6', '#f59e0b'], borderWidth: 2, borderColor: '#fff' }] },
+                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } }, tooltip: { callbacks: { label: ctx => `${ctx.label}: ${fmt(ctx.raw)} (${((ctx.raw/(fixedTotal+variableTotal))*100).toFixed(1)}%)` } } } }
+                });
+
+                const tbody = document.getElementById('exp-table-body');
+                tbody.innerHTML = '';
+                rawData.forEach(row => {
+                    const tr = document.createElement('tr');
+                    tr.className = 'table-row';
+                    tr.innerHTML = `<td class="px-3 py-2 font-medium text-blue-700">${row['Emp ID'] || '-'}</td><td class="px-3 py-2 font-medium text-gray-900">${row.Name || '-'}</td><td class="px-3 py-2"><span class="px-2 py-0.5 bg-blue-100 text-blue-800 rounded text-[10px] font-semibold">${row.Project || 'Unknown'}</span></td><td class="px-3 py-2 text-right text-gray-700">${fmt(parseRupee(row.Basic))}</td><td class="px-3 py-2 text-right text-gray-700">${fmt(parseRupee(row.TA))}</td><td class="px-3 py-2 text-right text-gray-700">${fmt(parseRupee(row.FA))}</td><td class="px-3 py-2 text-right text-gray-700">${fmt(parseRupee(row.NA))}</td><td class="px-3 py-2 text-right text-gray-700">${fmt(parseRupee(row.OT))}</td><td class="px-3 py-2 text-right text-gray-700">${fmt(parseRupee(row.IN))}</td><td class="px-3 py-2 text-right font-bold text-gray-900">${fmt(parseRupee(row.Total))}</td><td class="px-3 py-2 text-gray-600">${row.Month || '-'}</td>`;
                     tbody.appendChild(tr);
                 });
             }
 
-            function renderFullTable(data) {
-                const searchTerm = globalSearch.value.toLowerCase();
-                const filtered = data.filter(row => {
-                    const empId = String(row['Emp ID'] || row.EmpID || '').toLowerCase();
-                    const name = String(row.Name || '').toLowerCase();
-                    return empId.includes(searchTerm) || name.includes(searchTerm);
+            function renderEmployee() {
+                const emps = Object.values(employeeData);
+                const projects = new Set(emps.map(e => e.project));
+                const avgSalary = emps.reduce((sum, e) => sum + e.total, 0) / emps.length;
+
+                document.getElementById('emp-total').textContent = emps.length;
+                document.getElementById('emp-projects').textContent = projects.size;
+                document.getElementById('emp-avg').textContent = fmt(avgSalary);
+
+                const projCount = {};
+                emps.forEach(e => { projCount[e.project] = (projCount[e.project] || 0) + 1; });
+
+                const ctx1 = document.getElementById('emp-chart-1').getContext('2d');
+                if (charts.emp1) charts.emp1.destroy();
+                charts.emp1 = new Chart(ctx1, {
+                    type: 'bar',
+                    data: { labels: Object.keys(projCount), datasets: [{ label: 'Employees', data: Object.values(projCount), backgroundColor: chartColors, borderRadius: 4 }] },
+                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => `${ctx.raw} employees` } } }, scales: { y: { beginAtZero: true, grid: { color: '#f3f4f6' }, ticks: { stepSize: 1 } }, x: { grid: { display: false } } } }
                 });
 
-                const tbody = document.getElementById('full-table-body');
+                const tbody = document.getElementById('emp-table-body');
                 tbody.innerHTML = '';
-                filtered.forEach(row => {
+                emps.sort((a,b) => b.total - a.total).forEach(emp => {
                     const tr = document.createElement('tr');
                     tr.className = 'table-row';
-                    tr.innerHTML = `
-                        <td class="px-3 py-2 font-medium text-blue-700">${row['Emp ID'] || row.EmpID || '-'}</td>
-                        <td class="px-3 py-2 font-medium text-gray-900">${row.Name || '-'}</td>
-                        <td class="px-3 py-2"><span class="px-2 py-0.5 bg-blue-100 text-blue-800 rounded text-[10px] font-semibold">${row.Project || 'Unknown'}</span></td>
-                        <td class="px-3 py-2 text-right text-gray-700">${fmt(parseRupee(row.Basic))}</td>
-                        <td class="px-3 py-2 text-right text-gray-700">${fmt(parseRupee(row.TA))}</td>
-                        <td class="px-3 py-2 text-right text-gray-700">${fmt(parseRupee(row.FA))}</td>
-                        <td class="px-3 py-2 text-right text-gray-700">${fmt(parseRupee(row.NA))}</td>
-                        <td class="px-3 py-2 text-right text-gray-700">${fmt(parseRupee(row.OT))}</td>
-                        <td class="px-3 py-2 text-right text-gray-700">${fmt(parseRupee(row.IN))}</td>
-                        <td class="px-3 py-2 text-right font-bold text-gray-900">${fmt(parseRupee(row.Total))}</td>
-                        <td class="px-3 py-2 text-gray-600">${row.Month || '-'}</td>
-                    `;
+                    tr.innerHTML = `<td class="px-3 py-2 font-medium text-blue-700">${emp.empId}</td><td class="px-3 py-2 font-medium text-gray-900">${emp.name}</td><td class="px-3 py-2"><span class="px-2 py-0.5 bg-blue-100 text-blue-800 rounded text-[10px] font-semibold">${emp.project}</span></td><td class="px-3 py-2 text-right text-gray-700">${emp.months.length}</td><td class="px-3 py-2 text-right font-bold text-gray-900">${fmt(emp.total)}</td><td class="px-3 py-2 text-right text-gray-700">${fmt(emp.total / emp.months.length)}</td>`;
                     tbody.appendChild(tr);
                 });
+            }
+
+            function renderSelectMonth() {
+                const months = Object.keys(monthData).sort((a,b) => monthOrder.indexOf(a) - monthOrder.indexOf(b));
+                const selector = document.getElementById('month-selector');
+                selector.innerHTML = months.map(m => `<option value="${m}">${m}</option>`).join('');
+
+                function updateMonthView() {
+                    const selectedMonth = selector.value;
+                    const data = monthData[selectedMonth] || [];
+                    let total = 0;
+                    const projects = {}, components = { Basic:0, TA:0, FA:0, NA:0, OT:0, IN:0 };
+                    let highestEarner = { name: '-', total: 0 };
+
+                    data.forEach(row => {
+                        const total_amt = parseRupee(row.Total);
+                        total += total_amt;
+                        const project = row.Project || 'Unknown';
+                        projects[project] = (projects[project] || 0) + total_amt;
+                        components.Basic += parseRupee(row.Basic);
+                        components.TA += parseRupee(row.TA);
+                        components.FA += parseRupee(row.FA);
+                        components.NA += parseRupee(row.NA);
+                        components.OT += parseRupee(row.OT);
+                        components.IN += parseRupee(row.IN);
+
+                        if (total_amt > highestEarner.total) highestEarner = { name: row.Name || '-', total: total_amt };
+                    });
+
+                    document.getElementById('month-total').textContent = fmt(total);
+                    document.getElementById('month-records').textContent = data.length;
+                    document.getElementById('month-avg').textContent = fmt(total / data.length);
+                    document.getElementById('month-highest').textContent = `${highestEarner.name} (${fmt(highestEarner.total)})`;
+
+                    const ctx1 = document.getElementById('month-chart-1').getContext('2d');
+                    if (charts.month1) charts.month1.destroy();
+                    charts.month1 = new Chart(ctx1, {
+                        type: 'pie',
+                        data: { labels: Object.keys(projects), datasets: [{ data: Object.values(projects), backgroundColor: chartColors, borderWidth: 2, borderColor: '#fff' }] },
+                        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } }, tooltip: { callbacks: { label: ctx => `${ctx.label}: ${fmt(ctx.raw)}` } } } }
+                    });
+
+                    const ctx2 = document.getElementById('month-chart-2').getContext('2d');
+                    if (charts.month2) charts.month2.destroy();
+                    charts.month2 = new Chart(ctx2, {
+                        type: 'bar',
+                        data: { labels: Object.keys(components), datasets: [{ data: Object.values(components), backgroundColor: chartColors, borderRadius: 4 }] },
+                        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => fmt(ctx.raw) } } }, scales: { y: { beginAtZero: true, grid: { color: '#f3f4f6' }, ticks: { callback: v => fmtShort(v) } }, x: { grid: { display: false } } } }
+                    });
+
+                    const tbody = document.getElementById('month-table-body');
+                    tbody.innerHTML = '';
+                    data.forEach(row => {
+                        const tr = document.createElement('tr');
+                        tr.className = 'table-row';
+                        tr.innerHTML = `<td class="px-3 py-2 font-medium text-blue-700">${row['Emp ID'] || '-'}</td><td class="px-3 py-2 font-medium text-gray-900">${row.Name || '-'}</td><td class="px-3 py-2"><span class="px-2 py-0.5 bg-blue-100 text-blue-800 rounded text-[10px] font-semibold">${row.Project || 'Unknown'}</span></td><td class="px-3 py-2 text-right text-gray-700">${fmt(parseRupee(row.Basic))}</td><td class="px-3 py-2 text-right text-gray-700">${fmt(parseRupee(row.TA))}</td><td class="px-3 py-2 text-right text-gray-700">${fmt(parseRupee(row.FA))}</td><td class="px-3 py-2 text-right text-gray-700">${fmt(parseRupee(row.NA))}</td><td class="px-3 py-2 text-right text-gray-700">${fmt(parseRupee(row.OT))}</td><td class="px-3 py-2 text-right text-gray-700">${fmt(parseRupee(row.IN))}</td><td class="px-3 py-2 text-right font-bold text-gray-900">${fmt(parseRupee(row.Total))}</td>`;
+                        tbody.appendChild(tr);
+                    });
+                }
+
+                selector.addEventListener('change', updateMonthView);
+                updateMonthView();
+            }
+
+            function renderMonthlyVariable() {
+                let totalTA = 0, totalFA = 0, totalNA = 0, totalOT = 0, totalIN = 0;
+                const monthVar = {}, empVar = {};
+
+                rawData.forEach(row => {
+                    const ta = parseRupee(row.TA), fa = parseRupee(row.FA), na = parseRupee(row.NA);
+                    const ot = parseRupee(row.OT), inn = parseRupee(row.IN);
+                    const month = row.Month || 'Unknown';
+                    const empId = row['Emp ID'] || '';
+                    const name = row.Name || '';
+
+                    totalTA += ta; totalFA += fa; totalNA += na; totalOT += ot; totalIN += inn;
+
+                    if (!monthVar[month]) monthVar[month] = { TA: 0, FA: 0, NA: 0, OT: 0, IN: 0 };
+                    monthVar[month].TA += ta; monthVar[month].FA += fa; monthVar[month].NA += na; monthVar[month].OT += ot; monthVar[month].IN += inn;
+
+                    const empKey = `${empId}|${name}`;
+                    if (!empVar[empKey]) empVar[empKey] = { TA: 0, FA: 0, NA: 0, OT: 0, IN: 0 };
+                    empVar[empKey].TA += ta; empVar[empKey].FA += fa; empVar[empKey].NA += na; empVar[empKey].OT += ot; empVar[empKey].IN += inn;
+                });
+
+                document.getElementById('var-ta').textContent = fmt(totalTA);
+                document.getElementById('var-fa').textContent = fmt(totalFA);
+                document.getElementById('var-na').textContent = fmt(totalNA);
+                document.getElementById('var-ot').textContent = fmt(totalOT);
+                document.getElementById('var-in').textContent = fmt(totalIN);
+
+                const sortedMonths = Object.keys(monthVar).sort((a,b) => monthOrder.indexOf(a) - monthOrder.indexOf(b));
+                const ctx1 = document.getElementById('var-chart-1').getContext('2d');
+                if (charts.var1) charts.var1.destroy();
+                charts.var1 = new Chart(ctx1, {
+                    type: 'line',
+                    data: {
+                        labels: sortedMonths,
+                        datasets: [
+                            { label: 'TA', data: sortedMonths.map(m => monthVar[m].TA), borderColor: '#3b82f6', backgroundColor: 'rgba(59,130,246,0.1)', fill: false, tension: 0.3 },
+                            { label: 'FA', data: sortedMonths.map(m => monthVar[m].FA), borderColor: '#10b981', backgroundColor: 'rgba(16,185,129,0.1)', fill: false, tension: 0.3 },
+                            { label: 'NA', data: sortedMonths.map(m => monthVar[m].NA), borderColor: '#f59e0b', backgroundColor: 'rgba(245,158,11,0.1)', fill: false, tension: 0.3 },
+                            { label: 'OT', data: sortedMonths.map(m => monthVar[m].OT), borderColor: '#ef4444', backgroundColor: 'rgba(239,68,68,0.1)', fill: false, tension: 0.3 },
+                            { label: 'IN', data: sortedMonths.map(m => monthVar[m].IN), borderColor: '#8b5cf6', backgroundColor: 'rgba(139,92,246,0.1)', fill: false, tension: 0.3 }
+                        ]
+                    },
+                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } }, tooltip: { callbacks: { label: ctx => `${ctx.dataset.label}: ${fmt(ctx.raw)}` } } }, scales: { y: { beginAtZero: true, grid: { color: '#f3f4f6' }, ticks: { callback: v => fmtShort(v) } }, x: { grid: { display: false } } } }
+                });
+
+                const empSorted = Object.entries(empVar).sort((a,b) => (b[1].TA+b[1].FA+b[1].NA+b[1].OT+b[1].IN) - (a[1].TA+a[1].FA+a[1].NA+a[1].OT+a[1].IN)).slice(0, 10);
+                const ctx2 = document.getElementById('var-chart-2').getContext('2d');
+                if (charts.var2) charts.var2.destroy();
+                charts.var2 = new Chart(ctx2, {
+                    type: 'bar',
+                    data: {
+                        labels: empSorted.map(e => e[0].split('|')[1]),
+                        datasets: [
+                            { label: 'TA', data: empSorted.map(e => e[1].TA), backgroundColor: '#3b82f6' },
+                            { label: 'FA', data: empSorted.map(e => e[1].FA), backgroundColor: '#10b981' },
+                            { label: 'NA', data: empSorted.map(e => e[1].NA), backgroundColor: '#f59e0b' },
+                            { label: 'OT', data: empSorted.map(e => e[1].OT), backgroundColor: '#ef4444' },
+                            { label: 'IN', data: empSorted.map(e => e[1].IN), backgroundColor: '#8b5cf6' }
+                        ]
+                    },
+                    options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } }, tooltip: { callbacks: { label: ctx => `${ctx.dataset.label}: ${fmt(ctx.raw)}` } } }, scales: { x: { stacked: true, grid: { color: '#f3f4f6' }, ticks: { callback: v => fmtShort(v) } }, y: { stacked: true, grid: { display: false } } } }
+                });
+
+                const tbody = document.getElementById('var-table-body');
+                tbody.innerHTML = '';
+                rawData.forEach(row => {
+                    const ta = parseRupee(row.TA), fa = parseRupee(row.FA), na = parseRupee(row.NA);
+                    const ot = parseRupee(row.OT), inn = parseRupee(row.IN);
+                    const totalVar = ta + fa + na + ot + inn;
+                    const tr = document.createElement('tr');
+                    tr.className = 'table-row';
+                    tr.innerHTML = `<td class="px-3 py-2 font-medium text-blue-700">${row['Emp ID'] || '-'}</td><td class="px-3 py-2 font-medium text-gray-900">${row.Name || '-'}</td><td class="px-3 py-2 text-right text-gray-700">${fmt(ta)}</td><td class="px-3 py-2 text-right text-gray-700">${fmt(fa)}</td><td class="px-3 py-2 text-right text-gray-700">${fmt(na)}</td><td class="px-3 py-2 text-right text-gray-700">${fmt(ot)}</td><td class="px-3 py-2 text-right text-gray-700">${fmt(inn)}</td><td class="px-3 py-2 text-right font-bold text-gray-900">${fmt(totalVar)}</td><td class="px-3 py-2 text-gray-600">${row.Month || '-'}</td>`;
+                    tbody.appendChild(tr);
+                });
+            }
+
+            function renderAttendance() {
+                let totalOT = 0, totalIN = 0, empWithOT = 0;
+                const empOT = {}, monthOT = {};
+
+                rawData.forEach(row => {
+                    const ot = parseRupee(row.OT), inn = parseRupee(row.IN);
+                    const empId = row['Emp ID'] || '';
+                    const name = row.Name || '';
+                    const month = row.Month || 'Unknown';
+
+                    totalOT += ot; totalIN += inn;
+                    if (ot > 0) empWithOT++;
+
+                    const empKey = `${empId}|${name}`;
+                    if (!empOT[empKey]) empOT[empKey] = { ot: 0, inn: 0 };
+                    empOT[empKey].ot += ot; empOT[empKey].inn += inn;
+
+                    if (!monthOT[month]) monthOT[month] = { ot: 0, inn: 0 };
+                    monthOT[month].ot += ot; monthOT[month].inn += inn;
+                });
+
+                document.getElementById('att-ot-total').textContent = fmt(totalOT);
+                document.getElementById('att-ot-emp').textContent = empWithOT;
+                document.getElementById('att-ot-avg').textContent = fmt(totalOT / rawData.length);
+                document.getElementById('att-in-total').textContent = fmt(totalIN);
+
+                const empSorted = Object.entries(empOT).sort((a,b) => b[1].ot - a[1].ot).slice(0, 10);
+                const ctx1 = document.getElementById('att-chart-1').getContext('2d');
+                if (charts.att1) charts.att1.destroy();
+                charts.att1 = new Chart(ctx1, {
+                    type: 'bar',
+                    data: { labels: empSorted.map(e => e[0].split('|')[1]), datasets: [{ label: 'OT Amount', data: empSorted.map(e => e[1].ot), backgroundColor: '#f59e0b', borderRadius: 4 }] },
+                    options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => fmt(ctx.raw) } } }, scales: { x: { beginAtZero: true, grid: { color: '#f3f4f6' }, ticks: { callback: v => fmtShort(v) } }, y: { grid: { display: false } } } }
+                });
+
+                const sortedMonths = Object.keys(monthOT).sort((a,b) => monthOrder.indexOf(a) - monthOrder.indexOf(b));
+                const ctx2 = document.getElementById('att-chart-2').getContext('2d');
+                if (charts.att2) charts.att2.destroy();
+                charts.att2 = new Chart(ctx2, {
+                    type: 'bar',
+                    data: {
+                        labels: sortedMonths,
+                        datasets: [
+                            { label: 'OT', data: sortedMonths.map(m => monthOT[m].ot), backgroundColor: '#f59e0b' },
+                            { label: 'IN', data: sortedMonths.map(m => monthOT[m].inn), backgroundColor: '#8b5cf6' }
+                        ]
+                    },
+                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } }, tooltip: { callbacks: { label: ctx => `${ctx.dataset.label}: ${fmt(ctx.raw)}` } } }, scales: { y: { beginAtZero: true, grid: { color: '#f3f4f6' }, ticks: { callback: v => fmtShort(v) } }, x: { grid: { display: false } } } }
+                });
+
+                const tbody = document.getElementById('att-table-body');
+                tbody.innerHTML = '';
+                rawData.forEach(row => {
+                    const ot = parseRupee(row.OT), inn = parseRupee(row.IN);
+                    const status = ot > 0 ? '<span class="px-2 py-0.5 bg-orange-100 text-orange-800 rounded text-[10px] font-semibold">OT Active</span>' : '<span class="px-2 py-0.5 bg-gray-100 text-gray-600 rounded text-[10px] font-semibold">No OT</span>';
+                    const tr = document.createElement('tr');
+                    tr.className = 'table-row';
+                    tr.innerHTML = `<td class="px-3 py-2 font-medium text-blue-700">${row['Emp ID'] || '-'}</td><td class="px-3 py-2 font-medium text-gray-900">${row.Name || '-'}</td><td class="px-3 py-2"><span class="px-2 py-0.5 bg-blue-100 text-blue-800 rounded text-[10px] font-semibold">${row.Project || 'Unknown'}</span></td><td class="px-3 py-2 text-right text-gray-700">${fmt(ot)}</td><td class="px-3 py-2 text-right text-gray-700">${fmt(inn)}</td><td class="px-3 py-2">${status}</td><td class="px-3 py-2 text-gray-600">${row.Month || '-'}</td>`;
+                    tbody.appendChild(tr);
+                });
+            }
+
+            function renderProcessSalary() {
+                let gross = 0, fixed = 0, variable = 0;
+
+                rawData.forEach(row => {
+                    const basic = parseRupee(row.Basic), ta = parseRupee(row.TA), fa = parseRupee(row.FA);
+                    const na = parseRupee(row.NA), ot = parseRupee(row.OT), inn = parseRupee(row.IN);
+                    const total = parseRupee(row.Total);
+
+                    gross += total;
+                    fixed += basic + ta + fa;
+                    variable += na + ot + inn;
+                });
+
+                document.getElementById('sal-gross').textContent = fmt(gross);
+                document.getElementById('sal-fixed').textContent = fmt(fixed);
+                document.getElementById('sal-variable').textContent = fmt(variable);
+                document.getElementById('sal-net').textContent = fmt(gross);
+
+                const ctx1 = document.getElementById('sal-chart-1').getContext('2d');
+                if (charts.sal1) charts.sal1.destroy();
+                charts.sal1 = new Chart(ctx1, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Basic', 'TA', 'FA', 'NA', 'OT', 'IN'],
+                        datasets: [{
+                            data: [
+                                rawData.reduce((s, r) => s + parseRupee(r.Basic), 0),
+                                rawData.reduce((s, r) => s + parseRupee(r.TA), 0),
+                                rawData.reduce((s, r) => s + parseRupee(r.FA), 0),
+                                rawData.reduce((s, r) => s + parseRupee(r.NA), 0),
+                                rawData.reduce((s, r) => s + parseRupee(r.OT), 0),
+                                rawData.reduce((s, r) => s + parseRupee(r.IN), 0)
+                            ],
+                            backgroundColor: chartColors,
+                            borderRadius: 4
+                        }]
+                    },
+                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => fmt(ctx.raw) } } }, scales: { y: { beginAtZero: true, grid: { color: '#f3f4f6' }, ticks: { callback: v => fmtShort(v) } }, x: { grid: { display: false } } } }
+                });
+
+                const ctx2 = document.getElementById('sal-chart-2').getContext('2d');
+                if (charts.sal2) charts.sal2.destroy();
+                charts.sal2 = new Chart(ctx2, {
+                    type: 'doughnut',
+                    data: { labels: ['Fixed Pay', 'Variable Pay'], datasets: [{ data: [fixed, variable], backgroundColor: ['#3b82f6', '#f59e0b'], borderWidth: 2, borderColor: '#fff' }] },
+                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } }, tooltip: { callbacks: { label: ctx => `${ctx.label}: ${fmt(ctx.raw)} (${((ctx.raw/gross)*100).toFixed(1)}%)` } } } }
+                });
+
+                const tbody = document.getElementById('sal-table-body');
+                tbody.innerHTML = '';
+                rawData.forEach(row => {
+                    const basic = parseRupee(row.Basic);
+                    const allowances = parseRupee(row.TA) + parseRupee(row.FA);
+                    const otIn = parseRupee(row.OT) + parseRupee(row.IN);
+                    const gross_amt = parseRupee(row.Total);
+                    const tr = document.createElement('tr');
+                    tr.className = 'table-row';
+                    tr.innerHTML = `<td class="px-3 py-2 font-medium text-blue-700">${row['Emp ID'] || '-'}</td><td class="px-3 py-2 font-medium text-gray-900">${row.Name || '-'}</td><td class="px-3 py-2"><span class="px-2 py-0.5 bg-blue-100 text-blue-800 rounded text-[10px] font-semibold">${row.Project || 'Unknown'}</span></td><td class="px-3 py-2 text-right text-gray-700">${fmt(basic)}</td><td class="px-3 py-2 text-right text-gray-700">${fmt(allowances)}</td><td class="px-3 py-2 text-right text-gray-700">${fmt(otIn)}</td><td class="px-3 py-2 text-right font-bold text-gray-900">${fmt(gross_amt)}</td><td class="px-3 py-2"><span class="px-2 py-0.5 bg-green-100 text-green-800 rounded text-[10px] font-semibold">Processed</span></td><td class="px-3 py-2 text-gray-600">${row.Month || '-'}</td>`;
+                    tbody.appendChild(tr);
+                });
+            }
+
+            function renderPayslip() {
+                const emps = Object.values(employeeData);
+                const selector = document.getElementById('payslip-emp');
+                selector.innerHTML = emps.map(e => `<option value="${e.empId}">${e.empId} - ${e.name}</option>`).join('');
+
+                function updatePayslip() {
+                    const empId = selector.value;
+                    const emp = employeeData[empId];
+                    if (!emp) return;
+
+                    const lastMonth = emp.months[emp.months.length - 1];
+                    const lastRow = rawData.find(r => (r['Emp ID'] || r.EmpID) == empId && r.Month === lastMonth);
+
+                    if (!lastRow) return;
+
+                    const basic = parseRupee(lastRow.Basic);
+                    const ta = parseRupee(lastRow.TA);
+                    const fa = parseRupee(lastRow.FA);
+                    const na = parseRupee(lastRow.NA);
+                    const ot = parseRupee(lastRow.OT);
+                    const inn = parseRupee(lastRow.IN);
+                    const total = parseRupee(lastRow.Total);
+
+                    document.getElementById('payslip-details').innerHTML = `
+                        <div class="grid grid-cols-2 gap-4 mb-4">
+                            <div><span class="text-gray-500">Emp ID:</span> <span class="font-semibold">${emp.empId}</span></div>
+                            <div><span class="text-gray-500">Name:</span> <span class="font-semibold">${emp.name}</span></div>
+                            <div><span class="text-gray-500">Project:</span> <span class="font-semibold">${emp.project}</span></div>
+                            <div><span class="text-gray-500">Month:</span> <span class="font-semibold">${lastMonth}</span></div>
+                        </div>
+                        <div class="border-t pt-4">
+                            <h4 class="font-bold text-gray-800 mb-2">Earnings</h4>
+                            <div class="space-y-1 text-sm">
+                                <div class="flex justify-between"><span>Basic</span><span>${fmt(basic)}</span></div>
+                                <div class="flex justify-between"><span>TA</span><span>${fmt(ta)}</span></div>
+                                <div class="flex justify-between"><span>FA</span><span>${fmt(fa)}</span></div>
+                                <div class="flex justify-between"><span>NA</span><span>${fmt(na)}</span></div>
+                                <div class="flex justify-between"><span>OT</span><span>${fmt(ot)}</span></div>
+                                <div class="flex justify-between"><span>IN</span><span>${fmt(inn)}</span></div>
+                            </div>
+                        </div>
+                        <div class="border-t pt-4 mt-4">
+                            <div class="flex justify-between text-lg font-bold"><span>Net Pay</span><span class="text-blue-700">${fmt(total)}</span></div>
+                        </div>
+                    `;
+                }
+
+                selector.addEventListener('change', updatePayslip);
+                updatePayslip();
+            }
+
+            function renderSalarySheet() {
+                const tbody = document.getElementById('sheet-table-body');
+                tbody.innerHTML = '';
+                rawData.forEach(row => {
+                    const tr = document.createElement('tr');
+                    tr.className = 'table-row';
+                    tr.innerHTML = `<td class="px-3 py-2 font-medium text-blue-700">${row['Emp ID'] || '-'}</td><td class="px-3 py-2 font-medium text-gray-900">${row.Name || '-'}</td><td class="px-3 py-2"><span class="px-2 py-0.5 bg-blue-100 text-blue-800 rounded text-[10px] font-semibold">${row.Project || 'Unknown'}</span></td><td class="px-3 py-2 text-right text-gray-700">${fmt(parseRupee(row.Basic))}</td><td class="px-3 py-2 text-right text-gray-700">${fmt(parseRupee(row.TA))}</td><td class="px-3 py-2 text-right text-gray-700">${fmt(parseRupee(row.FA))}</td><td class="px-3 py-2 text-right text-gray-700">${fmt(parseRupee(row.NA))}</td><td class="px-3 py-2 text-right text-gray-700">${fmt(parseRupee(row.OT))}</td><td class="px-3 py-2 text-right text-gray-700">${fmt(parseRupee(row.IN))}</td><td class="px-3 py-2 text-right font-bold text-gray-900">${fmt(parseRupee(row.Total))}</td><td class="px-3 py-2 text-gray-600">${row.Month || '-'}</td>`;
+                    tbody.appendChild(tr);
+                });
+            }
+
+            function renderViewSalary() {
+                const emps = Object.values(employeeData);
+                const selector = document.getElementById('view-sal-emp');
+                selector.innerHTML = emps.map(e => `<option value="${e.empId}">${e.empId} - ${e.name}</option>`).join('');
+
+                function updateView() {
+                    const empId = selector.value;
+                    const empData = rawData.filter(r => (r['Emp ID'] || r.EmpID) == empId);
+                    
+                    const months = empData.map(r => r.Month);
+                    const totals = empData.map(r => parseRupee(r.Total));
+                    const basics = empData.map(r => parseRupee(r.Basic));
+                    const tas = empData.map(r => parseRupee(r.TA));
+                    const fas = empData.map(r => parseRupee(r.FA));
+                    const nas = empData.map(r => parseRupee(r.NA));
+                    const ots = empData.map(r => parseRupee(r.OT));
+                    const ins = empData.map(r => parseRupee(r.IN));
+
+                    const ctx1 = document.getElementById('view-sal-chart-1').getContext('2d');
+                    if (charts.viewSal1) charts.viewSal1.destroy();
+                    charts.viewSal1 = new Chart(ctx1, {
+                        type: 'line',
+                        data: { labels: months, datasets: [{ label: 'Total Salary', data: totals, borderColor: '#3b82f6', backgroundColor: 'rgba(59,130,246,0.1)', fill: true, tension: 0.3, pointRadius: 5 }] },
+                        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => fmt(ctx.raw) } } }, scales: { y: { beginAtZero: true, grid: { color: '#f3f4f6' }, ticks: { callback: v => fmtShort(v) } }, x: { grid: { display: false } } } }
+                    });
+
+                    const lastRow = empData[empData.length - 1];
+                    const ctx2 = document.getElementById('view-sal-chart-2').getContext('2d');
+                    if (charts.viewSal2) charts.viewSal2.destroy();
+                    charts.viewSal2 = new Chart(ctx2, {
+                        type: 'pie',
+                        data: {
+                            labels: ['Basic', 'TA', 'FA', 'NA', 'OT', 'IN'],
+                            datasets: [{
+                                data: [parseRupee(lastRow.Basic), parseRupee(lastRow.TA), parseRupee(lastRow.FA), parseRupee(lastRow.NA), parseRupee(lastRow.OT), parseRupee(lastRow.IN)],
+                                backgroundColor: chartColors,
+                                borderWidth: 2,
+                                borderColor: '#fff'
+                            }]
+                        },
+                        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } }, tooltip: { callbacks: { label: ctx => `${ctx.label}: ${fmt(ctx.raw)}` } } } }
+                    });
+
+                    const tbody = document.getElementById('view-sal-table-body');
+                    tbody.innerHTML = '';
+                    empData.forEach(row => {
+                        const tr = document.createElement('tr');
+                        tr.className = 'table-row';
+                        tr.innerHTML = `<td class="px-3 py-2 font-medium text-gray-900">${row.Month || '-'}</td><td class="px-3 py-2 text-right text-gray-700">${fmt(parseRupee(row.Basic))}</td><td class="px-3 py-2 text-right text-gray-700">${fmt(parseRupee(row.TA))}</td><td class="px-3 py-2 text-right text-gray-700">${fmt(parseRupee(row.FA))}</td><td class="px-3 py-2 text-right text-gray-700">${fmt(parseRupee(row.NA))}</td><td class="px-3 py-2 text-right text-gray-700">${fmt(parseRupee(row.OT))}</td><td class="px-3 py-2 text-right text-gray-700">${fmt(parseRupee(row.IN))}</td><td class="px-3 py-2 text-right font-bold text-gray-900">${fmt(parseRupee(row.Total))}</td>`;
+                        tbody.appendChild(tr);
+                    });
+                }
+
+                selector.addEventListener('change', updateView);
+                updateView();
             }
         });
     </script>
