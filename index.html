@@ -19,44 +19,15 @@
         .table-row:hover { background-color: #f8fafc; }
         .tab-content { display: none; }
         .tab-content.active { display: block; }
-        
-        /* Edited cell styling */
-        .edited-cell { 
-            background-color: #fef3c7 !important; 
-            position: relative;
-            font-weight: 500;
-        }
-        .edited-badge {
-            position: absolute;
-            top: 1px;
-            right: 2px;
-            font-size: 9px;
-            line-height: 1;
-            opacity: 0.8;
-        }
-        
-        /* Edit mode styling */
-        .edit-input { 
-            background: #fffbeb; 
-            border: 2px solid #f59e0b; 
-            border-radius: 4px; 
-            padding: 3px 6px;
-            width: 90px;
-            font-size: 11px;
-            outline: none;
-        }
+        .edited-cell { background-color: #fef3c7 !important; position: relative; font-weight: 500; }
+        .edited-badge { position: absolute; top: 1px; right: 2px; font-size: 9px; line-height: 1; opacity: 0.8; }
+        .edit-input { background: #fffbeb; border: 2px solid #f59e0b; border-radius: 4px; padding: 3px 6px; width: 90px; font-size: 11px; outline: none; }
         .edit-input:focus { border-color: #d97706; box-shadow: 0 0 0 2px rgba(217,119,6,0.2); }
-        
         .action-btn { cursor: pointer; padding: 3px 7px; border-radius: 4px; transition: all 0.15s; display: inline-block; margin: 0 1px; }
-        .edit-btn { color: #3b82f6; }
-        .edit-btn:hover { background-color: #dbeafe; }
-        .save-btn { color: #10b981; }
-        .save-btn:hover { background-color: #d1fae5; }
-        .cancel-btn { color: #6b7280; }
-        .cancel-btn:hover { background-color: #f3f4f6; }
-        .delete-btn { color: #ef4444; }
-        .delete-btn:hover { background-color: #fee2e2; }
-        
+        .edit-btn { color: #3b82f6; } .edit-btn:hover { background-color: #dbeafe; }
+        .save-btn { color: #10b981; } .save-btn:hover { background-color: #d1fae5; }
+        .cancel-btn { color: #6b7280; } .cancel-btn:hover { background-color: #f3f4f6; }
+        .delete-btn { color: #ef4444; } .delete-btn:hover { background-color: #fee2e2; }
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
     </style>
@@ -70,7 +41,7 @@
                 <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
             </svg>
             <h3 class="mt-4 text-2xl font-bold text-gray-900">Upload Payroll Excel File</h3>
-            <p class="mt-2 text-sm text-gray-500">Drag & drop your Excel file here, or click to browse.</p>
+            <p class="mt-2 text-sm text-gray-500">Drag & drop your Excel file here. Data will be added to existing records.</p>
             <p class="mt-4 text-xs text-gray-400 bg-gray-50 p-3 rounded-lg inline-block">
                 <strong>Expected Columns:</strong> Emp ID | Name | Project | Basic | TA | FA | NA | OT | IN | Total | Month | Year
             </p>
@@ -78,12 +49,14 @@
                 <button id="select-btn" class="rounded-md bg-blue-600 px-6 py-3 text-sm font-semibold text-white shadow-sm hover:bg-blue-700 transition">Select File</button>
                 <input id="file-input" type="file" class="hidden" accept=".xlsx,.xls,.csv">
             </div>
+            <div class="mt-4">
+                <button id="load-saved-btn" class="text-blue-600 text-sm hover:underline hidden">Load Saved Data</button>
+            </div>
         </div>
     </div>
 
     <!-- MAIN APP -->
     <div id="dashboard-screen" class="hidden">
-        <!-- Top Navigation Bar -->
         <div class="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm">
             <div class="flex items-center justify-between px-4 py-2">
                 <div class="flex items-center gap-2">
@@ -95,587 +68,236 @@
                 </div>
                 <div class="flex items-center gap-3">
                     <div class="relative">
-                        <input id="global-search" type="text" placeholder="Search Emp ID or Name..." 
-                            class="w-64 px-3 py-1.5 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                        <svg class="absolute right-2 top-2 h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-                        </svg>
+                        <input id="global-search" type="text" placeholder="Search Emp ID or Name..." class="w-64 px-3 py-1.5 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <svg class="absolute right-2 top-2 h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
                     </div>
                     <div class="flex items-center gap-2 text-sm">
                         <div class="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold text-xs">A</div>
                         <span class="text-gray-700 font-medium">Welcome Admin</span>
                     </div>
                     <button id="export-btn" class="px-3 py-1.5 bg-green-50 text-green-600 border border-green-200 rounded text-xs font-medium hover:bg-green-100 transition">Export Excel</button>
-                    <button id="reset-btn" class="px-3 py-1.5 bg-red-50 text-red-600 border border-red-200 rounded text-xs font-medium hover:bg-red-100 transition">New File</button>
+                    <button id="reset-btn" class="px-3 py-1.5 bg-gray-50 text-gray-600 border border-gray-200 rounded text-xs font-medium hover:bg-gray-100 transition">Hide Dashboard</button>
                 </div>
             </div>
         </div>
 
         <div class="flex">
-            <!-- Left Sidebar -->
             <div class="w-56 bg-slate-800 min-h-screen flex-shrink-0">
                 <div class="py-4">
-                    <a class="sidebar-link active flex items-center gap-3 px-4 py-3 text-white text-sm" data-tab="dashboard">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
-                        Dashboard
-                    </a>
-                    <a class="sidebar-link flex items-center gap-3 px-4 py-3 text-gray-300 text-sm" data-tab="expense-dash">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
-                        Expense Dash
-                    </a>
-                    <a class="sidebar-link flex items-center gap-3 px-4 py-3 text-gray-300 text-sm" data-tab="employee">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
-                        Employee
-                    </a>
-                    <a class="sidebar-link flex items-center gap-3 px-4 py-3 text-gray-300 text-sm" data-tab="select-month">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-                        Select Month
-                    </a>
-                    <a class="sidebar-link flex items-center gap-3 px-4 py-3 text-gray-300 text-sm" data-tab="monthly-variable">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"/></svg>
-                        Monthly Variable
-                    </a>
-                    <a class="sidebar-link flex items-center gap-3 px-4 py-3 text-gray-300 text-sm" data-tab="attendance">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
-                        Attendance
-                    </a>
-                    <a class="sidebar-link flex items-center gap-3 px-4 py-3 text-gray-300 text-sm" data-tab="process-salary">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                        Process Salary
-                    </a>
-                    <a class="sidebar-link flex items-center gap-3 px-4 py-3 text-gray-300 text-sm" data-tab="payslip">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-                        Payslip
-                    </a>
-                    <a class="sidebar-link flex items-center gap-3 px-4 py-3 text-gray-300 text-sm" data-tab="salary-sheet">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
-                        Salary Sheet
-                    </a>
-                    <a class="sidebar-link flex items-center gap-3 px-4 py-3 text-gray-300 text-sm" data-tab="view-salary">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
-                        View Salary
-                    </a>
-                    <a class="sidebar-link flex items-center gap-3 px-4 py-3 text-gray-300 text-sm" data-tab="edit-master">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
-                        Edit Master Data
-                    </a>
+                    <a class="sidebar-link active flex items-center gap-3 px-4 py-3 text-white text-sm" data-tab="dashboard"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>Dashboard</a>
+                    <a class="sidebar-link flex items-center gap-3 px-4 py-3 text-gray-300 text-sm" data-tab="expense-dash"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>Expense Dash</a>
+                    <a class="sidebar-link flex items-center gap-3 px-4 py-3 text-gray-300 text-sm" data-tab="employee"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>Employee</a>
+                    <a class="sidebar-link flex items-center gap-3 px-4 py-3 text-gray-300 text-sm" data-tab="select-month"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>Select Month</a>
+                    <a class="sidebar-link flex items-center gap-3 px-4 py-3 text-gray-300 text-sm" data-tab="monthly-variable"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"/></svg>Monthly Variable</a>
+                    <a class="sidebar-link flex items-center gap-3 px-4 py-3 text-gray-300 text-sm" data-tab="attendance"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>Attendance</a>
+                    <a class="sidebar-link flex items-center gap-3 px-4 py-3 text-gray-300 text-sm" data-tab="process-salary"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>Process Salary</a>
+                    <a class="sidebar-link flex items-center gap-3 px-4 py-3 text-gray-300 text-sm" data-tab="payslip"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>Payslip</a>
+                    <a class="sidebar-link flex items-center gap-3 px-4 py-3 text-gray-300 text-sm" data-tab="salary-sheet"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>Salary Sheet</a>
+                    <a class="sidebar-link flex items-center gap-3 px-4 py-3 text-gray-300 text-sm" data-tab="view-salary"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>View Salary</a>
+                    <a class="sidebar-link flex items-center gap-3 px-4 py-3 text-gray-300 text-sm" data-tab="edit-master"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>Edit Master Data</a>
                 </div>
             </div>
 
-            <!-- Main Content Area -->
             <div class="flex-1 p-4 overflow-x-auto">
-
-                <!-- ==================== DASHBOARD TAB ==================== -->
+                <!-- DASHBOARD TAB -->
                 <div id="tab-dashboard" class="tab-content active">
-                    <div class="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg flex items-center gap-2">
-                        <span class="text-sm text-yellow-800">💡 Edited cells are highlighted in <span class="font-bold">yellow</span> with ✏️ across all tabs</span>
+                    <div class="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg flex items-center gap-2">
+                        <span class="text-sm text-blue-800">📂 <strong>Multi-Upload Mode Active:</strong> Data is being accumulated. Currently showing <span id="total-records-badge" class="font-bold">0</span> combined records.</span>
                     </div>
                     <div class="grid grid-cols-1 lg:grid-cols-4 gap-4 mb-4">
-                        <div class="chart-container">
-                            <h3 class="text-sm font-bold text-gray-800 mb-2">Salary Component Summary</h3>
-                            <div class="h-56"><canvas id="chart-component"></canvas></div>
-                        </div>
-                        <div class="chart-container">
-                            <h3 class="text-sm font-bold text-gray-800 mb-2">Project Wise</h3>
-                            <div class="h-56"><canvas id="chart-project"></canvas></div>
-                        </div>
-                        <div class="chart-container">
-                            <h3 class="text-sm font-bold text-gray-800 mb-2">Month Wise</h3>
-                            <div class="h-56"><canvas id="chart-month"></canvas></div>
-                        </div>
-                        <div class="chart-container">
-                            <h3 class="text-sm font-bold text-gray-800 mb-2">Monthly Analysis</h3>
-                            <div class="h-56"><canvas id="chart-monthly-line"></canvas></div>
-                        </div>
+                        <div class="chart-container"><h3 class="text-sm font-bold text-gray-800 mb-2">Salary Component Summary</h3><div class="h-56"><canvas id="chart-component"></canvas></div></div>
+                        <div class="chart-container"><h3 class="text-sm font-bold text-gray-800 mb-2">Project Wise</h3><div class="h-56"><canvas id="chart-project"></canvas></div></div>
+                        <div class="chart-container"><h3 class="text-sm font-bold text-gray-800 mb-2">Month Wise</h3><div class="h-56"><canvas id="chart-month"></canvas></div></div>
+                        <div class="chart-container"><h3 class="text-sm font-bold text-gray-800 mb-2">Monthly Analysis</h3><div class="h-56"><canvas id="chart-monthly-line"></canvas></div></div>
                     </div>
                     <div class="chart-container">
                         <h3 class="text-sm font-bold text-gray-800 mb-3">Top 10 Earners for the Period</h3>
                         <div class="overflow-x-auto">
                             <table class="min-w-full text-xs">
-                                <thead class="bg-gray-100">
-                                    <tr>
-                                        <th class="px-3 py-2 text-left font-semibold text-gray-700">Emp ID</th>
-                                        <th class="px-3 py-2 text-left font-semibold text-gray-700">Name</th>
-                                        <th class="px-3 py-2 text-left font-semibold text-gray-700">Project</th>
-                                        <th class="px-3 py-2 text-right font-semibold text-gray-700">Total</th>
-                                        <th class="px-3 py-2 text-left font-semibold text-gray-700">Month / Year</th>
-                                    </tr>
-                                </thead>
+                                <thead class="bg-gray-100"><tr><th class="px-3 py-2 text-left font-semibold text-gray-700">Emp ID</th><th class="px-3 py-2 text-left font-semibold text-gray-700">Name</th><th class="px-3 py-2 text-left font-semibold text-gray-700">Project</th><th class="px-3 py-2 text-right font-semibold text-gray-700">Total</th><th class="px-3 py-2 text-left font-semibold text-gray-700">Month / Year</th></tr></thead>
                                 <tbody id="top10-body" class="divide-y divide-gray-100"></tbody>
                             </table>
                         </div>
                     </div>
                 </div>
 
-                <!-- ==================== EXPENSE DASH TAB ==================== -->
+                <!-- EXPENSE DASH TAB -->
                 <div id="tab-expense-dash" class="tab-content">
                     <h2 class="text-xl font-bold text-gray-900 mb-4">Expense Dashboard - Component Analysis</h2>
                     <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-                        <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg p-4 text-white">
-                            <p class="text-xs opacity-90">Total Basic</p>
-                            <p id="exp-basic" class="text-2xl font-bold">₹0</p>
-                        </div>
-                        <div class="bg-gradient-to-br from-pink-500 to-pink-600 rounded-lg p-4 text-white">
-                            <p class="text-xs opacity-90">Total TA</p>
-                            <p id="exp-ta" class="text-2xl font-bold">₹0</p>
-                        </div>
-                        <div class="bg-gradient-to-br from-cyan-500 to-cyan-600 rounded-lg p-4 text-white">
-                            <p class="text-xs opacity-90">Total FA</p>
-                            <p id="exp-fa" class="text-2xl font-bold">₹0</p>
-                        </div>
-                        <div class="bg-gradient-to-br from-green-500 to-green-600 rounded-lg p-4 text-white">
-                            <p class="text-xs opacity-90">Total OT</p>
-                            <p id="exp-ot" class="text-2xl font-bold">₹0</p>
-                        </div>
+                        <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg p-4 text-white"><p class="text-xs opacity-90">Total Basic</p><p id="exp-basic" class="text-2xl font-bold">₹0</p></div>
+                        <div class="bg-gradient-to-br from-pink-500 to-pink-600 rounded-lg p-4 text-white"><p class="text-xs opacity-90">Total TA</p><p id="exp-ta" class="text-2xl font-bold">₹0</p></div>
+                        <div class="bg-gradient-to-br from-cyan-500 to-cyan-600 rounded-lg p-4 text-white"><p class="text-xs opacity-90">Total FA</p><p id="exp-fa" class="text-2xl font-bold">₹0</p></div>
+                        <div class="bg-gradient-to-br from-green-500 to-green-600 rounded-lg p-4 text-white"><p class="text-xs opacity-90">Total OT</p><p id="exp-ot" class="text-2xl font-bold">₹0</p></div>
                     </div>
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
-                        <div class="chart-container">
-                            <h3 class="text-sm font-bold text-gray-800 mb-2">Component Breakdown by Project</h3>
-                            <div class="h-80"><canvas id="exp-chart-1"></canvas></div>
-                        </div>
-                        <div class="chart-container">
-                            <h3 class="text-sm font-bold text-gray-800 mb-2">Variable vs Fixed Pay</h3>
-                            <div class="h-80"><canvas id="exp-chart-2"></canvas></div>
-                        </div>
+                        <div class="chart-container"><h3 class="text-sm font-bold text-gray-800 mb-2">Component Breakdown by Project</h3><div class="h-80"><canvas id="exp-chart-1"></canvas></div></div>
+                        <div class="chart-container"><h3 class="text-sm font-bold text-gray-800 mb-2">Variable vs Fixed Pay</h3><div class="h-80"><canvas id="exp-chart-2"></canvas></div></div>
                     </div>
                     <div class="chart-container">
                         <h3 class="text-sm font-bold text-gray-800 mb-3">Detailed Component Table</h3>
-                        <div class="overflow-x-auto">
-                            <table class="min-w-full text-xs">
-                                <thead class="bg-gray-100">
-                                    <tr>
-                                        <th class="px-3 py-2 text-left font-semibold text-gray-700">Emp ID</th>
-                                        <th class="px-3 py-2 text-left font-semibold text-gray-700">Name</th>
-                                        <th class="px-3 py-2 text-left font-semibold text-gray-700">Project</th>
-                                        <th class="px-3 py-2 text-right font-semibold text-gray-700">Basic</th>
-                                        <th class="px-3 py-2 text-right font-semibold text-gray-700">TA</th>
-                                        <th class="px-3 py-2 text-right font-semibold text-gray-700">FA</th>
-                                        <th class="px-3 py-2 text-right font-semibold text-gray-700">NA</th>
-                                        <th class="px-3 py-2 text-right font-semibold text-gray-700">OT</th>
-                                        <th class="px-3 py-2 text-right font-semibold text-gray-700">IN</th>
-                                        <th class="px-3 py-2 text-right font-semibold text-gray-700">Total</th>
-                                        <th class="px-3 py-2 text-left font-semibold text-gray-700">Month</th>
-                                        <th class="px-3 py-2 text-left font-semibold text-gray-700">Year</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="exp-table-body" class="divide-y divide-gray-100"></tbody>
-                            </table>
-                        </div>
+                        <div class="overflow-x-auto"><table class="min-w-full text-xs"><thead class="bg-gray-100"><tr><th class="px-3 py-2 text-left font-semibold text-gray-700">Emp ID</th><th class="px-3 py-2 text-left font-semibold text-gray-700">Name</th><th class="px-3 py-2 text-left font-semibold text-gray-700">Project</th><th class="px-3 py-2 text-right font-semibold text-gray-700">Basic</th><th class="px-3 py-2 text-right font-semibold text-gray-700">TA</th><th class="px-3 py-2 text-right font-semibold text-gray-700">FA</th><th class="px-3 py-2 text-right font-semibold text-gray-700">NA</th><th class="px-3 py-2 text-right font-semibold text-gray-700">OT</th><th class="px-3 py-2 text-right font-semibold text-gray-700">IN</th><th class="px-3 py-2 text-right font-semibold text-gray-700">Total</th><th class="px-3 py-2 text-left font-semibold text-gray-700">Month</th><th class="px-3 py-2 text-left font-semibold text-gray-700">Year</th></tr></thead><tbody id="exp-table-body" class="divide-y divide-gray-100"></tbody></table></div>
                     </div>
                 </div>
 
-                <!-- ==================== EMPLOYEE TAB ==================== -->
+                <!-- EMPLOYEE TAB -->
                 <div id="tab-employee" class="tab-content">
                     <h2 class="text-xl font-bold text-gray-900 mb-4">Employee Directory</h2>
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                        <div class="bg-white p-4 rounded-lg shadow">
-                            <p class="text-sm text-gray-500">Total Employees</p>
-                            <p id="emp-total" class="text-3xl font-bold text-blue-600">0</p>
-                        </div>
-                        <div class="bg-white p-4 rounded-lg shadow">
-                            <p class="text-sm text-gray-500">Active Projects</p>
-                            <p id="emp-projects" class="text-3xl font-bold text-green-600">0</p>
-                        </div>
-                        <div class="bg-white p-4 rounded-lg shadow">
-                            <p class="text-sm text-gray-500">Avg Salary</p>
-                            <p id="emp-avg" class="text-3xl font-bold text-purple-600">₹0</p>
-                        </div>
+                        <div class="bg-white p-4 rounded-lg shadow"><p class="text-sm text-gray-500">Total Employees</p><p id="emp-total" class="text-3xl font-bold text-blue-600">0</p></div>
+                        <div class="bg-white p-4 rounded-lg shadow"><p class="text-sm text-gray-500">Active Projects</p><p id="emp-projects" class="text-3xl font-bold text-green-600">0</p></div>
+                        <div class="bg-white p-4 rounded-lg shadow"><p class="text-sm text-gray-500">Avg Salary</p><p id="emp-avg" class="text-3xl font-bold text-purple-600">₹0</p></div>
                     </div>
-                    <div class="chart-container mb-4">
-                        <h3 class="text-sm font-bold text-gray-800 mb-2">Employee Distribution by Project</h3>
-                        <div class="h-72"><canvas id="emp-chart-1"></canvas></div>
-                    </div>
+                    <div class="chart-container mb-4"><h3 class="text-sm font-bold text-gray-800 mb-2">Employee Distribution by Project</h3><div class="h-72"><canvas id="emp-chart-1"></canvas></div></div>
                     <div class="chart-container">
                         <h3 class="text-sm font-bold text-gray-800 mb-3">Employee Master List</h3>
-                        <div class="overflow-x-auto">
-                            <table class="min-w-full text-xs">
-                                <thead class="bg-gray-100">
-                                    <tr>
-                                        <th class="px-3 py-2 text-left font-semibold text-gray-700">Emp ID</th>
-                                        <th class="px-3 py-2 text-left font-semibold text-gray-700">Name</th>
-                                        <th class="px-3 py-2 text-left font-semibold text-gray-700">Project</th>
-                                        <th class="px-3 py-2 text-right font-semibold text-gray-700">Months Active</th>
-                                        <th class="px-3 py-2 text-right font-semibold text-gray-700">Total Earnings</th>
-                                        <th class="px-3 py-2 text-right font-semibold text-gray-700">Avg Monthly</th>
-                                        <th class="px-3 py-2 text-center font-semibold text-gray-700">Edited</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="emp-table-body" class="divide-y divide-gray-100"></tbody>
-                            </table>
-                        </div>
+                        <div class="overflow-x-auto"><table class="min-w-full text-xs"><thead class="bg-gray-100"><tr><th class="px-3 py-2 text-left font-semibold text-gray-700">Emp ID</th><th class="px-3 py-2 text-left font-semibold text-gray-700">Name</th><th class="px-3 py-2 text-left font-semibold text-gray-700">Project</th><th class="px-3 py-2 text-right font-semibold text-gray-700">Months Active</th><th class="px-3 py-2 text-right font-semibold text-gray-700">Total Earnings</th><th class="px-3 py-2 text-right font-semibold text-gray-700">Avg Monthly</th><th class="px-3 py-2 text-center font-semibold text-gray-700">Edited</th></tr></thead><tbody id="emp-table-body" class="divide-y divide-gray-100"></tbody></table></div>
                     </div>
                 </div>
 
-                <!-- ==================== SELECT MONTH TAB ==================== -->
+                <!-- SELECT MONTH TAB -->
                 <div id="tab-select-month" class="tab-content">
                     <h2 class="text-xl font-bold text-gray-900 mb-4">Month & Year-wise Analysis</h2>
                     <div class="bg-white p-4 rounded-lg shadow mb-6">
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Select Year</label>
-                                <select id="year-selector" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"></select>
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Select Month</label>
-                                <select id="month-selector" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"></select>
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Quick View</label>
-                                <div class="flex gap-2 flex-wrap" id="quick-filters"></div>
-                            </div>
+                            <div><label class="block text-sm font-medium text-gray-700 mb-2">Select Year</label><select id="year-selector" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"></select></div>
+                            <div><label class="block text-sm font-medium text-gray-700 mb-2">Select Month</label><select id="month-selector" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"></select></div>
+                            <div><label class="block text-sm font-medium text-gray-700 mb-2">Quick View</label><div class="flex gap-2 flex-wrap" id="quick-filters"></div></div>
                         </div>
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-                        <div class="bg-white p-4 rounded-lg shadow">
-                            <p class="text-sm text-gray-500">Period Total</p>
-                            <p id="month-total" class="text-2xl font-bold text-blue-600">₹0</p>
-                        </div>
-                        <div class="bg-white p-4 rounded-lg shadow">
-                            <p class="text-sm text-gray-500">Records</p>
-                            <p id="month-records" class="text-2xl font-bold text-green-600">0</p>
-                        </div>
-                        <div class="bg-white p-4 rounded-lg shadow">
-                            <p class="text-sm text-gray-500">Avg Salary</p>
-                            <p id="month-avg" class="text-2xl font-bold text-purple-600">₹0</p>
-                        </div>
-                        <div class="bg-white p-4 rounded-lg shadow">
-                            <p class="text-sm text-gray-500">Highest Earner</p>
-                            <p id="month-highest" class="text-lg font-bold text-orange-600">-</p>
-                        </div>
+                        <div class="bg-white p-4 rounded-lg shadow"><p class="text-sm text-gray-500">Period Total</p><p id="month-total" class="text-2xl font-bold text-blue-600">₹0</p></div>
+                        <div class="bg-white p-4 rounded-lg shadow"><p class="text-sm text-gray-500">Records</p><p id="month-records" class="text-2xl font-bold text-green-600">0</p></div>
+                        <div class="bg-white p-4 rounded-lg shadow"><p class="text-sm text-gray-500">Avg Salary</p><p id="month-avg" class="text-2xl font-bold text-purple-600">₹0</p></div>
+                        <div class="bg-white p-4 rounded-lg shadow"><p class="text-sm text-gray-500">Highest Earner</p><p id="month-highest" class="text-lg font-bold text-orange-600">-</p></div>
                     </div>
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
-                        <div class="chart-container">
-                            <h3 class="text-sm font-bold text-gray-800 mb-2">Project Distribution</h3>
-                            <div class="h-72"><canvas id="month-chart-1"></canvas></div>
-                        </div>
-                        <div class="chart-container">
-                            <h3 class="text-sm font-bold text-gray-800 mb-2">Component Breakdown</h3>
-                            <div class="h-72"><canvas id="month-chart-2"></canvas></div>
-                        </div>
+                        <div class="chart-container"><h3 class="text-sm font-bold text-gray-800 mb-2">Project Distribution</h3><div class="h-72"><canvas id="month-chart-1"></canvas></div></div>
+                        <div class="chart-container"><h3 class="text-sm font-bold text-gray-800 mb-2">Component Breakdown</h3><div class="h-72"><canvas id="month-chart-2"></canvas></div></div>
                     </div>
                     <div class="chart-container">
                         <h3 class="text-sm font-bold text-gray-800 mb-3">Employee Details - Selected Period</h3>
-                        <div class="overflow-x-auto">
-                            <table class="min-w-full text-xs">
-                                <thead class="bg-gray-100">
-                                    <tr>
-                                        <th class="px-3 py-2 text-left font-semibold text-gray-700">Emp ID</th>
-                                        <th class="px-3 py-2 text-left font-semibold text-gray-700">Name</th>
-                                        <th class="px-3 py-2 text-left font-semibold text-gray-700">Project</th>
-                                        <th class="px-3 py-2 text-right font-semibold text-gray-700">Basic</th>
-                                        <th class="px-3 py-2 text-right font-semibold text-gray-700">TA</th>
-                                        <th class="px-3 py-2 text-right font-semibold text-gray-700">FA</th>
-                                        <th class="px-3 py-2 text-right font-semibold text-gray-700">NA</th>
-                                        <th class="px-3 py-2 text-right font-semibold text-gray-700">OT</th>
-                                        <th class="px-3 py-2 text-right font-semibold text-gray-700">IN</th>
-                                        <th class="px-3 py-2 text-right font-semibold text-gray-700">Total</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="month-table-body" class="divide-y divide-gray-100"></tbody>
-                            </table>
-                        </div>
+                        <div class="overflow-x-auto"><table class="min-w-full text-xs"><thead class="bg-gray-100"><tr><th class="px-3 py-2 text-left font-semibold text-gray-700">Emp ID</th><th class="px-3 py-2 text-left font-semibold text-gray-700">Name</th><th class="px-3 py-2 text-left font-semibold text-gray-700">Project</th><th class="px-3 py-2 text-right font-semibold text-gray-700">Basic</th><th class="px-3 py-2 text-right font-semibold text-gray-700">TA</th><th class="px-3 py-2 text-right font-semibold text-gray-700">FA</th><th class="px-3 py-2 text-right font-semibold text-gray-700">NA</th><th class="px-3 py-2 text-right font-semibold text-gray-700">OT</th><th class="px-3 py-2 text-right font-semibold text-gray-700">IN</th><th class="px-3 py-2 text-right font-semibold text-gray-700">Total</th></tr></thead><tbody id="month-table-body" class="divide-y divide-gray-100"></tbody></table></div>
                     </div>
                 </div>
 
-                <!-- ==================== MONTHLY VARIABLE TAB ==================== -->
+                <!-- MONTHLY VARIABLE TAB -->
                 <div id="tab-monthly-variable" class="tab-content">
                     <h2 class="text-xl font-bold text-gray-900 mb-4">Monthly Variable Pay Analysis</h2>
                     <div class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6">
-                        <div class="bg-blue-50 p-4 rounded-lg border border-blue-200">
-                            <p class="text-xs text-blue-600 font-medium">Total TA</p>
-                            <p id="var-ta" class="text-xl font-bold text-blue-800">₹0</p>
-                        </div>
-                        <div class="bg-green-50 p-4 rounded-lg border border-green-200">
-                            <p class="text-xs text-green-600 font-medium">Total FA</p>
-                            <p id="var-fa" class="text-xl font-bold text-green-800">₹0</p>
-                        </div>
-                        <div class="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
-                            <p class="text-xs text-yellow-600 font-medium">Total NA</p>
-                            <p id="var-na" class="text-xl font-bold text-yellow-800">₹0</p>
-                        </div>
-                        <div class="bg-red-50 p-4 rounded-lg border border-red-200">
-                            <p class="text-xs text-red-600 font-medium">Total OT</p>
-                            <p id="var-ot" class="text-xl font-bold text-red-800">₹0</p>
-                        </div>
-                        <div class="bg-purple-50 p-4 rounded-lg border border-purple-200">
-                            <p class="text-xs text-purple-600 font-medium">Total IN</p>
-                            <p id="var-in" class="text-xl font-bold text-purple-800">₹0</p>
-                        </div>
+                        <div class="bg-blue-50 p-4 rounded-lg border border-blue-200"><p class="text-xs text-blue-600 font-medium">Total TA</p><p id="var-ta" class="text-xl font-bold text-blue-800">₹0</p></div>
+                        <div class="bg-green-50 p-4 rounded-lg border border-green-200"><p class="text-xs text-green-600 font-medium">Total FA</p><p id="var-fa" class="text-xl font-bold text-green-800">₹0</p></div>
+                        <div class="bg-yellow-50 p-4 rounded-lg border border-yellow-200"><p class="text-xs text-yellow-600 font-medium">Total NA</p><p id="var-na" class="text-xl font-bold text-yellow-800">₹0</p></div>
+                        <div class="bg-red-50 p-4 rounded-lg border border-red-200"><p class="text-xs text-red-600 font-medium">Total OT</p><p id="var-ot" class="text-xl font-bold text-red-800">₹0</p></div>
+                        <div class="bg-purple-50 p-4 rounded-lg border border-purple-200"><p class="text-xs text-purple-600 font-medium">Total IN</p><p id="var-in" class="text-xl font-bold text-purple-800">₹0</p></div>
                     </div>
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
-                        <div class="chart-container">
-                            <h3 class="text-sm font-bold text-gray-800 mb-2">Variable Components Trend</h3>
-                            <div class="h-80"><canvas id="var-chart-1"></canvas></div>
-                        </div>
-                        <div class="chart-container">
-                            <h3 class="text-sm font-bold text-gray-800 mb-2">Variable Pay by Employee</h3>
-                            <div class="h-80"><canvas id="var-chart-2"></canvas></div>
-                        </div>
+                        <div class="chart-container"><h3 class="text-sm font-bold text-gray-800 mb-2">Variable Components Trend</h3><div class="h-80"><canvas id="var-chart-1"></canvas></div></div>
+                        <div class="chart-container"><h3 class="text-sm font-bold text-gray-800 mb-2">Variable Pay by Employee</h3><div class="h-80"><canvas id="var-chart-2"></canvas></div></div>
                     </div>
                     <div class="chart-container">
                         <h3 class="text-sm font-bold text-gray-800 mb-3">Variable Pay Details</h3>
-                        <div class="overflow-x-auto">
-                            <table class="min-w-full text-xs">
-                                <thead class="bg-gray-100">
-                                    <tr>
-                                        <th class="px-3 py-2 text-left font-semibold text-gray-700">Emp ID</th>
-                                        <th class="px-3 py-2 text-left font-semibold text-gray-700">Name</th>
-                                        <th class="px-3 py-2 text-right font-semibold text-gray-700">TA</th>
-                                        <th class="px-3 py-2 text-right font-semibold text-gray-700">FA</th>
-                                        <th class="px-3 py-2 text-right font-semibold text-gray-700">NA</th>
-                                        <th class="px-3 py-2 text-right font-semibold text-gray-700">OT</th>
-                                        <th class="px-3 py-2 text-right font-semibold text-gray-700">IN</th>
-                                        <th class="px-3 py-2 text-right font-semibold text-gray-700">Total Variable</th>
-                                        <th class="px-3 py-2 text-left font-semibold text-gray-700">Month/Year</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="var-table-body" class="divide-y divide-gray-100"></tbody>
-                            </table>
-                        </div>
+                        <div class="overflow-x-auto"><table class="min-w-full text-xs"><thead class="bg-gray-100"><tr><th class="px-3 py-2 text-left font-semibold text-gray-700">Emp ID</th><th class="px-3 py-2 text-left font-semibold text-gray-700">Name</th><th class="px-3 py-2 text-right font-semibold text-gray-700">TA</th><th class="px-3 py-2 text-right font-semibold text-gray-700">FA</th><th class="px-3 py-2 text-right font-semibold text-gray-700">NA</th><th class="px-3 py-2 text-right font-semibold text-gray-700">OT</th><th class="px-3 py-2 text-right font-semibold text-gray-700">IN</th><th class="px-3 py-2 text-right font-semibold text-gray-700">Total Variable</th><th class="px-3 py-2 text-left font-semibold text-gray-700">Month/Year</th></tr></thead><tbody id="var-table-body" class="divide-y divide-gray-100"></tbody></table></div>
                     </div>
                 </div>
 
-                <!-- ==================== ATTENDANCE TAB ==================== -->
+                <!-- ATTENDANCE TAB -->
                 <div id="tab-attendance" class="tab-content">
                     <h2 class="text-xl font-bold text-gray-900 mb-4">Attendance & Overtime Analysis</h2>
                     <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-                        <div class="bg-white p-4 rounded-lg shadow">
-                            <p class="text-sm text-gray-500">Total OT</p>
-                            <p id="att-ot-total" class="text-2xl font-bold text-orange-600">₹0</p>
-                        </div>
-                        <div class="bg-white p-4 rounded-lg shadow">
-                            <p class="text-sm text-gray-500">Employees with OT</p>
-                            <p id="att-ot-emp" class="text-2xl font-bold text-blue-600">0</p>
-                        </div>
-                        <div class="bg-white p-4 rounded-lg shadow">
-                            <p class="text-sm text-gray-500">Avg OT per Record</p>
-                            <p id="att-ot-avg" class="text-2xl font-bold text-green-600">₹0</p>
-                        </div>
-                        <div class="bg-white p-4 rounded-lg shadow">
-                            <p class="text-sm text-gray-500">Total IN Allowance</p>
-                            <p id="att-in-total" class="text-2xl font-bold text-purple-600">₹0</p>
-                        </div>
+                        <div class="bg-white p-4 rounded-lg shadow"><p class="text-sm text-gray-500">Total OT</p><p id="att-ot-total" class="text-2xl font-bold text-orange-600">₹0</p></div>
+                        <div class="bg-white p-4 rounded-lg shadow"><p class="text-sm text-gray-500">Employees with OT</p><p id="att-ot-emp" class="text-2xl font-bold text-blue-600">0</p></div>
+                        <div class="bg-white p-4 rounded-lg shadow"><p class="text-sm text-gray-500">Avg OT per Record</p><p id="att-ot-avg" class="text-2xl font-bold text-green-600">₹0</p></div>
+                        <div class="bg-white p-4 rounded-lg shadow"><p class="text-sm text-gray-500">Total IN Allowance</p><p id="att-in-total" class="text-2xl font-bold text-purple-600">₹0</p></div>
                     </div>
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
-                        <div class="chart-container">
-                            <h3 class="text-sm font-bold text-gray-800 mb-2">Overtime by Employee</h3>
-                            <div class="h-80"><canvas id="att-chart-1"></canvas></div>
-                        </div>
-                        <div class="chart-container">
-                            <h3 class="text-sm font-bold text-gray-800 mb-2">OT & IN by Month</h3>
-                            <div class="h-80"><canvas id="att-chart-2"></canvas></div>
-                        </div>
+                        <div class="chart-container"><h3 class="text-sm font-bold text-gray-800 mb-2">Overtime by Employee</h3><div class="h-80"><canvas id="att-chart-1"></canvas></div></div>
+                        <div class="chart-container"><h3 class="text-sm font-bold text-gray-800 mb-2">OT & IN by Month</h3><div class="h-80"><canvas id="att-chart-2"></canvas></div></div>
                     </div>
                     <div class="chart-container">
                         <h3 class="text-sm font-bold text-gray-800 mb-3">Attendance Details (OT & IN)</h3>
-                        <div class="overflow-x-auto">
-                            <table class="min-w-full text-xs">
-                                <thead class="bg-gray-100">
-                                    <tr>
-                                        <th class="px-3 py-2 text-left font-semibold text-gray-700">Emp ID</th>
-                                        <th class="px-3 py-2 text-left font-semibold text-gray-700">Name</th>
-                                        <th class="px-3 py-2 text-left font-semibold text-gray-700">Project</th>
-                                        <th class="px-3 py-2 text-right font-semibold text-gray-700">OT Amount</th>
-                                        <th class="px-3 py-2 text-right font-semibold text-gray-700">IN Amount</th>
-                                        <th class="px-3 py-2 text-left font-semibold text-gray-700">OT Status</th>
-                                        <th class="px-3 py-2 text-left font-semibold text-gray-700">Month/Year</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="att-table-body" class="divide-y divide-gray-100"></tbody>
-                            </table>
-                        </div>
+                        <div class="overflow-x-auto"><table class="min-w-full text-xs"><thead class="bg-gray-100"><tr><th class="px-3 py-2 text-left font-semibold text-gray-700">Emp ID</th><th class="px-3 py-2 text-left font-semibold text-gray-700">Name</th><th class="px-3 py-2 text-left font-semibold text-gray-700">Project</th><th class="px-3 py-2 text-right font-semibold text-gray-700">OT Amount</th><th class="px-3 py-2 text-right font-semibold text-gray-700">IN Amount</th><th class="px-3 py-2 text-left font-semibold text-gray-700">OT Status</th><th class="px-3 py-2 text-left font-semibold text-gray-700">Month/Year</th></tr></thead><tbody id="att-table-body" class="divide-y divide-gray-100"></tbody></table></div>
                     </div>
                 </div>
 
-                <!-- ==================== PROCESS SALARY TAB ==================== -->
+                <!-- PROCESS SALARY TAB -->
                 <div id="tab-process-salary" class="tab-content">
                     <h2 class="text-xl font-bold text-gray-900 mb-4">Salary Processing</h2>
                     <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-                        <div class="bg-gradient-to-r from-blue-500 to-blue-600 p-4 rounded-lg text-white">
-                            <p class="text-xs opacity-90">Gross Salary</p>
-                            <p id="sal-gross" class="text-2xl font-bold">₹0</p>
-                        </div>
-                        <div class="bg-gradient-to-r from-green-500 to-green-600 p-4 rounded-lg text-white">
-                            <p class="text-xs opacity-90">Fixed Pay (Basic+TA+FA)</p>
-                            <p id="sal-fixed" class="text-2xl font-bold">₹0</p>
-                        </div>
-                        <div class="bg-gradient-to-r from-orange-500 to-orange-600 p-4 rounded-lg text-white">
-                            <p class="text-xs opacity-90">Variable Pay (NA+OT+IN)</p>
-                            <p id="sal-variable" class="text-2xl font-bold">₹0</p>
-                        </div>
-                        <div class="bg-gradient-to-r from-purple-500 to-purple-600 p-4 rounded-lg text-white">
-                            <p class="text-xs opacity-90">Net Payable</p>
-                            <p id="sal-net" class="text-2xl font-bold">₹0</p>
-                        </div>
+                        <div class="bg-gradient-to-r from-blue-500 to-blue-600 p-4 rounded-lg text-white"><p class="text-xs opacity-90">Gross Salary</p><p id="sal-gross" class="text-2xl font-bold">₹0</p></div>
+                        <div class="bg-gradient-to-r from-green-500 to-green-600 p-4 rounded-lg text-white"><p class="text-xs opacity-90">Fixed Pay (Basic+TA+FA)</p><p id="sal-fixed" class="text-2xl font-bold">₹0</p></div>
+                        <div class="bg-gradient-to-r from-orange-500 to-orange-600 p-4 rounded-lg text-white"><p class="text-xs opacity-90">Variable Pay (NA+OT+IN)</p><p id="sal-variable" class="text-2xl font-bold">₹0</p></div>
+                        <div class="bg-gradient-to-r from-purple-500 to-purple-600 p-4 rounded-lg text-white"><p class="text-xs opacity-90">Net Payable</p><p id="sal-net" class="text-2xl font-bold">₹0</p></div>
                     </div>
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
-                        <div class="chart-container">
-                            <h3 class="text-sm font-bold text-gray-800 mb-2">Salary Structure Overview</h3>
-                            <div class="h-80"><canvas id="sal-chart-1"></canvas></div>
-                        </div>
-                        <div class="chart-container">
-                            <h3 class="text-sm font-bold text-gray-800 mb-2">Fixed vs Variable Ratio</h3>
-                            <div class="h-80"><canvas id="sal-chart-2"></canvas></div>
-                        </div>
+                        <div class="chart-container"><h3 class="text-sm font-bold text-gray-800 mb-2">Salary Structure Overview</h3><div class="h-80"><canvas id="sal-chart-1"></canvas></div></div>
+                        <div class="chart-container"><h3 class="text-sm font-bold text-gray-800 mb-2">Fixed vs Variable Ratio</h3><div class="h-80"><canvas id="sal-chart-2"></canvas></div></div>
                     </div>
                     <div class="chart-container">
                         <h3 class="text-sm font-bold text-gray-800 mb-3">Salary Processing Sheet</h3>
-                        <div class="overflow-x-auto">
-                            <table class="min-w-full text-xs">
-                                <thead class="bg-gray-100">
-                                    <tr>
-                                        <th class="px-3 py-2 text-left font-semibold text-gray-700">Emp ID</th>
-                                        <th class="px-3 py-2 text-left font-semibold text-gray-700">Name</th>
-                                        <th class="px-3 py-2 text-left font-semibold text-gray-700">Project</th>
-                                        <th class="px-3 py-2 text-right font-semibold text-gray-700">Basic</th>
-                                        <th class="px-3 py-2 text-right font-semibold text-gray-700">Allowances</th>
-                                        <th class="px-3 py-2 text-right font-semibold text-gray-700">OT/IN</th>
-                                        <th class="px-3 py-2 text-right font-semibold text-gray-700">Gross</th>
-                                        <th class="px-3 py-2 text-left font-semibold text-gray-700">Status</th>
-                                        <th class="px-3 py-2 text-left font-semibold text-gray-700">Month/Year</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="sal-table-body" class="divide-y divide-gray-100"></tbody>
-                            </table>
-                        </div>
+                        <div class="overflow-x-auto"><table class="min-w-full text-xs"><thead class="bg-gray-100"><tr><th class="px-3 py-2 text-left font-semibold text-gray-700">Emp ID</th><th class="px-3 py-2 text-left font-semibold text-gray-700">Name</th><th class="px-3 py-2 text-left font-semibold text-gray-700">Project</th><th class="px-3 py-2 text-right font-semibold text-gray-700">Basic</th><th class="px-3 py-2 text-right font-semibold text-gray-700">Allowances</th><th class="px-3 py-2 text-right font-semibold text-gray-700">OT/IN</th><th class="px-3 py-2 text-right font-semibold text-gray-700">Gross</th><th class="px-3 py-2 text-left font-semibold text-gray-700">Status</th><th class="px-3 py-2 text-left font-semibold text-gray-700">Month/Year</th></tr></thead><tbody id="sal-table-body" class="divide-y divide-gray-100"></tbody></table></div>
                     </div>
                 </div>
 
-                <!-- ==================== PAYSLIP TAB ==================== -->
+                <!-- PAYSLIP TAB -->
                 <div id="tab-payslip" class="tab-content">
                     <h2 class="text-xl font-bold text-gray-900 mb-4">Payslip Generator</h2>
                     <div class="bg-white p-4 rounded-lg shadow mb-6">
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Select Employee</label>
-                                <select id="payslip-emp" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"></select>
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Select Month/Year</label>
-                                <select id="payslip-month" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"></select>
-                            </div>
+                            <div><label class="block text-sm font-medium text-gray-700 mb-2">Select Employee</label><select id="payslip-emp" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"></select></div>
+                            <div><label class="block text-sm font-medium text-gray-700 mb-2">Select Month/Year</label><select id="payslip-month" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"></select></div>
                         </div>
                     </div>
                     <div id="payslip-content" class="bg-white p-6 rounded-lg shadow max-w-2xl mx-auto">
-                        <div class="text-center border-b-2 border-blue-600 pb-4 mb-4">
-                            <h3 class="text-lg font-bold text-blue-700">Expense Tracker</h3>
-                            <p class="text-xs text-gray-500">Developed by Ayan Paul</p>
-                            <p class="text-sm font-semibold mt-2 text-gray-800">PAYSLIP</p>
-                        </div>
+                        <div class="text-center border-b-2 border-blue-600 pb-4 mb-4"><h3 class="text-lg font-bold text-blue-700">Expense Tracker</h3><p class="text-xs text-gray-500">Developed by Ayan Paul</p><p class="text-sm font-semibold mt-2 text-gray-800">PAYSLIP</p></div>
                         <div id="payslip-details" class="text-sm"></div>
                     </div>
                 </div>
 
-                <!-- ==================== SALARY SHEET TAB ==================== -->
+                <!-- SALARY SHEET TAB -->
                 <div id="tab-salary-sheet" class="tab-content">
                     <h2 class="text-xl font-bold text-gray-900 mb-4">Salary Sheet - Complete Overview</h2>
                     <div class="chart-container">
-                        <div class="flex items-center justify-between mb-3">
-                            <h3 class="text-sm font-bold text-gray-800">Complete Salary Register</h3>
-                            <span id="sheet-count" class="text-xs text-gray-500"></span>
-                        </div>
-                        <div class="overflow-x-auto max-h-[600px]">
-                            <table class="min-w-full text-xs">
-                                <thead class="bg-gray-100 sticky top-0 z-10">
-                                    <tr>
-                                        <th class="px-3 py-2 text-left font-semibold text-gray-700">Emp ID</th>
-                                        <th class="px-3 py-2 text-left font-semibold text-gray-700">Name</th>
-                                        <th class="px-3 py-2 text-left font-semibold text-gray-700">Project</th>
-                                        <th class="px-3 py-2 text-right font-semibold text-gray-700">Basic</th>
-                                        <th class="px-3 py-2 text-right font-semibold text-gray-700">TA</th>
-                                        <th class="px-3 py-2 text-right font-semibold text-gray-700">FA</th>
-                                        <th class="px-3 py-2 text-right font-semibold text-gray-700">NA</th>
-                                        <th class="px-3 py-2 text-right font-semibold text-gray-700">OT</th>
-                                        <th class="px-3 py-2 text-right font-semibold text-gray-700">IN</th>
-                                        <th class="px-3 py-2 text-right font-semibold text-gray-700">Total</th>
-                                        <th class="px-3 py-2 text-left font-semibold text-gray-700">Month</th>
-                                        <th class="px-3 py-2 text-left font-semibold text-gray-700">Year</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="sheet-table-body" class="divide-y divide-gray-100"></tbody>
-                            </table>
-                        </div>
+                        <div class="flex items-center justify-between mb-3"><h3 class="text-sm font-bold text-gray-800">Complete Salary Register</h3><span id="sheet-count" class="text-xs text-gray-500"></span></div>
+                        <div class="overflow-x-auto max-h-[600px]"><table class="min-w-full text-xs"><thead class="bg-gray-100 sticky top-0 z-10"><tr><th class="px-3 py-2 text-left font-semibold text-gray-700">Emp ID</th><th class="px-3 py-2 text-left font-semibold text-gray-700">Name</th><th class="px-3 py-2 text-left font-semibold text-gray-700">Project</th><th class="px-3 py-2 text-right font-semibold text-gray-700">Basic</th><th class="px-3 py-2 text-right font-semibold text-gray-700">TA</th><th class="px-3 py-2 text-right font-semibold text-gray-700">FA</th><th class="px-3 py-2 text-right font-semibold text-gray-700">NA</th><th class="px-3 py-2 text-right font-semibold text-gray-700">OT</th><th class="px-3 py-2 text-right font-semibold text-gray-700">IN</th><th class="px-3 py-2 text-right font-semibold text-gray-700">Total</th><th class="px-3 py-2 text-left font-semibold text-gray-700">Month</th><th class="px-3 py-2 text-left font-semibold text-gray-700">Year</th></tr></thead><tbody id="sheet-table-body" class="divide-y divide-gray-100"></tbody></table></div>
                     </div>
                 </div>
 
-                <!-- ==================== VIEW SALARY TAB ==================== -->
+                <!-- VIEW SALARY TAB -->
                 <div id="tab-view-salary" class="tab-content">
                     <h2 class="text-xl font-bold text-gray-900 mb-4">View Salary - Employee Wise</h2>
-                    <div class="bg-white p-4 rounded-lg shadow mb-6">
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Select Employee</label>
-                        <select id="view-sal-emp" class="w-full md:w-64 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"></select>
-                    </div>
+                    <div class="bg-white p-4 rounded-lg shadow mb-6"><label class="block text-sm font-medium text-gray-700 mb-2">Select Employee</label><select id="view-sal-emp" class="w-full md:w-64 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"></select></div>
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
-                        <div class="chart-container">
-                            <h3 class="text-sm font-bold text-gray-800 mb-2">Salary Trend</h3>
-                            <div class="h-72"><canvas id="view-sal-chart-1"></canvas></div>
-                        </div>
-                        <div class="chart-container">
-                            <h3 class="text-sm font-bold text-gray-800 mb-2">Latest Component Breakdown</h3>
-                            <div class="h-72"><canvas id="view-sal-chart-2"></canvas></div>
-                        </div>
+                        <div class="chart-container"><h3 class="text-sm font-bold text-gray-800 mb-2">Salary Trend</h3><div class="h-72"><canvas id="view-sal-chart-1"></canvas></div></div>
+                        <div class="chart-container"><h3 class="text-sm font-bold text-gray-800 mb-2">Latest Component Breakdown</h3><div class="h-72"><canvas id="view-sal-chart-2"></canvas></div></div>
                     </div>
                     <div class="chart-container">
                         <h3 class="text-sm font-bold text-gray-800 mb-3">Salary History</h3>
-                        <div class="overflow-x-auto">
-                            <table class="min-w-full text-xs">
-                                <thead class="bg-gray-100">
-                                    <tr>
-                                        <th class="px-3 py-2 text-left font-semibold text-gray-700">Month</th>
-                                        <th class="px-3 py-2 text-left font-semibold text-gray-700">Year</th>
-                                        <th class="px-3 py-2 text-right font-semibold text-gray-700">Basic</th>
-                                        <th class="px-3 py-2 text-right font-semibold text-gray-700">TA</th>
-                                        <th class="px-3 py-2 text-right font-semibold text-gray-700">FA</th>
-                                        <th class="px-3 py-2 text-right font-semibold text-gray-700">NA</th>
-                                        <th class="px-3 py-2 text-right font-semibold text-gray-700">OT</th>
-                                        <th class="px-3 py-2 text-right font-semibold text-gray-700">IN</th>
-                                        <th class="px-3 py-2 text-right font-semibold text-gray-700">Total</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="view-sal-table-body" class="divide-y divide-gray-100"></tbody>
-                            </table>
-                        </div>
+                        <div class="overflow-x-auto"><table class="min-w-full text-xs"><thead class="bg-gray-100"><tr><th class="px-3 py-2 text-left font-semibold text-gray-700">Month</th><th class="px-3 py-2 text-left font-semibold text-gray-700">Year</th><th class="px-3 py-2 text-right font-semibold text-gray-700">Basic</th><th class="px-3 py-2 text-right font-semibold text-gray-700">TA</th><th class="px-3 py-2 text-right font-semibold text-gray-700">FA</th><th class="px-3 py-2 text-right font-semibold text-gray-700">NA</th><th class="px-3 py-2 text-right font-semibold text-gray-700">OT</th><th class="px-3 py-2 text-right font-semibold text-gray-700">IN</th><th class="px-3 py-2 text-right font-semibold text-gray-700">Total</th></tr></thead><tbody id="view-sal-table-body" class="divide-y divide-gray-100"></tbody></table></div>
                     </div>
                 </div>
 
-                <!-- ==================== EDIT MASTER DATA TAB (AT THE END) ==================== -->
+                <!-- EDIT MASTER DATA TAB -->
                 <div id="tab-edit-master" class="tab-content">
                     <h2 class="text-xl font-bold text-gray-900 mb-4">Edit Master Data</h2>
                     <div class="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
                         <p class="text-sm text-blue-800 font-bold mb-1">📋 Instructions:</p>
                         <ul class="text-xs text-blue-700 list-disc list-inside space-y-0.5">
-                            <li>Click <span class="font-bold">✏️ Edit</span> on any row to enable editing mode</li>
-                            <li>Modify any cell value (Basic, TA, FA, NA, OT, IN, Total, etc.)</li>
-                            <li>Click <span class="font-bold">✓ Save</span> to save changes or <span class="font-bold">✕ Cancel</span> to discard</li>
-                            <li>When salary components change, <span class="font-bold">Total is auto-recalculated</span></li>
-                            <li>Click <span class="font-bold">🗑️ Delete</span> to remove a record (with confirmation)</li>
-                            <li>Edited cells appear with <span class="bg-yellow-200 px-1 rounded">yellow highlight + ✏️</span> across ALL tabs</li>
+                            <li>Data from all uploaded files is combined here.</li>
+                            <li>Click <span class="font-bold">✏️ Edit</span> to modify, <span class="font-bold">🗑️ Delete</span> to remove.</li>
+                            <li>Use <span class="font-bold">Clear All Data</span> below to wipe the database for a new year.</li>
                         </ul>
                     </div>
                     <div class="mb-4 flex gap-2">
-                        <button id="save-all-btn" class="px-4 py-2 bg-green-600 text-white rounded-lg text-sm font-medium hover:bg-green-700 transition">💾 Save All & Refresh Dashboard</button>
-                        <button id="undo-all-btn" class="px-4 py-2 bg-gray-600 text-white rounded-lg text-sm font-medium hover:bg-gray-700 transition">️ Undo All Edits</button>
+                        <button id="save-all-btn" class="px-4 py-2 bg-green-600 text-white rounded-lg text-sm font-medium hover:bg-green-700 transition">💾 Save Baseline</button>
+                        <button id="undo-all-btn" class="px-4 py-2 bg-gray-600 text-white rounded-lg text-sm font-medium hover:bg-gray-700 transition">↩️ Undo Edits</button>
+                        <button id="clear-db-btn" class="px-4 py-2 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-700 transition ml-auto">️ Clear All Database</button>
                     </div>
                     <div class="chart-container">
                         <div class="overflow-x-auto max-h-[600px]">
                             <table class="min-w-full text-xs">
                                 <thead class="bg-gray-100 sticky top-0 z-10">
-                                    <tr>
-                                        <th class="px-3 py-2 text-left font-semibold text-gray-700">#</th>
-                                        <th class="px-3 py-2 text-left font-semibold text-gray-700">Emp ID</th>
-                                        <th class="px-3 py-2 text-left font-semibold text-gray-700">Name</th>
-                                        <th class="px-3 py-2 text-left font-semibold text-gray-700">Project</th>
-                                        <th class="px-3 py-2 text-right font-semibold text-gray-700">Basic</th>
-                                        <th class="px-3 py-2 text-right font-semibold text-gray-700">TA</th>
-                                        <th class="px-3 py-2 text-right font-semibold text-gray-700">FA</th>
-                                        <th class="px-3 py-2 text-right font-semibold text-gray-700">NA</th>
-                                        <th class="px-3 py-2 text-right font-semibold text-gray-700">OT</th>
-                                        <th class="px-3 py-2 text-right font-semibold text-gray-700">IN</th>
-                                        <th class="px-3 py-2 text-right font-semibold text-gray-700">Total</th>
-                                        <th class="px-3 py-2 text-left font-semibold text-gray-700">Month</th>
-                                        <th class="px-3 py-2 text-left font-semibold text-gray-700">Year</th>
-                                        <th class="px-3 py-2 text-center font-semibold text-gray-700">Actions</th>
-                                    </tr>
+                                    <tr><th class="px-3 py-2 text-left font-semibold text-gray-700">#</th><th class="px-3 py-2 text-left font-semibold text-gray-700">Emp ID</th><th class="px-3 py-2 text-left font-semibold text-gray-700">Name</th><th class="px-3 py-2 text-left font-semibold text-gray-700">Project</th><th class="px-3 py-2 text-right font-semibold text-gray-700">Basic</th><th class="px-3 py-2 text-right font-semibold text-gray-700">TA</th><th class="px-3 py-2 text-right font-semibold text-gray-700">FA</th><th class="px-3 py-2 text-right font-semibold text-gray-700">NA</th><th class="px-3 py-2 text-right font-semibold text-gray-700">OT</th><th class="px-3 py-2 text-right font-semibold text-gray-700">IN</th><th class="px-3 py-2 text-right font-semibold text-gray-700">Total</th><th class="px-3 py-2 text-left font-semibold text-gray-700">Month</th><th class="px-3 py-2 text-left font-semibold text-gray-700">Year</th><th class="px-3 py-2 text-center font-semibold text-gray-700">Actions</th></tr>
                                 </thead>
                                 <tbody id="edit-table-body" class="divide-y divide-gray-100"></tbody>
                             </table>
@@ -691,66 +313,48 @@
         const charts = {};
         let rawData = [];
         let editedCells = new Set();
-        let originalData = []; // Keep backup for undo
+        let originalData = [];
         let employeeData = {};
         let monthData = {};
         let yearData = {};
+        const STORAGE_KEY = 'expenseTrackerDB_v1';
 
         const monthOrder = ['January','February','March','April','May','June','July','August','September','October','November','December'];
         const chartColors = ['#3b82f6','#10b981','#f59e0b','#ef4444','#8b5cf6','#ec4899','#14b8a6','#f97316','#06b6d4','#84cc16'];
-        const editableFields = ['Basic','TA','FA','NA','OT','IN','Total','Emp ID','Name','Project','Month','Year'];
 
-        function parseRupee(v) {
-            if (v === null || v === undefined || v === '') return 0;
-            if (typeof v === 'number') return v;
-            const n = parseFloat(String(v).replace(/[₹,\s]/g, ''));
-            return isNaN(n) ? 0 : n;
-        }
+        function parseRupee(v) { if (v === null || v === undefined || v === '') return 0; if (typeof v === 'number') return v; const n = parseFloat(String(v).replace(/[₹,\s]/g, '')); return isNaN(n) ? 0 : n; }
+        function fmt(v) { return '₹' + v.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+        function fmtShort(v) { if (v >= 10000000) return '₹' + (v/10000000).toFixed(2) + 'Cr'; if (v >= 100000) return '₹' + (v/100000).toFixed(2) + 'L'; if (v >= 1000) return '₹' + (v/1000).toFixed(1) + 'K'; return '₹' + v.toFixed(0); }
+        function getCellKey(rowIdx, field) { return `${rowIdx}-${field}`; }
+        function isCellEdited(rowIdx, field) { return editedCells.has(getCellKey(rowIdx, field)); }
+        function markCellEdited(rowIdx, field) { editedCells.add(getCellKey(rowIdx, field)); }
+        function getYear(row) { return row.Year || row._year || '2026'; }
+        function getMonthYear(row) { return `${row.Month || 'Unknown'} ${getYear(row)}`; }
 
-        function fmt(v) {
-            return '₹' + v.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-        }
-
-        function fmtShort(v) {
-            if (v >= 10000000) return '₹' + (v/10000000).toFixed(2) + 'Cr';
-            if (v >= 100000) return '₹' + (v/100000).toFixed(2) + 'L';
-            if (v >= 1000) return '₹' + (v/1000).toFixed(1) + 'K';
-            return '₹' + v.toFixed(0);
-        }
-
-        function getCellKey(rowIdx, field) {
-            return `${rowIdx}-${field}`;
-        }
-
-        function isCellEdited(rowIdx, field) {
-            return editedCells.has(getCellKey(rowIdx, field));
-        }
-
-        function markCellEdited(rowIdx, field) {
-            editedCells.add(getCellKey(rowIdx, field));
-        }
-
-        function getYear(row) {
-            return row.Year || row._year || '2026';
-        }
-
-        function getMonthYear(row) {
-            return `${row.Month || 'Unknown'} ${getYear(row)}`;
-        }
-
-        // Helper to render an edited-aware cell
         function renderEditedCell(value, rowIdx, field, align = 'right', isCurrency = false) {
             const edited = isCellEdited(rowIdx, field);
             const displayValue = isCurrency ? fmt(parseRupee(value)) : (value || '-');
             const alignClass = align === 'right' ? 'text-right' : (align === 'center' ? 'text-center' : 'text-left');
-            
-            if (edited) {
-                return `<td class="px-3 py-2 edited-cell ${alignClass} text-gray-900">
-                    <span class="edited-badge">✏️</span>
-                    ${displayValue}
-                </td>`;
-            }
+            if (edited) return `<td class="px-3 py-2 edited-cell ${alignClass} text-gray-900"><span class="edited-badge">✏️</span>${displayValue}</td>`;
             return `<td class="px-3 py-2 ${alignClass} text-gray-700">${displayValue}</td>`;
+        }
+
+        // --- LOCAL STORAGE FUNCTIONS ---
+        function saveToLocalStorage() {
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(rawData));
+            } catch (e) { console.error("Storage full or blocked", e); }
+        }
+
+        function loadFromLocalStorage() {
+            try {
+                const saved = localStorage.getItem(STORAGE_KEY);
+                if (saved) {
+                    rawData = JSON.parse(saved);
+                    return true;
+                }
+            } catch (e) { console.error(e); }
+            return false;
         }
 
         document.addEventListener('DOMContentLoaded', () => {
@@ -762,8 +366,24 @@
             const resetBtn = document.getElementById('reset-btn');
             const exportBtn = document.getElementById('export-btn');
             const globalSearch = document.getElementById('global-search');
+            const loadSavedBtn = document.getElementById('load-saved-btn');
+            const clearDbBtn = document.getElementById('clear-db-btn');
 
-            // Sidebar tab switching
+            // Check if data exists on load
+            if (loadFromLocalStorage()) {
+                loadSavedBtn.classList.remove('hidden');
+                loadSavedBtn.textContent = `Load Saved Data (${rawData.length} records)`;
+            }
+
+            loadSavedBtn.addEventListener('click', () => {
+                processData();
+                renderDashboard();
+                document.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('active'));
+                document.querySelector('[data-tab="dashboard"]').classList.add('active');
+                document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+                document.getElementById('tab-dashboard').classList.add('active');
+            });
+
             document.querySelectorAll('.sidebar-link').forEach(link => {
                 link.addEventListener('click', () => {
                     document.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('active'));
@@ -771,7 +391,6 @@
                     link.classList.add('active');
                     const tabId = link.getAttribute('data-tab');
                     document.getElementById('tab-' + tabId).classList.add('active');
-                    
                     if (tabId === 'expense-dash') renderExpenseDash();
                     if (tabId === 'employee') renderEmployee();
                     if (tabId === 'select-month') renderSelectMonth();
@@ -788,45 +407,26 @@
             selectBtn.addEventListener('click', () => fileInput.click());
             dropZone.addEventListener('click', (e) => { if (e.target !== selectBtn) fileInput.click(); });
             fileInput.addEventListener('change', (e) => handleFile(e.target.files[0]));
-
             ['dragenter','dragover','dragleave','drop'].forEach(ev => dropZone.addEventListener(ev, e => { e.preventDefault(); e.stopPropagation(); }, false));
             ['dragenter','dragover'].forEach(ev => dropZone.addEventListener(ev, () => dropZone.classList.add('drag-active'), false));
             ['dragleave','drop'].forEach(ev => dropZone.addEventListener(ev, () => dropZone.classList.remove('drag-active'), false));
             dropZone.addEventListener('drop', (e) => handleFile(e.dataTransfer.files[0]), false);
 
-            resetBtn.addEventListener('click', () => {
-                if (confirm('Are you sure? This will clear all data and edits.')) {
-                    dashboardScreen.classList.add('hidden');
-                    uploadScreen.classList.remove('hidden');
-                    fileInput.value = '';
+            resetBtn.addEventListener('click', () => { dashboardScreen.classList.add('hidden'); uploadScreen.classList.remove('hidden'); });
+            exportBtn.addEventListener('click', exportToExcel);
+            globalSearch.addEventListener('input', () => { const activeTab = document.querySelector('.tab-content.active'); if (activeTab && activeTab.id === 'tab-salary-sheet') renderSalarySheet(); });
+            
+            document.getElementById('save-all-btn').addEventListener('click', () => { originalData = JSON.parse(JSON.stringify(rawData)); alert('✅ Baseline saved!'); });
+            document.getElementById('undo-all-btn').addEventListener('click', () => { if (confirm('Undo all edits?')) { rawData = JSON.parse(JSON.stringify(originalData)); editedCells.clear(); processData(); renderEditMaster(); alert('↩️ Undone.'); } });
+            
+            clearDbBtn.addEventListener('click', () => {
+                if (confirm('⚠️ WARNING: This will permanently delete ALL uploaded data from this browser. Are you sure?')) {
+                    localStorage.removeItem(STORAGE_KEY);
                     rawData = [];
                     originalData = [];
                     editedCells.clear();
-                }
-            });
-
-            exportBtn.addEventListener('click', exportToExcel);
-
-            globalSearch.addEventListener('input', () => {
-                // If we're on a tab with a searchable table, re-render it
-                const activeTab = document.querySelector('.tab-content.active');
-                if (activeTab && activeTab.id === 'tab-salary-sheet') renderSalarySheet();
-            });
-
-            document.getElementById('save-all-btn').addEventListener('click', () => {
-                // Save current state as new original
-                originalData = JSON.parse(JSON.stringify(rawData));
-                alert('✅ All changes saved as new baseline! Dashboard refreshed.');
-                renderDashboard();
-            });
-
-            document.getElementById('undo-all-btn').addEventListener('click', () => {
-                if (confirm('Undo all edits and restore original data?')) {
-                    rawData = JSON.parse(JSON.stringify(originalData));
-                    editedCells.clear();
-                    processData();
-                    renderEditMaster();
-                    alert('↩️ All edits undone. Original data restored.');
+                    alert('Database cleared. Please refresh the page.');
+                    location.reload();
                 }
             });
 
@@ -838,910 +438,219 @@
                         const data = new Uint8Array(e.target.result);
                         const workbook = XLSX.read(data, { type: 'array', cellDates: true });
                         const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-                        rawData = XLSX.utils.sheet_to_json(firstSheet);
+                        const newRecords = XLSX.utils.sheet_to_json(firstSheet);
                         
-                        // Normalize rows
-                        rawData.forEach((row, idx) => {
-                            row._index = idx;
+                        // Normalize and check for duplicates
+                        const existingKeys = new Set(rawData.map(r => `${r['Emp ID']}-${r.Month}-${r.Year}`));
+                        let addedCount = 0;
+                        
+                        newRecords.forEach(row => {
                             if (!row.Year) row.Year = '2026';
                             if (!row.Month) row.Month = 'Unknown';
+                            
+                            const key = `${row['Emp ID']}-${row.Month}-${row.Year}`;
+                            if (!existingKeys.has(key)) {
+                                row._index = rawData.length;
+                                rawData.push(row);
+                                existingKeys.add(key);
+                                addedCount++;
+                            }
                         });
-                        
+
+                        saveToLocalStorage();
                         originalData = JSON.parse(JSON.stringify(rawData));
                         editedCells.clear();
-                        
                         processData();
                         renderDashboard();
-                    } catch (err) {
-                        alert("Error reading file. Please ensure it is a valid Excel/CSV file.");
-                        console.error(err);
-                    }
+                        
+                        alert(`✅ Success! Added ${addedCount} new records. (${newRecords.length - addedCount} duplicates skipped). Total records: ${rawData.length}`);
+                    } catch (err) { alert("Error reading file."); console.error(err); }
                 };
                 reader.readAsArrayBuffer(file);
             }
 
             function processData() {
-                employeeData = {};
-                monthData = {};
-                yearData = {};
-
+                employeeData = {}; monthData = {}; yearData = {};
                 rawData.forEach((row, idx) => {
-                    const empId = row['Emp ID'] || '';
-                    const name = row.Name || '';
-                    const project = row.Project || 'Unknown';
-                    const month = row.Month || 'Unknown';
-                    const year = getYear(row);
-                    const monthYear = getMonthYear(row);
-
+                    const empId = row['Emp ID'] || ''; const name = row.Name || ''; const project = row.Project || 'Unknown';
+                    const month = row.Month || 'Unknown'; const year = getYear(row); const monthYear = getMonthYear(row);
                     const empKey = empId;
-                    if (!employeeData[empKey]) {
-                        employeeData[empKey] = { empId, name, project, months: [], total: 0, basic: 0, ta: 0, fa: 0, na: 0, ot: 0, inn: 0, edited: false };
-                    }
+                    if (!employeeData[empKey]) employeeData[empKey] = { empId, name, project, months: [], total: 0, basic: 0, ta: 0, fa: 0, na: 0, ot: 0, inn: 0, edited: false };
                     employeeData[empKey].months.push(monthYear);
-                    employeeData[empKey].total += parseRupee(row.Total);
-                    employeeData[empKey].basic += parseRupee(row.Basic);
-                    employeeData[empKey].ta += parseRupee(row.TA);
-                    employeeData[empKey].fa += parseRupee(row.FA);
-                    employeeData[empKey].na += parseRupee(row.NA);
-                    employeeData[empKey].ot += parseRupee(row.OT);
-                    employeeData[empKey].inn += parseRupee(row.IN);
-                    
-                    // Check if any row for this employee was edited
-                    if (isCellEdited(idx, 'Basic') || isCellEdited(idx, 'TA') || isCellEdited(idx, 'FA') || 
-                        isCellEdited(idx, 'NA') || isCellEdited(idx, 'OT') || isCellEdited(idx, 'IN') || isCellEdited(idx, 'Total')) {
-                        employeeData[empKey].edited = true;
-                    }
-
-                    if (!monthData[monthYear]) monthData[monthYear] = [];
-                    monthData[monthYear].push({ row, idx });
-
-                    if (!yearData[year]) yearData[year] = [];
-                    yearData[year].push({ row, idx });
+                    employeeData[empKey].total += parseRupee(row.Total); employeeData[empKey].basic += parseRupee(row.Basic);
+                    employeeData[empKey].ta += parseRupee(row.TA); employeeData[empKey].fa += parseRupee(row.FA);
+                    employeeData[empKey].na += parseRupee(row.NA); employeeData[empKey].ot += parseRupee(row.OT); employeeData[empKey].inn += parseRupee(row.IN);
+                    if (isCellEdited(idx, 'Basic') || isCellEdited(idx, 'TA') || isCellEdited(idx, 'FA') || isCellEdited(idx, 'NA') || isCellEdited(idx, 'OT') || isCellEdited(idx, 'IN') || isCellEdited(idx, 'Total')) employeeData[empKey].edited = true;
+                    if (!monthData[monthYear]) monthData[monthYear] = []; monthData[monthYear].push({ row, idx });
+                    if (!yearData[year]) yearData[year] = []; yearData[year].push({ row, idx });
                 });
             }
 
             function renderDashboard() {
-                let totalPayroll = 0;
-                const projects = {}, months = {}, components = { Basic:0, TA:0, FA:0, NA:0, OT:0, IN:0 };
-                const employees = {};
-
+                let totalPayroll = 0; const projects = {}, months = {}, components = { Basic:0, TA:0, FA:0, NA:0, OT:0, IN:0 }; const employees = {};
                 rawData.forEach((row, idx) => {
-                    const basic = parseRupee(row.Basic), ta = parseRupee(row.TA), fa = parseRupee(row.FA);
-                    const na = parseRupee(row.NA), ot = parseRupee(row.OT), inn = parseRupee(row.IN);
-                    const total = parseRupee(row.Total);
-                    const project = row.Project || 'Unknown';
-                    const monthYear = getMonthYear(row);
-                    const empId = row['Emp ID'] || '';
-                    const name = row.Name || '';
-
-                    totalPayroll += total;
-                    components.Basic += basic; components.TA += ta; components.FA += fa;
-                    components.NA += na; components.OT += ot; components.IN += inn;
-
-                    projects[project] = (projects[project] || 0) + total;
-                    months[monthYear] = (months[monthYear] || 0) + total;
-
-                    const empKey = `${empId}|${name}`;
-                    if (!employees[empKey]) employees[empKey] = { empId, name, project, total: 0, monthYear };
-                    employees[empKey].total += total;
+                    const basic = parseRupee(row.Basic), ta = parseRupee(row.TA), fa = parseRupee(row.FA); const na = parseRupee(row.NA), ot = parseRupee(row.OT), inn = parseRupee(row.IN); const total = parseRupee(row.Total);
+                    const project = row.Project || 'Unknown'; const monthYear = getMonthYear(row); const empId = row['Emp ID'] || ''; const name = row.Name || '';
+                    totalPayroll += total; components.Basic += basic; components.TA += ta; components.FA += fa; components.NA += na; components.OT += ot; components.IN += inn;
+                    projects[project] = (projects[project] || 0) + total; months[monthYear] = (months[monthYear] || 0) + total;
+                    const empKey = `${empId}|${name}`; if (!employees[empKey]) employees[empKey] = { empId, name, project, total: 0, monthYear }; employees[empKey].total += total;
                 });
 
-                // Component Pie
-                const compCtx = document.getElementById('chart-component').getContext('2d');
-                if (charts.component) charts.component.destroy();
-                charts.component = new Chart(compCtx, {
-                    type: 'pie',
-                    data: { labels: Object.keys(components), datasets: [{ data: Object.values(components), backgroundColor: chartColors, borderWidth: 2, borderColor: '#fff' }] },
-                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, padding: 8, font: { size: 10 } } }, tooltip: { callbacks: { label: ctx => `${ctx.label}: ${fmt(ctx.raw)} (${((ctx.raw/totalPayroll)*100).toFixed(1)}%)` } } } }
-                });
+                document.getElementById('total-records-badge').textContent = rawData.length;
 
-                // Project Pie
-                const projCtx = document.getElementById('chart-project').getContext('2d');
-                if (charts.project) charts.project.destroy();
-                charts.project = new Chart(projCtx, {
-                    type: 'pie',
-                    data: { labels: Object.keys(projects), datasets: [{ data: Object.values(projects), backgroundColor: chartColors, borderWidth: 2, borderColor: '#fff' }] },
-                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, padding: 8, font: { size: 10 } } }, tooltip: { callbacks: { label: ctx => `${ctx.label}: ${fmt(ctx.raw)}` } } } }
-                });
+                const createPie = (id, data, total) => { const ctx = document.getElementById(id).getContext('2d'); if (charts[id]) charts[id].destroy(); charts[id] = new Chart(ctx, { type: 'pie', data: { labels: Object.keys(data), datasets: [{ data: Object.values(data), backgroundColor: chartColors, borderWidth: 2, borderColor: '#fff' }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, padding: 8, font: { size: 10 } } }, tooltip: { callbacks: { label: ctx => `${ctx.label}: ${fmt(ctx.raw)} (${((ctx.raw/total)*100).toFixed(1)}%)` } } } } }); };
+                createPie('chart-component', components, totalPayroll); createPie('chart-project', projects, totalPayroll); createPie('chart-month', months, totalPayroll);
 
-                // Month Pie
-                const monthCtx = document.getElementById('chart-month').getContext('2d');
-                if (charts.month) charts.month.destroy();
-                charts.month = new Chart(monthCtx, {
-                    type: 'pie',
-                    data: { labels: Object.keys(months), datasets: [{ data: Object.values(months), backgroundColor: chartColors, borderWidth: 2, borderColor: '#fff' }] },
-                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, padding: 8, font: { size: 10 } } }, tooltip: { callbacks: { label: ctx => `${ctx.label}: ${fmt(ctx.raw)}` } } } }
-                });
-
-                // Monthly Line
                 const sortedMonths = Object.keys(months).sort();
-                const lineCtx = document.getElementById('chart-monthly-line').getContext('2d');
-                if (charts.monthlyLine) charts.monthlyLine.destroy();
-                charts.monthlyLine = new Chart(lineCtx, {
-                    type: 'line',
-                    data: { labels: sortedMonths, datasets: [{ label: 'Total Payroll', data: sortedMonths.map(m => months[m]), borderColor: '#3b82f6', backgroundColor: 'rgba(59,130,246,0.1)', fill: true, tension: 0.3, pointRadius: 5 }] },
-                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => fmt(ctx.raw) } } }, scales: { y: { beginAtZero: true, grid: { color: '#f3f4f6' }, ticks: { callback: v => fmtShort(v), font: { size: 9 } } }, x: { grid: { display: false }, ticks: { font: { size: 9 } } } } }
-                });
+                const lineCtx = document.getElementById('chart-monthly-line').getContext('2d'); if (charts.monthlyLine) charts.monthlyLine.destroy();
+                charts.monthlyLine = new Chart(lineCtx, { type: 'line', data: { labels: sortedMonths, datasets: [{ label: 'Total Payroll', data: sortedMonths.map(m => months[m]), borderColor: '#3b82f6', backgroundColor: 'rgba(59,130,246,0.1)', fill: true, tension: 0.3, pointRadius: 5 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => fmt(ctx.raw) } } }, scales: { y: { beginAtZero: true, grid: { color: '#f3f4f6' }, ticks: { callback: v => fmtShort(v), font: { size: 9 } } }, x: { grid: { display: false }, ticks: { font: { size: 9 } } } } } });
 
-                // Top 10 table
                 const empSorted = Object.values(employees).sort((a,b) => b.total - a.total).slice(0, 10);
-                const tbody = document.getElementById('top10-body');
-                tbody.innerHTML = '';
-                empSorted.forEach(emp => {
-                    const tr = document.createElement('tr');
-                    tr.className = 'table-row';
-                    tr.innerHTML = `<td class="px-3 py-2 font-medium text-blue-700">${emp.empId || '-'}</td><td class="px-3 py-2 font-medium text-gray-900">${emp.name || '-'}</td><td class="px-3 py-2"><span class="px-2 py-0.5 bg-blue-100 text-blue-800 rounded text-[10px] font-semibold">${emp.project || 'Unknown'}</span></td><td class="px-3 py-2 text-right font-bold text-gray-900">${fmt(emp.total)}</td><td class="px-3 py-2 text-gray-600">${emp.monthYear || '-'}</td>`;
-                    tbody.appendChild(tr);
-                });
-
-                uploadScreen.classList.add('hidden');
-                dashboardScreen.classList.remove('hidden');
+                const tbody = document.getElementById('top10-body'); tbody.innerHTML = '';
+                empSorted.forEach(emp => { const tr = document.createElement('tr'); tr.className = 'table-row'; tr.innerHTML = `<td class="px-3 py-2 font-medium text-blue-700">${emp.empId || '-'}</td><td class="px-3 py-2 font-medium text-gray-900">${emp.name || '-'}</td><td class="px-3 py-2"><span class="px-2 py-0.5 bg-blue-100 text-blue-800 rounded text-[10px] font-semibold">${emp.project || 'Unknown'}</span></td><td class="px-3 py-2 text-right font-bold text-gray-900">${fmt(emp.total)}</td><td class="px-3 py-2 text-gray-600">${emp.monthYear || '-'}</td>`; tbody.appendChild(tr); });
+                uploadScreen.classList.add('hidden'); dashboardScreen.classList.remove('hidden');
             }
 
+            // --- REMAINING TAB RENDER FUNCTIONS (Identical logic, just using the global rawData) ---
             function renderExpenseDash() {
-                let totalBasic = 0, totalTA = 0, totalFA = 0, totalNA = 0, totalOT = 0, totalIN = 0;
-                const projComponents = {};
-
-                rawData.forEach(row => {
-                    const basic = parseRupee(row.Basic), ta = parseRupee(row.TA), fa = parseRupee(row.FA);
-                    const na = parseRupee(row.NA), ot = parseRupee(row.OT), inn = parseRupee(row.IN);
-                    const project = row.Project || 'Unknown';
-
+                let totalBasic = 0, totalTA = 0, totalFA = 0, totalNA = 0, totalOT = 0, totalIN = 0; const projComponents = {};
+                rawData.forEach(row => { const basic = parseRupee(row.Basic), ta = parseRupee(row.TA), fa = parseRupee(row.FA); const na = parseRupee(row.NA), ot = parseRupee(row.OT), inn = parseRupee(row.IN); const project = row.Project || 'Unknown';
                     totalBasic += basic; totalTA += ta; totalFA += fa; totalNA += na; totalOT += ot; totalIN += inn;
-
                     if (!projComponents[project]) projComponents[project] = { Basic: 0, TA: 0, FA: 0, NA: 0, OT: 0, IN: 0 };
-                    projComponents[project].Basic += basic;
-                    projComponents[project].TA += ta;
-                    projComponents[project].FA += fa;
-                    projComponents[project].NA += na;
-                    projComponents[project].OT += ot;
-                    projComponents[project].IN += inn;
+                    projComponents[project].Basic += basic; projComponents[project].TA += ta; projComponents[project].FA += fa; projComponents[project].NA += na; projComponents[project].OT += ot; projComponents[project].IN += inn;
                 });
-
-                document.getElementById('exp-basic').textContent = fmt(totalBasic);
-                document.getElementById('exp-ta').textContent = fmt(totalTA);
-                document.getElementById('exp-fa').textContent = fmt(totalFA);
-                document.getElementById('exp-ot').textContent = fmt(totalOT);
-
-                const fixedTotal = totalBasic + totalTA + totalFA;
-                const variableTotal = totalNA + totalOT + totalIN;
-
-                const ctx1 = document.getElementById('exp-chart-1').getContext('2d');
-                if (charts.exp1) charts.exp1.destroy();
-                const projects = Object.keys(projComponents);
-                charts.exp1 = new Chart(ctx1, {
-                    type: 'bar',
-                    data: {
-                        labels: projects,
-                        datasets: [
-                            { label: 'Basic', data: projects.map(p => projComponents[p].Basic), backgroundColor: '#3b82f6' },
-                            { label: 'TA', data: projects.map(p => projComponents[p].TA), backgroundColor: '#10b981' },
-                            { label: 'FA', data: projects.map(p => projComponents[p].FA), backgroundColor: '#f59e0b' },
-                            { label: 'NA', data: projects.map(p => projComponents[p].NA), backgroundColor: '#ef4444' },
-                            { label: 'OT', data: projects.map(p => projComponents[p].OT), backgroundColor: '#8b5cf6' },
-                            { label: 'IN', data: projects.map(p => projComponents[p].IN), backgroundColor: '#ec4899' }
-                        ]
-                    },
-                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } }, tooltip: { callbacks: { label: ctx => `${ctx.dataset.label}: ${fmt(ctx.raw)}` } } }, scales: { x: { stacked: true, grid: { display: false } }, y: { stacked: true, grid: { color: '#f3f4f6' }, ticks: { callback: v => fmtShort(v) } } } }
-                });
-
-                const ctx2 = document.getElementById('exp-chart-2').getContext('2d');
-                if (charts.exp2) charts.exp2.destroy();
-                charts.exp2 = new Chart(ctx2, {
-                    type: 'doughnut',
-                    data: { labels: ['Fixed Pay (Basic+TA+FA)', 'Variable Pay (NA+OT+IN)'], datasets: [{ data: [fixedTotal, variableTotal], backgroundColor: ['#3b82f6', '#f59e0b'], borderWidth: 2, borderColor: '#fff' }] },
-                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } }, tooltip: { callbacks: { label: ctx => `${ctx.label}: ${fmt(ctx.raw)} (${((ctx.raw/(fixedTotal+variableTotal))*100).toFixed(1)}%)` } } } }
-                });
-
-                const tbody = document.getElementById('exp-table-body');
-                tbody.innerHTML = '';
-                rawData.forEach((row, idx) => {
-                    const tr = document.createElement('tr');
-                    tr.className = 'table-row';
-                    tr.innerHTML = `
-                        ${renderEditedCell(row['Emp ID'], idx, 'Emp ID', 'left', false)}
-                        ${renderEditedCell(row.Name, idx, 'Name', 'left', false)}
-                        ${renderEditedCell(row.Project, idx, 'Project', 'left', false)}
-                        ${renderEditedCell(row.Basic, idx, 'Basic', 'right', true)}
-                        ${renderEditedCell(row.TA, idx, 'TA', 'right', true)}
-                        ${renderEditedCell(row.FA, idx, 'FA', 'right', true)}
-                        ${renderEditedCell(row.NA, idx, 'NA', 'right', true)}
-                        ${renderEditedCell(row.OT, idx, 'OT', 'right', true)}
-                        ${renderEditedCell(row.IN, idx, 'IN', 'right', true)}
-                        ${renderEditedCell(row.Total, idx, 'Total', 'right', true)}
-                        ${renderEditedCell(row.Month, idx, 'Month', 'left', false)}
-                        ${renderEditedCell(getYear(row), idx, 'Year', 'left', false)}
-                    `;
-                    tbody.appendChild(tr);
-                });
+                document.getElementById('exp-basic').textContent = fmt(totalBasic); document.getElementById('exp-ta').textContent = fmt(totalTA); document.getElementById('exp-fa').textContent = fmt(totalFA); document.getElementById('exp-ot').textContent = fmt(totalOT);
+                const fixedTotal = totalBasic + totalTA + totalFA; const variableTotal = totalNA + totalOT + totalIN;
+                const ctx1 = document.getElementById('exp-chart-1').getContext('2d'); if (charts.exp1) charts.exp1.destroy(); const projects = Object.keys(projComponents);
+                charts.exp1 = new Chart(ctx1, { type: 'bar', data: { labels: projects, datasets: [{ label: 'Basic', data: projects.map(p => projComponents[p].Basic), backgroundColor: '#3b82f6' }, { label: 'TA', data: projects.map(p => projComponents[p].TA), backgroundColor: '#10b981' }, { label: 'FA', data: projects.map(p => projComponents[p].FA), backgroundColor: '#f59e0b' }, { label: 'NA', data: projects.map(p => projComponents[p].NA), backgroundColor: '#ef4444' }, { label: 'OT', data: projects.map(p => projComponents[p].OT), backgroundColor: '#8b5cf6' }, { label: 'IN', data: projects.map(p => projComponents[p].IN), backgroundColor: '#ec4899' }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } }, tooltip: { callbacks: { label: ctx => `${ctx.dataset.label}: ${fmt(ctx.raw)}` } } }, scales: { x: { stacked: true, grid: { display: false } }, y: { stacked: true, grid: { color: '#f3f4f6' }, ticks: { callback: v => fmtShort(v) } } } } });
+                const ctx2 = document.getElementById('exp-chart-2').getContext('2d'); if (charts.exp2) charts.exp2.destroy();
+                charts.exp2 = new Chart(ctx2, { type: 'doughnut', data: { labels: ['Fixed Pay (Basic+TA+FA)', 'Variable Pay (NA+OT+IN)'], datasets: [{ data: [fixedTotal, variableTotal], backgroundColor: ['#3b82f6', '#f59e0b'], borderWidth: 2, borderColor: '#fff' }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } }, tooltip: { callbacks: { label: ctx => `${ctx.label}: ${fmt(ctx.raw)} (${((ctx.raw/(fixedTotal+variableTotal))*100).toFixed(1)}%)` } } } } });
+                const tbody = document.getElementById('exp-table-body'); tbody.innerHTML = '';
+                rawData.forEach((row, idx) => { const tr = document.createElement('tr'); tr.className = 'table-row'; tr.innerHTML = `${renderEditedCell(row['Emp ID'], idx, 'Emp ID', 'left', false)}${renderEditedCell(row.Name, idx, 'Name', 'left', false)}${renderEditedCell(row.Project, idx, 'Project', 'left', false)}${renderEditedCell(row.Basic, idx, 'Basic', 'right', true)}${renderEditedCell(row.TA, idx, 'TA', 'right', true)}${renderEditedCell(row.FA, idx, 'FA', 'right', true)}${renderEditedCell(row.NA, idx, 'NA', 'right', true)}${renderEditedCell(row.OT, idx, 'OT', 'right', true)}${renderEditedCell(row.IN, idx, 'IN', 'right', true)}${renderEditedCell(row.Total, idx, 'Total', 'right', true)}${renderEditedCell(row.Month, idx, 'Month', 'left', false)}${renderEditedCell(getYear(row), idx, 'Year', 'left', false)}`; tbody.appendChild(tr); });
             }
 
             function renderEmployee() {
-                const emps = Object.values(employeeData);
-                const projects = new Set(emps.map(e => e.project));
-                const avgSalary = emps.length ? emps.reduce((sum, e) => sum + e.total, 0) / emps.length : 0;
-
-                document.getElementById('emp-total').textContent = emps.length;
-                document.getElementById('emp-projects').textContent = projects.size;
-                document.getElementById('emp-avg').textContent = fmt(avgSalary);
-
-                const projCount = {};
-                emps.forEach(e => { projCount[e.project] = (projCount[e.project] || 0) + 1; });
-
-                const ctx1 = document.getElementById('emp-chart-1').getContext('2d');
-                if (charts.emp1) charts.emp1.destroy();
-                charts.emp1 = new Chart(ctx1, {
-                    type: 'bar',
-                    data: { labels: Object.keys(projCount), datasets: [{ label: 'Employees', data: Object.values(projCount), backgroundColor: chartColors, borderRadius: 4 }] },
-                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => `${ctx.raw} employees` } } }, scales: { y: { beginAtZero: true, grid: { color: '#f3f4f6' }, ticks: { stepSize: 1 } }, x: { grid: { display: false } } } }
-                });
-
-                const tbody = document.getElementById('emp-table-body');
-                tbody.innerHTML = '';
-                emps.sort((a,b) => b.total - a.total).forEach(emp => {
-                    const tr = document.createElement('tr');
-                    tr.className = 'table-row';
-                    const editedBadge = emp.edited ? '<span class="px-2 py-0.5 bg-yellow-200 text-yellow-800 rounded text-[10px] font-semibold">✏️ Edited</span>' : '<span class="px-2 py-0.5 bg-gray-100 text-gray-600 rounded text-[10px]">Clean</span>';
-                    tr.innerHTML = `
-                        <td class="px-3 py-2 font-medium text-blue-700">${emp.empId}</td>
-                        <td class="px-3 py-2 font-medium text-gray-900">${emp.name}</td>
-                        <td class="px-3 py-2"><span class="px-2 py-0.5 bg-blue-100 text-blue-800 rounded text-[10px] font-semibold">${emp.project}</span></td>
-                        <td class="px-3 py-2 text-right text-gray-700">${emp.months.length}</td>
-                        <td class="px-3 py-2 text-right font-bold text-gray-900">${fmt(emp.total)}</td>
-                        <td class="px-3 py-2 text-right text-gray-700">${fmt(emp.total / emp.months.length)}</td>
-                        <td class="px-3 py-2 text-center">${editedBadge}</td>
-                    `;
-                    tbody.appendChild(tr);
-                });
+                const emps = Object.values(employeeData); const projects = new Set(emps.map(e => e.project)); const avgSalary = emps.length ? emps.reduce((sum, e) => sum + e.total, 0) / emps.length : 0;
+                document.getElementById('emp-total').textContent = emps.length; document.getElementById('emp-projects').textContent = projects.size; document.getElementById('emp-avg').textContent = fmt(avgSalary);
+                const projCount = {}; emps.forEach(e => { projCount[e.project] = (projCount[e.project] || 0) + 1; });
+                const ctx1 = document.getElementById('emp-chart-1').getContext('2d'); if (charts.emp1) charts.emp1.destroy();
+                charts.emp1 = new Chart(ctx1, { type: 'bar', data: { labels: Object.keys(projCount), datasets: [{ label: 'Employees', data: Object.values(projCount), backgroundColor: chartColors, borderRadius: 4 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => `${ctx.raw} employees` } } }, scales: { y: { beginAtZero: true, grid: { color: '#f3f4f6' }, ticks: { stepSize: 1 } }, x: { grid: { display: false } } } } });
+                const tbody = document.getElementById('emp-table-body'); tbody.innerHTML = '';
+                emps.sort((a,b) => b.total - a.total).forEach(emp => { const tr = document.createElement('tr'); tr.className = 'table-row'; const editedBadge = emp.edited ? '<span class="px-2 py-0.5 bg-yellow-200 text-yellow-800 rounded text-[10px] font-semibold">✏️ Edited</span>' : '<span class="px-2 py-0.5 bg-gray-100 text-gray-600 rounded text-[10px]">Clean</span>'; tr.innerHTML = `<td class="px-3 py-2 font-medium text-blue-700">${emp.empId}</td><td class="px-3 py-2 font-medium text-gray-900">${emp.name}</td><td class="px-3 py-2"><span class="px-2 py-0.5 bg-blue-100 text-blue-800 rounded text-[10px] font-semibold">${emp.project}</span></td><td class="px-3 py-2 text-right text-gray-700">${emp.months.length}</td><td class="px-3 py-2 text-right font-bold text-gray-900">${fmt(emp.total)}</td><td class="px-3 py-2 text-right text-gray-700">${fmt(emp.total / emp.months.length)}</td><td class="px-3 py-2 text-center">${editedBadge}</td>`; tbody.appendChild(tr); });
             }
 
             function renderSelectMonth() {
-                const years = [...new Set(rawData.map(r => getYear(r)))].sort();
-                const yearSelector = document.getElementById('year-selector');
-                const monthSelector = document.getElementById('month-selector');
-                
+                const years = [...new Set(rawData.map(r => getYear(r)))].sort(); const yearSelector = document.getElementById('year-selector'); const monthSelector = document.getElementById('month-selector');
                 yearSelector.innerHTML = '<option value="all">All Years</option>' + years.map(y => `<option value="${y}">${y}</option>`).join('');
-                
-                function updateMonthOptions() {
-                    const selectedYear = yearSelector.value;
-                    let months = [];
-                    if (selectedYear === 'all') {
-                        months = [...new Set(rawData.map(r => r.Month))].sort((a,b) => monthOrder.indexOf(a) - monthOrder.indexOf(b));
-                    } else {
-                        months = [...new Set(rawData.filter(r => getYear(r) === selectedYear).map(r => r.Month))].sort((a,b) => monthOrder.indexOf(a) - monthOrder.indexOf(b));
-                    }
-                    monthSelector.innerHTML = '<option value="all">All Months</option>' + months.map(m => `<option value="${m}">${m}</option>`).join('');
-                    
-                    // Quick filters
-                    const quickFilters = document.getElementById('quick-filters');
-                    quickFilters.innerHTML = months.slice(0, 6).map(m => 
-                        `<button class="px-2 py-1 bg-blue-50 text-blue-700 rounded text-xs hover:bg-blue-100" onclick="document.getElementById('month-selector').value='${m}'; document.getElementById('month-selector').dispatchEvent(new Event('change'));">${m}</button>`
-                    ).join('');
-                    
-                    updateMonthView();
+                function updateMonthOptions() { const selectedYear = yearSelector.value; let months = []; if (selectedYear === 'all') months = [...new Set(rawData.map(r => r.Month))].sort((a,b) => monthOrder.indexOf(a) - monthOrder.indexOf(b)); else months = [...new Set(rawData.filter(r => getYear(r) === selectedYear).map(r => r.Month))].sort((a,b) => monthOrder.indexOf(a) - monthOrder.indexOf(b)); monthSelector.innerHTML = '<option value="all">All Months</option>' + months.map(m => `<option value="${m}">${m}</option>`).join(''); const quickFilters = document.getElementById('quick-filters'); quickFilters.innerHTML = months.slice(0, 6).map(m => `<button class="px-2 py-1 bg-blue-50 text-blue-700 rounded text-xs hover:bg-blue-100" onclick="document.getElementById('month-selector').value='${m}'; document.getElementById('month-selector').dispatchEvent(new Event('change'));">${m}</button>`).join(''); updateMonthView(); }
+                function updateMonthView() { const selectedYear = yearSelector.value; const selectedMonth = monthSelector.value; let filtered = rawData.map((row, idx) => ({ row, idx })); if (selectedYear !== 'all') filtered = filtered.filter(({ row }) => getYear(row) === selectedYear); if (selectedMonth !== 'all') filtered = filtered.filter(({ row }) => row.Month === selectedMonth);
+                    let total = 0; const projects = {}, components = { Basic:0, TA:0, FA:0, NA:0, OT:0, IN:0 }; let highestEarner = { name: '-', total: 0 };
+                    filtered.forEach(({ row }) => { const total_amt = parseRupee(row.Total); total += total_amt; const project = row.Project || 'Unknown'; projects[project] = (projects[project] || 0) + total_amt; components.Basic += parseRupee(row.Basic); components.TA += parseRupee(row.TA); components.FA += parseRupee(row.FA); components.NA += parseRupee(row.NA); components.OT += parseRupee(row.OT); components.IN += parseRupee(row.IN); if (total_amt > highestEarner.total) highestEarner = { name: row.Name || '-', total: total_amt }; });
+                    document.getElementById('month-total').textContent = fmt(total); document.getElementById('month-records').textContent = filtered.length; document.getElementById('month-avg').textContent = fmt(filtered.length ? total / filtered.length : 0); document.getElementById('month-highest').textContent = `${highestEarner.name} (${fmt(highestEarner.total)})`;
+                    const ctx1 = document.getElementById('month-chart-1').getContext('2d'); if (charts.month1) charts.month1.destroy(); charts.month1 = new Chart(ctx1, { type: 'pie', data: { labels: Object.keys(projects), datasets: [{ data: Object.values(projects), backgroundColor: chartColors, borderWidth: 2, borderColor: '#fff' }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } }, tooltip: { callbacks: { label: ctx => `${ctx.label}: ${fmt(ctx.raw)}` } } } } });
+                    const ctx2 = document.getElementById('month-chart-2').getContext('2d'); if (charts.month2) charts.month2.destroy(); charts.month2 = new Chart(ctx2, { type: 'bar', data: { labels: Object.keys(components), datasets: [{ data: Object.values(components), backgroundColor: chartColors, borderRadius: 4 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => fmt(ctx.raw) } } }, scales: { y: { beginAtZero: true, grid: { color: '#f3f4f6' }, ticks: { callback: v => fmtShort(v) } }, x: { grid: { display: false } } } } });
+                    const tbody = document.getElementById('month-table-body'); tbody.innerHTML = ''; filtered.forEach(({ row, idx }) => { const tr = document.createElement('tr'); tr.className = 'table-row'; tr.innerHTML = `${renderEditedCell(row['Emp ID'], idx, 'Emp ID', 'left', false)}${renderEditedCell(row.Name, idx, 'Name', 'left', false)}${renderEditedCell(row.Project, idx, 'Project', 'left', false)}${renderEditedCell(row.Basic, idx, 'Basic', 'right', true)}${renderEditedCell(row.TA, idx, 'TA', 'right', true)}${renderEditedCell(row.FA, idx, 'FA', 'right', true)}${renderEditedCell(row.NA, idx, 'NA', 'right', true)}${renderEditedCell(row.OT, idx, 'OT', 'right', true)}${renderEditedCell(row.IN, idx, 'IN', 'right', true)}${renderEditedCell(row.Total, idx, 'Total', 'right', true)}`; tbody.appendChild(tr); });
                 }
-                
-                function updateMonthView() {
-                    const selectedYear = yearSelector.value;
-                    const selectedMonth = monthSelector.value;
-                    
-                    let filtered = rawData.map((row, idx) => ({ row, idx }));
-                    
-                    if (selectedYear !== 'all') filtered = filtered.filter(({ row }) => getYear(row) === selectedYear);
-                    if (selectedMonth !== 'all') filtered = filtered.filter(({ row }) => row.Month === selectedMonth);
-                    
-                    let total = 0;
-                    const projects = {}, components = { Basic:0, TA:0, FA:0, NA:0, OT:0, IN:0 };
-                    let highestEarner = { name: '-', total: 0 };
-                    
-                    filtered.forEach(({ row }) => {
-                        const total_amt = parseRupee(row.Total);
-                        total += total_amt;
-                        const project = row.Project || 'Unknown';
-                        projects[project] = (projects[project] || 0) + total_amt;
-                        components.Basic += parseRupee(row.Basic);
-                        components.TA += parseRupee(row.TA);
-                        components.FA += parseRupee(row.FA);
-                        components.NA += parseRupee(row.NA);
-                        components.OT += parseRupee(row.OT);
-                        components.IN += parseRupee(row.IN);
-                        if (total_amt > highestEarner.total) highestEarner = { name: row.Name || '-', total: total_amt };
-                    });
-
-                    const periodLabel = selectedYear === 'all' && selectedMonth === 'all' ? 'All Periods' : 
-                                       selectedYear === 'all' ? selectedMonth : 
-                                       selectedMonth === 'all' ? selectedYear : `${selectedMonth} ${selectedYear}`;
-                    
-                    document.getElementById('month-total').textContent = fmt(total);
-                    document.getElementById('month-records').textContent = filtered.length;
-                    document.getElementById('month-avg').textContent = fmt(filtered.length ? total / filtered.length : 0);
-                    document.getElementById('month-highest').textContent = `${highestEarner.name} (${fmt(highestEarner.total)})`;
-
-                    const ctx1 = document.getElementById('month-chart-1').getContext('2d');
-                    if (charts.month1) charts.month1.destroy();
-                    charts.month1 = new Chart(ctx1, {
-                        type: 'pie',
-                        data: { labels: Object.keys(projects), datasets: [{ data: Object.values(projects), backgroundColor: chartColors, borderWidth: 2, borderColor: '#fff' }] },
-                        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } }, tooltip: { callbacks: { label: ctx => `${ctx.label}: ${fmt(ctx.raw)}` } } } }
-                    });
-
-                    const ctx2 = document.getElementById('month-chart-2').getContext('2d');
-                    if (charts.month2) charts.month2.destroy();
-                    charts.month2 = new Chart(ctx2, {
-                        type: 'bar',
-                        data: { labels: Object.keys(components), datasets: [{ data: Object.values(components), backgroundColor: chartColors, borderRadius: 4 }] },
-                        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => fmt(ctx.raw) } } }, scales: { y: { beginAtZero: true, grid: { color: '#f3f4f6' }, ticks: { callback: v => fmtShort(v) } }, x: { grid: { display: false } } } }
-                    });
-
-                    const tbody = document.getElementById('month-table-body');
-                    tbody.innerHTML = '';
-                    filtered.forEach(({ row, idx }) => {
-                        const tr = document.createElement('tr');
-                        tr.className = 'table-row';
-                        tr.innerHTML = `
-                            ${renderEditedCell(row['Emp ID'], idx, 'Emp ID', 'left', false)}
-                            ${renderEditedCell(row.Name, idx, 'Name', 'left', false)}
-                            ${renderEditedCell(row.Project, idx, 'Project', 'left', false)}
-                            ${renderEditedCell(row.Basic, idx, 'Basic', 'right', true)}
-                            ${renderEditedCell(row.TA, idx, 'TA', 'right', true)}
-                            ${renderEditedCell(row.FA, idx, 'FA', 'right', true)}
-                            ${renderEditedCell(row.NA, idx, 'NA', 'right', true)}
-                            ${renderEditedCell(row.OT, idx, 'OT', 'right', true)}
-                            ${renderEditedCell(row.IN, idx, 'IN', 'right', true)}
-                            ${renderEditedCell(row.Total, idx, 'Total', 'right', true)}
-                        `;
-                        tbody.appendChild(tr);
-                    });
-                }
-                
-                yearSelector.addEventListener('change', updateMonthOptions);
-                monthSelector.addEventListener('change', updateMonthView);
-                updateMonthOptions();
+                yearSelector.addEventListener('change', updateMonthOptions); monthSelector.addEventListener('change', updateMonthView); updateMonthOptions();
             }
 
             function renderMonthlyVariable() {
-                let totalTA = 0, totalFA = 0, totalNA = 0, totalOT = 0, totalIN = 0;
-                const monthVar = {}, empVar = {};
-
-                rawData.forEach((row, idx) => {
-                    const ta = parseRupee(row.TA), fa = parseRupee(row.FA), na = parseRupee(row.NA);
-                    const ot = parseRupee(row.OT), inn = parseRupee(row.IN);
-                    const monthYear = getMonthYear(row);
-                    const empId = row['Emp ID'] || '';
-                    const name = row.Name || '';
-
+                let totalTA = 0, totalFA = 0, totalNA = 0, totalOT = 0, totalIN = 0; const monthVar = {}, empVar = {};
+                rawData.forEach((row, idx) => { const ta = parseRupee(row.TA), fa = parseRupee(row.FA), na = parseRupee(row.NA); const ot = parseRupee(row.OT), inn = parseRupee(row.IN); const monthYear = getMonthYear(row); const empId = row['Emp ID'] || ''; const name = row.Name || '';
                     totalTA += ta; totalFA += fa; totalNA += na; totalOT += ot; totalIN += inn;
-
-                    if (!monthVar[monthYear]) monthVar[monthYear] = { TA: 0, FA: 0, NA: 0, OT: 0, IN: 0 };
-                    monthVar[monthYear].TA += ta; monthVar[monthYear].FA += fa; monthVar[monthYear].NA += na; monthVar[monthYear].OT += ot; monthVar[monthYear].IN += inn;
-
-                    const empKey = `${empId}|${name}`;
-                    if (!empVar[empKey]) empVar[empKey] = { TA: 0, FA: 0, NA: 0, OT: 0, IN: 0 };
-                    empVar[empKey].TA += ta; empVar[empKey].FA += fa; empVar[empKey].NA += na; empVar[empKey].OT += ot; empVar[empKey].IN += inn;
+                    if (!monthVar[monthYear]) monthVar[monthYear] = { TA: 0, FA: 0, NA: 0, OT: 0, IN: 0 }; monthVar[monthYear].TA += ta; monthVar[monthYear].FA += fa; monthVar[monthYear].NA += na; monthVar[monthYear].OT += ot; monthVar[monthYear].IN += inn;
+                    const empKey = `${empId}|${name}`; if (!empVar[empKey]) empVar[empKey] = { TA: 0, FA: 0, NA: 0, OT: 0, IN: 0 }; empVar[empKey].TA += ta; empVar[empKey].FA += fa; empVar[empKey].NA += na; empVar[empKey].OT += ot; empVar[empKey].IN += inn;
                 });
-
-                document.getElementById('var-ta').textContent = fmt(totalTA);
-                document.getElementById('var-fa').textContent = fmt(totalFA);
-                document.getElementById('var-na').textContent = fmt(totalNA);
-                document.getElementById('var-ot').textContent = fmt(totalOT);
-                document.getElementById('var-in').textContent = fmt(totalIN);
-
-                const sortedMonths = Object.keys(monthVar).sort();
-                const ctx1 = document.getElementById('var-chart-1').getContext('2d');
-                if (charts.var1) charts.var1.destroy();
-                charts.var1 = new Chart(ctx1, {
-                    type: 'line',
-                    data: {
-                        labels: sortedMonths,
-                        datasets: [
-                            { label: 'TA', data: sortedMonths.map(m => monthVar[m].TA), borderColor: '#3b82f6', backgroundColor: 'rgba(59,130,246,0.1)', fill: false, tension: 0.3 },
-                            { label: 'FA', data: sortedMonths.map(m => monthVar[m].FA), borderColor: '#10b981', backgroundColor: 'rgba(16,185,129,0.1)', fill: false, tension: 0.3 },
-                            { label: 'NA', data: sortedMonths.map(m => monthVar[m].NA), borderColor: '#f59e0b', backgroundColor: 'rgba(245,158,11,0.1)', fill: false, tension: 0.3 },
-                            { label: 'OT', data: sortedMonths.map(m => monthVar[m].OT), borderColor: '#ef4444', backgroundColor: 'rgba(239,68,68,0.1)', fill: false, tension: 0.3 },
-                            { label: 'IN', data: sortedMonths.map(m => monthVar[m].IN), borderColor: '#8b5cf6', backgroundColor: 'rgba(139,92,246,0.1)', fill: false, tension: 0.3 }
-                        ]
-                    },
-                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } }, tooltip: { callbacks: { label: ctx => `${ctx.dataset.label}: ${fmt(ctx.raw)}` } } }, scales: { y: { beginAtZero: true, grid: { color: '#f3f4f6' }, ticks: { callback: v => fmtShort(v) } }, x: { grid: { display: false } } } }
-                });
-
-                const empSorted = Object.entries(empVar).sort((a,b) => (b[1].TA+b[1].FA+b[1].NA+b[1].OT+b[1].IN) - (a[1].TA+a[1].FA+a[1].NA+a[1].OT+a[1].IN)).slice(0, 10);
-                const ctx2 = document.getElementById('var-chart-2').getContext('2d');
-                if (charts.var2) charts.var2.destroy();
-                charts.var2 = new Chart(ctx2, {
-                    type: 'bar',
-                    data: {
-                        labels: empSorted.map(e => e[0].split('|')[1]),
-                        datasets: [
-                            { label: 'TA', data: empSorted.map(e => e[1].TA), backgroundColor: '#3b82f6' },
-                            { label: 'FA', data: empSorted.map(e => e[1].FA), backgroundColor: '#10b981' },
-                            { label: 'NA', data: empSorted.map(e => e[1].NA), backgroundColor: '#f59e0b' },
-                            { label: 'OT', data: empSorted.map(e => e[1].OT), backgroundColor: '#ef4444' },
-                            { label: 'IN', data: empSorted.map(e => e[1].IN), backgroundColor: '#8b5cf6' }
-                        ]
-                    },
-                    options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } }, tooltip: { callbacks: { label: ctx => `${ctx.dataset.label}: ${fmt(ctx.raw)}` } } }, scales: { x: { stacked: true, grid: { color: '#f3f4f6' }, ticks: { callback: v => fmtShort(v) } }, y: { stacked: true, grid: { display: false } } } }
-                });
-
-                const tbody = document.getElementById('var-table-body');
-                tbody.innerHTML = '';
-                rawData.forEach((row, idx) => {
-                    const ta = parseRupee(row.TA), fa = parseRupee(row.FA), na = parseRupee(row.NA);
-                    const ot = parseRupee(row.OT), inn = parseRupee(row.IN);
-                    const totalVar = ta + fa + na + ot + inn;
-                    const tr = document.createElement('tr');
-                    tr.className = 'table-row';
-                    tr.innerHTML = `
-                        ${renderEditedCell(row['Emp ID'], idx, 'Emp ID', 'left', false)}
-                        ${renderEditedCell(row.Name, idx, 'Name', 'left', false)}
-                        ${renderEditedCell(row.TA, idx, 'TA', 'right', true)}
-                        ${renderEditedCell(row.FA, idx, 'FA', 'right', true)}
-                        ${renderEditedCell(row.NA, idx, 'NA', 'right', true)}
-                        ${renderEditedCell(row.OT, idx, 'OT', 'right', true)}
-                        ${renderEditedCell(row.IN, idx, 'IN', 'right', true)}
-                        <td class="px-3 py-2 text-right font-bold text-gray-900">${fmt(totalVar)}</td>
-                        ${renderEditedCell(getMonthYear(row), idx, 'Month', 'left', false)}
-                    `;
-                    tbody.appendChild(tr);
-                });
+                document.getElementById('var-ta').textContent = fmt(totalTA); document.getElementById('var-fa').textContent = fmt(totalFA); document.getElementById('var-na').textContent = fmt(totalNA); document.getElementById('var-ot').textContent = fmt(totalOT); document.getElementById('var-in').textContent = fmt(totalIN);
+                const sortedMonths = Object.keys(monthVar).sort(); const ctx1 = document.getElementById('var-chart-1').getContext('2d'); if (charts.var1) charts.var1.destroy();
+                charts.var1 = new Chart(ctx1, { type: 'line', data: { labels: sortedMonths, datasets: [{ label: 'TA', data: sortedMonths.map(m => monthVar[m].TA), borderColor: '#3b82f6', fill: false, tension: 0.3 }, { label: 'FA', data: sortedMonths.map(m => monthVar[m].FA), borderColor: '#10b981', fill: false, tension: 0.3 }, { label: 'NA', data: sortedMonths.map(m => monthVar[m].NA), borderColor: '#f59e0b', fill: false, tension: 0.3 }, { label: 'OT', data: sortedMonths.map(m => monthVar[m].OT), borderColor: '#ef4444', fill: false, tension: 0.3 }, { label: 'IN', data: sortedMonths.map(m => monthVar[m].IN), borderColor: '#8b5cf6', fill: false, tension: 0.3 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } }, tooltip: { callbacks: { label: ctx => `${ctx.dataset.label}: ${fmt(ctx.raw)}` } } }, scales: { y: { beginAtZero: true, grid: { color: '#f3f4f6' }, ticks: { callback: v => fmtShort(v) } }, x: { grid: { display: false } } } } });
+                const empSorted = Object.entries(empVar).sort((a,b) => (b[1].TA+b[1].FA+b[1].NA+b[1].OT+b[1].IN) - (a[1].TA+a[1].FA+a[1].NA+a[1].OT+a[1].IN)).slice(0, 10); const ctx2 = document.getElementById('var-chart-2').getContext('2d'); if (charts.var2) charts.var2.destroy();
+                charts.var2 = new Chart(ctx2, { type: 'bar', data: { labels: empSorted.map(e => e[0].split('|')[1]), datasets: [{ label: 'TA', data: empSorted.map(e => e[1].TA), backgroundColor: '#3b82f6' }, { label: 'FA', data: empSorted.map(e => e[1].FA), backgroundColor: '#10b981' }, { label: 'NA', data: empSorted.map(e => e[1].NA), backgroundColor: '#f59e0b' }, { label: 'OT', data: empSorted.map(e => e[1].OT), backgroundColor: '#ef4444' }, { label: 'IN', data: empSorted.map(e => e[1].IN), backgroundColor: '#8b5cf6' }] }, options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } }, tooltip: { callbacks: { label: ctx => `${ctx.dataset.label}: ${fmt(ctx.raw)}` } } }, scales: { x: { stacked: true, grid: { color: '#f3f4f6' }, ticks: { callback: v => fmtShort(v) } }, y: { stacked: true, grid: { display: false } } } } });
+                const tbody = document.getElementById('var-table-body'); tbody.innerHTML = '';
+                rawData.forEach((row, idx) => { const ta = parseRupee(row.TA), fa = parseRupee(row.FA), na = parseRupee(row.NA); const ot = parseRupee(row.OT), inn = parseRupee(row.IN); const totalVar = ta + fa + na + ot + inn; const tr = document.createElement('tr'); tr.className = 'table-row'; tr.innerHTML = `${renderEditedCell(row['Emp ID'], idx, 'Emp ID', 'left', false)}${renderEditedCell(row.Name, idx, 'Name', 'left', false)}${renderEditedCell(row.TA, idx, 'TA', 'right', true)}${renderEditedCell(row.FA, idx, 'FA', 'right', true)}${renderEditedCell(row.NA, idx, 'NA', 'right', true)}${renderEditedCell(row.OT, idx, 'OT', 'right', true)}${renderEditedCell(row.IN, idx, 'IN', 'right', true)}<td class="px-3 py-2 text-right font-bold text-gray-900">${fmt(totalVar)}</td>${renderEditedCell(getMonthYear(row), idx, 'Month', 'left', false)}`; tbody.appendChild(tr); });
             }
 
             function renderAttendance() {
-                let totalOT = 0, totalIN = 0, empWithOT = 0;
-                const empOT = {}, monthOT = {};
-
-                rawData.forEach((row, idx) => {
-                    const ot = parseRupee(row.OT), inn = parseRupee(row.IN);
-                    const empId = row['Emp ID'] || '';
-                    const name = row.Name || '';
-                    const monthYear = getMonthYear(row);
-
-                    totalOT += ot; totalIN += inn;
-                    if (ot > 0) empWithOT++;
-
-                    const empKey = `${empId}|${name}`;
-                    if (!empOT[empKey]) empOT[empKey] = { ot: 0, inn: 0 };
-                    empOT[empKey].ot += ot; empOT[empKey].inn += inn;
-
-                    if (!monthOT[monthYear]) monthOT[monthYear] = { ot: 0, inn: 0 };
-                    monthOT[monthYear].ot += ot; monthOT[monthYear].inn += inn;
+                let totalOT = 0, totalIN = 0, empWithOT = 0; const empOT = {}, monthOT = {};
+                rawData.forEach((row, idx) => { const ot = parseRupee(row.OT), inn = parseRupee(row.IN); const empId = row['Emp ID'] || ''; const name = row.Name || ''; const monthYear = getMonthYear(row); totalOT += ot; totalIN += inn; if (ot > 0) empWithOT++;
+                    const empKey = `${empId}|${name}`; if (!empOT[empKey]) empOT[empKey] = { ot: 0, inn: 0 }; empOT[empKey].ot += ot; empOT[empKey].inn += inn;
+                    if (!monthOT[monthYear]) monthOT[monthYear] = { ot: 0, inn: 0 }; monthOT[monthYear].ot += ot; monthOT[monthYear].inn += inn;
                 });
-
-                document.getElementById('att-ot-total').textContent = fmt(totalOT);
-                document.getElementById('att-ot-emp').textContent = empWithOT;
-                document.getElementById('att-ot-avg').textContent = fmt(rawData.length ? totalOT / rawData.length : 0);
-                document.getElementById('att-in-total').textContent = fmt(totalIN);
-
-                const empSorted = Object.entries(empOT).sort((a,b) => b[1].ot - a[1].ot).slice(0, 10);
-                const ctx1 = document.getElementById('att-chart-1').getContext('2d');
-                if (charts.att1) charts.att1.destroy();
-                charts.att1 = new Chart(ctx1, {
-                    type: 'bar',
-                    data: { labels: empSorted.map(e => e[0].split('|')[1]), datasets: [{ label: 'OT Amount', data: empSorted.map(e => e[1].ot), backgroundColor: '#f59e0b', borderRadius: 4 }] },
-                    options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => fmt(ctx.raw) } } }, scales: { x: { beginAtZero: true, grid: { color: '#f3f4f6' }, ticks: { callback: v => fmtShort(v) } }, y: { grid: { display: false } } } }
-                });
-
-                const sortedMonths = Object.keys(monthOT).sort();
-                const ctx2 = document.getElementById('att-chart-2').getContext('2d');
-                if (charts.att2) charts.att2.destroy();
-                charts.att2 = new Chart(ctx2, {
-                    type: 'bar',
-                    data: {
-                        labels: sortedMonths,
-                        datasets: [
-                            { label: 'OT', data: sortedMonths.map(m => monthOT[m].ot), backgroundColor: '#f59e0b' },
-                            { label: 'IN', data: sortedMonths.map(m => monthOT[m].inn), backgroundColor: '#8b5cf6' }
-                        ]
-                    },
-                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } }, tooltip: { callbacks: { label: ctx => `${ctx.dataset.label}: ${fmt(ctx.raw)}` } } }, scales: { y: { beginAtZero: true, grid: { color: '#f3f4f6' }, ticks: { callback: v => fmtShort(v) } }, x: { grid: { display: false } } } }
-                });
-
-                const tbody = document.getElementById('att-table-body');
-                tbody.innerHTML = '';
-                rawData.forEach((row, idx) => {
-                    const ot = parseRupee(row.OT), inn = parseRupee(row.IN);
-                    const status = ot > 0 ? '<span class="px-2 py-0.5 bg-orange-100 text-orange-800 rounded text-[10px] font-semibold">OT Active</span>' : '<span class="px-2 py-0.5 bg-gray-100 text-gray-600 rounded text-[10px] font-semibold">No OT</span>';
-                    const tr = document.createElement('tr');
-                    tr.className = 'table-row';
-                    tr.innerHTML = `
-                        ${renderEditedCell(row['Emp ID'], idx, 'Emp ID', 'left', false)}
-                        ${renderEditedCell(row.Name, idx, 'Name', 'left', false)}
-                        ${renderEditedCell(row.Project, idx, 'Project', 'left', false)}
-                        ${renderEditedCell(row.OT, idx, 'OT', 'right', true)}
-                        ${renderEditedCell(row.IN, idx, 'IN', 'right', true)}
-                        <td class="px-3 py-2">${status}</td>
-                        ${renderEditedCell(getMonthYear(row), idx, 'Month', 'left', false)}
-                    `;
-                    tbody.appendChild(tr);
-                });
+                document.getElementById('att-ot-total').textContent = fmt(totalOT); document.getElementById('att-ot-emp').textContent = empWithOT; document.getElementById('att-ot-avg').textContent = fmt(rawData.length ? totalOT / rawData.length : 0); document.getElementById('att-in-total').textContent = fmt(totalIN);
+                const empSorted = Object.entries(empOT).sort((a,b) => b[1].ot - a[1].ot).slice(0, 10); const ctx1 = document.getElementById('att-chart-1').getContext('2d'); if (charts.att1) charts.att1.destroy();
+                charts.att1 = new Chart(ctx1, { type: 'bar', data: { labels: empSorted.map(e => e[0].split('|')[1]), datasets: [{ label: 'OT Amount', data: empSorted.map(e => e[1].ot), backgroundColor: '#f59e0b', borderRadius: 4 }] }, options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => fmt(ctx.raw) } } }, scales: { x: { beginAtZero: true, grid: { color: '#f3f4f6' }, ticks: { callback: v => fmtShort(v) } }, y: { grid: { display: false } } } } });
+                const sortedMonths = Object.keys(monthOT).sort(); const ctx2 = document.getElementById('att-chart-2').getContext('2d'); if (charts.att2) charts.att2.destroy();
+                charts.att2 = new Chart(ctx2, { type: 'bar', data: { labels: sortedMonths, datasets: [{ label: 'OT', data: sortedMonths.map(m => monthOT[m].ot), backgroundColor: '#f59e0b' }, { label: 'IN', data: sortedMonths.map(m => monthOT[m].inn), backgroundColor: '#8b5cf6' }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } }, tooltip: { callbacks: { label: ctx => `${ctx.dataset.label}: ${fmt(ctx.raw)}` } } }, scales: { y: { beginAtZero: true, grid: { color: '#f3f4f6' }, ticks: { callback: v => fmtShort(v) } }, x: { grid: { display: false } } } } });
+                const tbody = document.getElementById('att-table-body'); tbody.innerHTML = '';
+                rawData.forEach((row, idx) => { const ot = parseRupee(row.OT), inn = parseRupee(row.IN); const status = ot > 0 ? '<span class="px-2 py-0.5 bg-orange-100 text-orange-800 rounded text-[10px] font-semibold">OT Active</span>' : '<span class="px-2 py-0.5 bg-gray-100 text-gray-600 rounded text-[10px] font-semibold">No OT</span>'; const tr = document.createElement('tr'); tr.className = 'table-row'; tr.innerHTML = `${renderEditedCell(row['Emp ID'], idx, 'Emp ID', 'left', false)}${renderEditedCell(row.Name, idx, 'Name', 'left', false)}${renderEditedCell(row.Project, idx, 'Project', 'left', false)}${renderEditedCell(row.OT, idx, 'OT', 'right', true)}${renderEditedCell(row.IN, idx, 'IN', 'right', true)}<td class="px-3 py-2">${status}</td>${renderEditedCell(getMonthYear(row), idx, 'Month', 'left', false)}`; tbody.appendChild(tr); });
             }
 
             function renderProcessSalary() {
-                let gross = 0, fixed = 0, variable = 0;
-                let totalBasic = 0, totalTA = 0, totalFA = 0, totalNA = 0, totalOT = 0, totalIN = 0;
-
-                rawData.forEach(row => {
-                    const basic = parseRupee(row.Basic), ta = parseRupee(row.TA), fa = parseRupee(row.FA);
-                    const na = parseRupee(row.NA), ot = parseRupee(row.OT), inn = parseRupee(row.IN);
-                    const total = parseRupee(row.Total);
-
-                    gross += total;
-                    fixed += basic + ta + fa;
-                    variable += na + ot + inn;
-                    totalBasic += basic; totalTA += ta; totalFA += fa;
-                    totalNA += na; totalOT += ot; totalIN += inn;
-                });
-
-                document.getElementById('sal-gross').textContent = fmt(gross);
-                document.getElementById('sal-fixed').textContent = fmt(fixed);
-                document.getElementById('sal-variable').textContent = fmt(variable);
-                document.getElementById('sal-net').textContent = fmt(gross);
-
-                const ctx1 = document.getElementById('sal-chart-1').getContext('2d');
-                if (charts.sal1) charts.sal1.destroy();
-                charts.sal1 = new Chart(ctx1, {
-                    type: 'bar',
-                    data: {
-                        labels: ['Basic', 'TA', 'FA', 'NA', 'OT', 'IN'],
-                        datasets: [{ data: [totalBasic, totalTA, totalFA, totalNA, totalOT, totalIN], backgroundColor: chartColors, borderRadius: 4 }]
-                    },
-                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => fmt(ctx.raw) } } }, scales: { y: { beginAtZero: true, grid: { color: '#f3f4f6' }, ticks: { callback: v => fmtShort(v) } }, x: { grid: { display: false } } } }
-                });
-
-                const ctx2 = document.getElementById('sal-chart-2').getContext('2d');
-                if (charts.sal2) charts.sal2.destroy();
-                charts.sal2 = new Chart(ctx2, {
-                    type: 'doughnut',
-                    data: { labels: ['Fixed Pay', 'Variable Pay'], datasets: [{ data: [fixed, variable], backgroundColor: ['#3b82f6', '#f59e0b'], borderWidth: 2, borderColor: '#fff' }] },
-                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } }, tooltip: { callbacks: { label: ctx => `${ctx.label}: ${fmt(ctx.raw)} (${((ctx.raw/gross)*100).toFixed(1)}%)` } } } }
-                });
-
-                const tbody = document.getElementById('sal-table-body');
-                tbody.innerHTML = '';
-                rawData.forEach((row, idx) => {
-                    const basic = parseRupee(row.Basic);
-                    const allowances = parseRupee(row.TA) + parseRupee(row.FA);
-                    const otIn = parseRupee(row.OT) + parseRupee(row.IN);
-                    const gross_amt = parseRupee(row.Total);
-                    const tr = document.createElement('tr');
-                    tr.className = 'table-row';
-                    tr.innerHTML = `
-                        ${renderEditedCell(row['Emp ID'], idx, 'Emp ID', 'left', false)}
-                        ${renderEditedCell(row.Name, idx, 'Name', 'left', false)}
-                        ${renderEditedCell(row.Project, idx, 'Project', 'left', false)}
-                        ${renderEditedCell(basic, idx, 'Basic', 'right', true)}
-                        <td class="px-3 py-2 text-right text-gray-700">${fmt(allowances)}</td>
-                        <td class="px-3 py-2 text-right text-gray-700">${fmt(otIn)}</td>
-                        ${renderEditedCell(gross_amt, idx, 'Total', 'right', true)}
-                        <td class="px-3 py-2"><span class="px-2 py-0.5 bg-green-100 text-green-800 rounded text-[10px] font-semibold">Processed</span></td>
-                        ${renderEditedCell(getMonthYear(row), idx, 'Month', 'left', false)}
-                    `;
-                    tbody.appendChild(tr);
-                });
+                let gross = 0, fixed = 0, variable = 0; let totalBasic = 0, totalTA = 0, totalFA = 0, totalNA = 0, totalOT = 0, totalIN = 0;
+                rawData.forEach(row => { const basic = parseRupee(row.Basic), ta = parseRupee(row.TA), fa = parseRupee(row.FA); const na = parseRupee(row.NA), ot = parseRupee(row.OT), inn = parseRupee(row.IN); const total = parseRupee(row.Total); gross += total; fixed += basic + ta + fa; variable += na + ot + inn; totalBasic += basic; totalTA += ta; totalFA += fa; totalNA += na; totalOT += ot; totalIN += inn; });
+                document.getElementById('sal-gross').textContent = fmt(gross); document.getElementById('sal-fixed').textContent = fmt(fixed); document.getElementById('sal-variable').textContent = fmt(variable); document.getElementById('sal-net').textContent = fmt(gross);
+                const ctx1 = document.getElementById('sal-chart-1').getContext('2d'); if (charts.sal1) charts.sal1.destroy();
+                charts.sal1 = new Chart(ctx1, { type: 'bar', data: { labels: ['Basic', 'TA', 'FA', 'NA', 'OT', 'IN'], datasets: [{ data: [totalBasic, totalTA, totalFA, totalNA, totalOT, totalIN], backgroundColor: chartColors, borderRadius: 4 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => fmt(ctx.raw) } } }, scales: { y: { beginAtZero: true, grid: { color: '#f3f4f6' }, ticks: { callback: v => fmtShort(v) } }, x: { grid: { display: false } } } } });
+                const ctx2 = document.getElementById('sal-chart-2').getContext('2d'); if (charts.sal2) charts.sal2.destroy();
+                charts.sal2 = new Chart(ctx2, { type: 'doughnut', data: { labels: ['Fixed Pay', 'Variable Pay'], datasets: [{ data: [fixed, variable], backgroundColor: ['#3b82f6', '#f59e0b'], borderWidth: 2, borderColor: '#fff' }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } }, tooltip: { callbacks: { label: ctx => `${ctx.label}: ${fmt(ctx.raw)} (${((ctx.raw/gross)*100).toFixed(1)}%)` } } } } });
+                const tbody = document.getElementById('sal-table-body'); tbody.innerHTML = '';
+                rawData.forEach((row, idx) => { const basic = parseRupee(row.Basic); const allowances = parseRupee(row.TA) + parseRupee(row.FA); const otIn = parseRupee(row.OT) + parseRupee(row.IN); const gross_amt = parseRupee(row.Total); const tr = document.createElement('tr'); tr.className = 'table-row'; tr.innerHTML = `${renderEditedCell(row['Emp ID'], idx, 'Emp ID', 'left', false)}${renderEditedCell(row.Name, idx, 'Name', 'left', false)}${renderEditedCell(row.Project, idx, 'Project', 'left', false)}${renderEditedCell(basic, idx, 'Basic', 'right', true)}<td class="px-3 py-2 text-right text-gray-700">${fmt(allowances)}</td><td class="px-3 py-2 text-right text-gray-700">${fmt(otIn)}</td>${renderEditedCell(gross_amt, idx, 'Total', 'right', true)}<td class="px-3 py-2"><span class="px-2 py-0.5 bg-green-100 text-green-800 rounded text-[10px] font-semibold">Processed</span></td>${renderEditedCell(getMonthYear(row), idx, 'Month', 'left', false)}`; tbody.appendChild(tr); });
             }
 
             function renderPayslip() {
-                const emps = Object.values(employeeData);
-                const empSelector = document.getElementById('payslip-emp');
-                const monthSelector = document.getElementById('payslip-month');
-                
+                const emps = Object.values(employeeData); const empSelector = document.getElementById('payslip-emp'); const monthSelector = document.getElementById('payslip-month');
                 empSelector.innerHTML = emps.map(e => `<option value="${e.empId}">${e.empId} - ${e.name}</option>`).join('');
-                
-                function updateMonthOptions() {
-                    const empId = empSelector.value;
-                    const empRows = rawData.filter(r => (r['Emp ID'] || '') == empId);
-                    const months = [...new Set(empRows.map(r => getMonthYear(r)))];
-                    monthSelector.innerHTML = months.map(m => `<option value="${m}">${m}</option>`).join('');
-                    updatePayslip();
-                }
-                
-                function updatePayslip() {
-                    const empId = empSelector.value;
-                    const monthYear = monthSelector.value;
-                    const row = rawData.find(r => (r['Emp ID'] || '') == empId && getMonthYear(r) === monthYear);
-                    
-                    if (!row) {
-                        document.getElementById('payslip-details').innerHTML = '<p class="text-gray-500 text-center py-4">No data found for this selection.</p>';
-                        return;
-                    }
-
-                    const idx = rawData.indexOf(row);
-                    const basic = parseRupee(row.Basic);
-                    const ta = parseRupee(row.TA);
-                    const fa = parseRupee(row.FA);
-                    const na = parseRupee(row.NA);
-                    const ot = parseRupee(row.OT);
-                    const inn = parseRupee(row.IN);
-                    const total = parseRupee(row.Total);
-                    const deductions = 0; // Can be extended
-                    const netPay = total - deductions;
-
+                function updateMonthOptions() { const empId = empSelector.value; const empRows = rawData.filter(r => (r['Emp ID'] || '') == empId); const months = [...new Set(empRows.map(r => getMonthYear(r)))]; monthSelector.innerHTML = months.map(m => `<option value="${m}">${m}</option>`).join(''); updatePayslip(); }
+                function updatePayslip() { const empId = empSelector.value; const monthYear = monthSelector.value; const row = rawData.find(r => (r['Emp ID'] || '') == empId && getMonthYear(r) === monthYear); if (!row) { document.getElementById('payslip-details').innerHTML = '<p class="text-gray-500 text-center py-4">No data found.</p>'; return; }
+                    const idx = rawData.indexOf(row); const basic = parseRupee(row.Basic); const ta = parseRupee(row.TA); const fa = parseRupee(row.FA); const na = parseRupee(row.NA); const ot = parseRupee(row.OT); const inn = parseRupee(row.IN); const total = parseRupee(row.Total);
                     const editedMarker = (field) => isCellEdited(idx, field) ? ' <span class="text-[9px] text-yellow-700">✏️</span>' : '';
-
-                    document.getElementById('payslip-details').innerHTML = `
-                        <div class="grid grid-cols-2 gap-4 mb-4 text-sm">
-                            <div><span class="text-gray-500">Emp ID:</span> <span class="font-semibold">${row['Emp ID'] || '-'}</span></div>
-                            <div><span class="text-gray-500">Name:</span> <span class="font-semibold">${row.Name || '-'}</span></div>
-                            <div><span class="text-gray-500">Project:</span> <span class="font-semibold">${row.Project || '-'}</span></div>
-                            <div><span class="text-gray-500">Period:</span> <span class="font-semibold">${monthYear}</span></div>
-                        </div>
-                        <div class="border-t pt-4">
-                            <h4 class="font-bold text-gray-800 mb-2 text-sm">Earnings</h4>
-                            <div class="space-y-1.5 text-sm">
-                                <div class="flex justify-between ${isCellEdited(idx, 'Basic') ? 'bg-yellow-100 px-2 py-0.5 rounded' : ''}"><span>Basic${editedMarker('Basic')}</span><span>${fmt(basic)}</span></div>
-                                <div class="flex justify-between ${isCellEdited(idx, 'TA') ? 'bg-yellow-100 px-2 py-0.5 rounded' : ''}"><span>TA${editedMarker('TA')}</span><span>${fmt(ta)}</span></div>
-                                <div class="flex justify-between ${isCellEdited(idx, 'FA') ? 'bg-yellow-100 px-2 py-0.5 rounded' : ''}"><span>FA${editedMarker('FA')}</span><span>${fmt(fa)}</span></div>
-                                <div class="flex justify-between ${isCellEdited(idx, 'NA') ? 'bg-yellow-100 px-2 py-0.5 rounded' : ''}"><span>NA${editedMarker('NA')}</span><span>${fmt(na)}</span></div>
-                                <div class="flex justify-between ${isCellEdited(idx, 'OT') ? 'bg-yellow-100 px-2 py-0.5 rounded' : ''}"><span>OT${editedMarker('OT')}</span><span>${fmt(ot)}</span></div>
-                                <div class="flex justify-between ${isCellEdited(idx, 'IN') ? 'bg-yellow-100 px-2 py-0.5 rounded' : ''}"><span>IN${editedMarker('IN')}</span><span>${fmt(inn)}</span></div>
-                            </div>
-                        </div>
-                        <div class="border-t pt-4 mt-4">
-                            <div class="flex justify-between text-lg font-bold"><span>Gross Pay</span><span>${fmt(total)}</span></div>
-                            <div class="flex justify-between text-sm text-gray-600 mt-1"><span>Deductions</span><span>${fmt(deductions)}</span></div>
-                            <div class="flex justify-between text-xl font-bold text-blue-700 mt-2 pt-2 border-t-2 border-blue-200"><span>Net Pay</span><span>${fmt(netPay)}</span></div>
-                        </div>
-                    `;
+                    document.getElementById('payslip-details').innerHTML = `<div class="grid grid-cols-2 gap-4 mb-4 text-sm"><div><span class="text-gray-500">Emp ID:</span> <span class="font-semibold">${row['Emp ID'] || '-'}</span></div><div><span class="text-gray-500">Name:</span> <span class="font-semibold">${row.Name || '-'}</span></div><div><span class="text-gray-500">Project:</span> <span class="font-semibold">${row.Project || '-'}</span></div><div><span class="text-gray-500">Period:</span> <span class="font-semibold">${monthYear}</span></div></div><div class="border-t pt-4"><h4 class="font-bold text-gray-800 mb-2 text-sm">Earnings</h4><div class="space-y-1.5 text-sm"><div class="flex justify-between ${isCellEdited(idx, 'Basic') ? 'bg-yellow-100 px-2 py-0.5 rounded' : ''}"><span>Basic${editedMarker('Basic')}</span><span>${fmt(basic)}</span></div><div class="flex justify-between ${isCellEdited(idx, 'TA') ? 'bg-yellow-100 px-2 py-0.5 rounded' : ''}"><span>TA${editedMarker('TA')}</span><span>${fmt(ta)}</span></div><div class="flex justify-between ${isCellEdited(idx, 'FA') ? 'bg-yellow-100 px-2 py-0.5 rounded' : ''}"><span>FA${editedMarker('FA')}</span><span>${fmt(fa)}</span></div><div class="flex justify-between ${isCellEdited(idx, 'NA') ? 'bg-yellow-100 px-2 py-0.5 rounded' : ''}"><span>NA${editedMarker('NA')}</span><span>${fmt(na)}</span></div><div class="flex justify-between ${isCellEdited(idx, 'OT') ? 'bg-yellow-100 px-2 py-0.5 rounded' : ''}"><span>OT${editedMarker('OT')}</span><span>${fmt(ot)}</span></div><div class="flex justify-between ${isCellEdited(idx, 'IN') ? 'bg-yellow-100 px-2 py-0.5 rounded' : ''}"><span>IN${editedMarker('IN')}</span><span>${fmt(inn)}</span></div></div></div><div class="border-t pt-4 mt-4"><div class="flex justify-between text-lg font-bold"><span>Gross Pay</span><span>${fmt(total)}</span></div><div class="flex justify-between text-xl font-bold text-blue-700 mt-2 pt-2 border-t-2 border-blue-200"><span>Net Pay</span><span>${fmt(total)}</span></div></div>`;
                 }
-
-                empSelector.addEventListener('change', updateMonthOptions);
-                monthSelector.addEventListener('change', updatePayslip);
-                updateMonthOptions();
+                empSelector.addEventListener('change', updateMonthOptions); monthSelector.addEventListener('change', updatePayslip); updateMonthOptions();
             }
 
             function renderSalarySheet() {
-                const searchTerm = globalSearch.value.toLowerCase();
-                const tbody = document.getElementById('sheet-table-body');
-                tbody.innerHTML = '';
-                
-                let count = 0;
-                rawData.forEach((row, idx) => {
-                    const empId = String(row['Emp ID'] || '').toLowerCase();
-                    const name = String(row.Name || '').toLowerCase();
-                    if (searchTerm && !empId.includes(searchTerm) && !name.includes(searchTerm)) return;
-                    
-                    count++;
-                    const tr = document.createElement('tr');
-                    tr.className = 'table-row';
-                    tr.innerHTML = `
-                        ${renderEditedCell(row['Emp ID'], idx, 'Emp ID', 'left', false)}
-                        ${renderEditedCell(row.Name, idx, 'Name', 'left', false)}
-                        ${renderEditedCell(row.Project, idx, 'Project', 'left', false)}
-                        ${renderEditedCell(row.Basic, idx, 'Basic', 'right', true)}
-                        ${renderEditedCell(row.TA, idx, 'TA', 'right', true)}
-                        ${renderEditedCell(row.FA, idx, 'FA', 'right', true)}
-                        ${renderEditedCell(row.NA, idx, 'NA', 'right', true)}
-                        ${renderEditedCell(row.OT, idx, 'OT', 'right', true)}
-                        ${renderEditedCell(row.IN, idx, 'IN', 'right', true)}
-                        ${renderEditedCell(row.Total, idx, 'Total', 'right', true)}
-                        ${renderEditedCell(row.Month, idx, 'Month', 'left', false)}
-                        ${renderEditedCell(getYear(row), idx, 'Year', 'left', false)}
-                    `;
-                    tbody.appendChild(tr);
-                });
-                document.getElementById('sheet-count').textContent = `${count} records`;
+                const searchTerm = globalSearch.value.toLowerCase(); const tbody = document.getElementById('sheet-table-body'); tbody.innerHTML = ''; let count = 0;
+                rawData.forEach((row, idx) => { const empId = String(row['Emp ID'] || '').toLowerCase(); const name = String(row.Name || '').toLowerCase(); if (searchTerm && !empId.includes(searchTerm) && !name.includes(searchTerm)) return; count++;
+                    const tr = document.createElement('tr'); tr.className = 'table-row'; tr.innerHTML = `${renderEditedCell(row['Emp ID'], idx, 'Emp ID', 'left', false)}${renderEditedCell(row.Name, idx, 'Name', 'left', false)}${renderEditedCell(row.Project, idx, 'Project', 'left', false)}${renderEditedCell(row.Basic, idx, 'Basic', 'right', true)}${renderEditedCell(row.TA, idx, 'TA', 'right', true)}${renderEditedCell(row.FA, idx, 'FA', 'right', true)}${renderEditedCell(row.NA, idx, 'NA', 'right', true)}${renderEditedCell(row.OT, idx, 'OT', 'right', true)}${renderEditedCell(row.IN, idx, 'IN', 'right', true)}${renderEditedCell(row.Total, idx, 'Total', 'right', true)}${renderEditedCell(row.Month, idx, 'Month', 'left', false)}${renderEditedCell(getYear(row), idx, 'Year', 'left', false)}`; tbody.appendChild(tr);
+                }); document.getElementById('sheet-count').textContent = `${count} records`;
             }
 
             function renderViewSalary() {
-                const emps = Object.values(employeeData);
-                const selector = document.getElementById('view-sal-emp');
-                selector.innerHTML = emps.map(e => `<option value="${e.empId}">${e.empId} - ${e.name}</option>`).join('');
-
-                function updateView() {
-                    const empId = selector.value;
-                    const empData = rawData.map((r, idx) => ({ row: r, idx })).filter(({ row }) => (row['Emp ID'] || '') == empId);
-                    
-                    const labels = empData.map(({ row }) => getMonthYear(row));
-                    const totals = empData.map(({ row }) => parseRupee(row.Total));
-
-                    const ctx1 = document.getElementById('view-sal-chart-1').getContext('2d');
-                    if (charts.viewSal1) charts.viewSal1.destroy();
-                    charts.viewSal1 = new Chart(ctx1, {
-                        type: 'line',
-                        data: { labels, datasets: [{ label: 'Total Salary', data: totals, borderColor: '#3b82f6', backgroundColor: 'rgba(59,130,246,0.1)', fill: true, tension: 0.3, pointRadius: 5 }] },
-                        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => fmt(ctx.raw) } } }, scales: { y: { beginAtZero: true, grid: { color: '#f3f4f6' }, ticks: { callback: v => fmtShort(v) } }, x: { grid: { display: false } } } }
-                    });
-
-                    const lastEntry = empData[empData.length - 1];
-                    const ctx2 = document.getElementById('view-sal-chart-2').getContext('2d');
-                    if (charts.viewSal2) charts.viewSal2.destroy();
-                    charts.viewSal2 = new Chart(ctx2, {
-                        type: 'pie',
-                        data: {
-                            labels: ['Basic', 'TA', 'FA', 'NA', 'OT', 'IN'],
-                            datasets: [{
-                                data: [parseRupee(lastEntry.row.Basic), parseRupee(lastEntry.row.TA), parseRupee(lastEntry.row.FA), parseRupee(lastEntry.row.NA), parseRupee(lastEntry.row.OT), parseRupee(lastEntry.row.IN)],
-                                backgroundColor: chartColors, borderWidth: 2, borderColor: '#fff'
-                            }]
-                        },
-                        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } }, tooltip: { callbacks: { label: ctx => `${ctx.label}: ${fmt(ctx.raw)}` } } } }
-                    });
-
-                    const tbody = document.getElementById('view-sal-table-body');
-                    tbody.innerHTML = '';
-                    empData.forEach(({ row, idx }) => {
-                        const tr = document.createElement('tr');
-                        tr.className = 'table-row';
-                        tr.innerHTML = `
-                            ${renderEditedCell(row.Month, idx, 'Month', 'left', false)}
-                            ${renderEditedCell(getYear(row), idx, 'Year', 'left', false)}
-                            ${renderEditedCell(row.Basic, idx, 'Basic', 'right', true)}
-                            ${renderEditedCell(row.TA, idx, 'TA', 'right', true)}
-                            ${renderEditedCell(row.FA, idx, 'FA', 'right', true)}
-                            ${renderEditedCell(row.NA, idx, 'NA', 'right', true)}
-                            ${renderEditedCell(row.OT, idx, 'OT', 'right', true)}
-                            ${renderEditedCell(row.IN, idx, 'IN', 'right', true)}
-                            ${renderEditedCell(row.Total, idx, 'Total', 'right', true)}
-                        `;
-                        tbody.appendChild(tr);
-                    });
+                const emps = Object.values(employeeData); const selector = document.getElementById('view-sal-emp'); selector.innerHTML = emps.map(e => `<option value="${e.empId}">${e.empId} - ${e.name}</option>`).join('');
+                function updateView() { const empId = selector.value; const empData = rawData.map((r, idx) => ({ row: r, idx })).filter(({ row }) => (row['Emp ID'] || '') == empId); const labels = empData.map(({ row }) => getMonthYear(row)); const totals = empData.map(({ row }) => parseRupee(row.Total));
+                    const ctx1 = document.getElementById('view-sal-chart-1').getContext('2d'); if (charts.viewSal1) charts.viewSal1.destroy(); charts.viewSal1 = new Chart(ctx1, { type: 'line', data: { labels, datasets: [{ label: 'Total Salary', data: totals, borderColor: '#3b82f6', backgroundColor: 'rgba(59,130,246,0.1)', fill: true, tension: 0.3, pointRadius: 5 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => fmt(ctx.raw) } } }, scales: { y: { beginAtZero: true, grid: { color: '#f3f4f6' }, ticks: { callback: v => fmtShort(v) } }, x: { grid: { display: false } } } } });
+                    const lastEntry = empData[empData.length - 1]; const ctx2 = document.getElementById('view-sal-chart-2').getContext('2d'); if (charts.viewSal2) charts.viewSal2.destroy(); charts.viewSal2 = new Chart(ctx2, { type: 'pie', data: { labels: ['Basic', 'TA', 'FA', 'NA', 'OT', 'IN'], datasets: [{ data: [parseRupee(lastEntry.row.Basic), parseRupee(lastEntry.row.TA), parseRupee(lastEntry.row.FA), parseRupee(lastEntry.row.NA), parseRupee(lastEntry.row.OT), parseRupee(lastEntry.row.IN)], backgroundColor: chartColors, borderWidth: 2, borderColor: '#fff' }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } }, tooltip: { callbacks: { label: ctx => `${ctx.label}: ${fmt(ctx.raw)}` } } } } });
+                    const tbody = document.getElementById('view-sal-table-body'); tbody.innerHTML = ''; empData.forEach(({ row, idx }) => { const tr = document.createElement('tr'); tr.className = 'table-row'; tr.innerHTML = `${renderEditedCell(row.Month, idx, 'Month', 'left', false)}${renderEditedCell(getYear(row), idx, 'Year', 'left', false)}${renderEditedCell(row.Basic, idx, 'Basic', 'right', true)}${renderEditedCell(row.TA, idx, 'TA', 'right', true)}${renderEditedCell(row.FA, idx, 'FA', 'right', true)}${renderEditedCell(row.NA, idx, 'NA', 'right', true)}${renderEditedCell(row.OT, idx, 'OT', 'right', true)}${renderEditedCell(row.IN, idx, 'IN', 'right', true)}${renderEditedCell(row.Total, idx, 'Total', 'right', true)}`; tbody.appendChild(tr); });
                 }
-
-                selector.addEventListener('change', updateView);
-                updateView();
+                selector.addEventListener('change', updateView); updateView();
             }
 
-            // ==================== EDIT MASTER DATA ====================
             function renderEditMaster() {
-                const tbody = document.getElementById('edit-table-body');
-                tbody.innerHTML = '';
-                
-                rawData.forEach((row, idx) => {
-                    const tr = document.createElement('tr');
-                    tr.className = 'table-row';
-                    tr.id = `edit-row-${idx}`;
-                    
-                    const fields = [
-                        { key: 'Emp ID', align: 'left', currency: false },
-                        { key: 'Name', align: 'left', currency: false },
-                        { key: 'Project', align: 'left', currency: false },
-                        { key: 'Basic', align: 'right', currency: true },
-                        { key: 'TA', align: 'right', currency: true },
-                        { key: 'FA', align: 'right', currency: true },
-                        { key: 'NA', align: 'right', currency: true },
-                        { key: 'OT', align: 'right', currency: true },
-                        { key: 'IN', align: 'right', currency: true },
-                        { key: 'Total', align: 'right', currency: true },
-                        { key: 'Month', align: 'left', currency: false },
-                        { key: 'Year', align: 'left', currency: false }
-                    ];
-                    
+                const tbody = document.getElementById('edit-table-body'); tbody.innerHTML = '';
+                rawData.forEach((row, idx) => { const tr = document.createElement('tr'); tr.className = 'table-row'; tr.id = `edit-row-${idx}`;
+                    const fields = [{ key: 'Emp ID', align: 'left', currency: false }, { key: 'Name', align: 'left', currency: false }, { key: 'Project', align: 'left', currency: false }, { key: 'Basic', align: 'right', currency: true }, { key: 'TA', align: 'right', currency: true }, { key: 'FA', align: 'right', currency: true }, { key: 'NA', align: 'right', currency: true }, { key: 'OT', align: 'right', currency: true }, { key: 'IN', align: 'right', currency: true }, { key: 'Total', align: 'right', currency: true }, { key: 'Month', align: 'left', currency: false }, { key: 'Year', align: 'left', currency: false }];
                     let cellsHTML = `<td class="px-3 py-2 text-gray-500">${idx + 1}</td>`;
-                    fields.forEach(f => {
-                        const value = row[f.key] || '';
-                        const displayValue = f.currency ? fmt(parseRupee(value)) : value;
-                        const edited = isCellEdited(idx, f.key);
-                        const cellClass = edited ? 'edited-cell' : '';
-                        const alignClass = f.align === 'right' ? 'text-right' : 'text-left';
-                        
-                        cellsHTML += `
-                            <td class="px-3 py-2 ${cellClass} ${alignClass} text-gray-900 relative" data-row="${idx}" data-field="${f.key}" data-currency="${f.currency}">
-                                ${edited ? '<span class="edited-badge">✏️</span>' : ''}
-                                <span class="cell-display">${displayValue}</span>
-                                <input type="text" class="edit-input hidden" value="${value}">
-                            </td>
-                        `;
-                    });
-                    
-                    cellsHTML += `
-                        <td class="px-3 py-2 text-center whitespace-nowrap">
-                            <span class="action-btn edit-btn" onclick="startEditRow(${idx})" title="Edit">✏️</span>
-                            <span class="action-btn save-btn hidden" onclick="saveEditRow(${idx})" title="Save">✓</span>
-                            <span class="action-btn cancel-btn hidden" onclick="cancelEditRow(${idx})" title="Cancel">✕</span>
-                            <span class="action-btn delete-btn" onclick="deleteRow(${idx})" title="Delete">🗑️</span>
-                        </td>
-                    `;
-                    
-                    tr.innerHTML = cellsHTML;
-                    tbody.appendChild(tr);
+                    fields.forEach(f => { const value = row[f.key] || ''; const displayValue = f.currency ? fmt(parseRupee(value)) : value; const edited = isCellEdited(idx, f.key); const cellClass = edited ? 'edited-cell' : ''; const alignClass = f.align === 'right' ? 'text-right' : 'text-left'; cellsHTML += `<td class="px-3 py-2 ${cellClass} ${alignClass} text-gray-900 relative" data-row="${idx}" data-field="${f.key}" data-currency="${f.currency}">${edited ? '<span class="edited-badge">✏️</span>' : ''}<span class="cell-display">${displayValue}</span><input type="text" class="edit-input hidden" value="${value}"></td>`; });
+                    cellsHTML += `<td class="px-3 py-2 text-center whitespace-nowrap"><span class="action-btn edit-btn" onclick="startEditRow(${idx})" title="Edit">✏️</span><span class="action-btn save-btn hidden" onclick="saveEditRow(${idx})" title="Save">✓</span><span class="action-btn cancel-btn hidden" onclick="cancelEditRow(${idx})" title="Cancel">✕</span><span class="action-btn delete-btn" onclick="deleteRow(${idx})" title="Delete">🗑️</span></td>`;
+                    tr.innerHTML = cellsHTML; tbody.appendChild(tr);
                 });
             }
 
-            window.startEditRow = function(idx) {
-                const row = document.getElementById(`edit-row-${idx}`);
-                row.querySelectorAll('td[data-field]').forEach(cell => {
-                    cell.querySelector('.cell-display').classList.add('hidden');
-                    cell.querySelector('.edit-input').classList.remove('hidden');
-                });
-                row.querySelector('.edit-btn').classList.add('hidden');
-                row.querySelector('.delete-btn').classList.add('hidden');
-                row.querySelector('.save-btn').classList.remove('hidden');
-                row.querySelector('.cancel-btn').classList.remove('hidden');
-                
-                // Focus first input
-                const firstInput = row.querySelector('.edit-input');
-                if (firstInput) firstInput.focus();
+            window.startEditRow = function(idx) { const row = document.getElementById(`edit-row-${idx}`); row.querySelectorAll('td[data-field]').forEach(cell => { cell.querySelector('.cell-display').classList.add('hidden'); cell.querySelector('.edit-input').classList.remove('hidden'); }); row.querySelector('.edit-btn').classList.add('hidden'); row.querySelector('.delete-btn').classList.add('hidden'); row.querySelector('.save-btn').classList.remove('hidden'); row.querySelector('.cancel-btn').classList.remove('hidden'); const firstInput = row.querySelector('.edit-input'); if (firstInput) firstInput.focus(); };
+            window.saveEditRow = function(idx) { const row = document.getElementById(`edit-row-${idx}`); const fields = ['Emp ID','Name','Project','Basic','TA','FA','NA','OT','IN','Total','Month','Year']; let hasChanges = false;
+                fields.forEach(field => { const cell = row.querySelector(`td[data-field="${field}"]`); if (!cell) return; const input = cell.querySelector('.edit-input'); const newValue = input.value.trim(); const oldValue = rawData[idx][field]; if (String(newValue) !== String(oldValue)) { hasChanges = true; const isCurrency = cell.dataset.currency === 'true'; rawData[idx][field] = isCurrency ? parseRupee(newValue) : newValue; markCellEdited(idx, field); } });
+                const r = rawData[idx]; const newTotal = parseRupee(r.Basic) + parseRupee(r.TA) + parseRupee(r.FA) + parseRupee(r.NA) + parseRupee(r.OT) + parseRupee(r.IN); if (Math.abs(newTotal - parseRupee(r.Total)) > 0.01) { rawData[idx].Total = newTotal; markCellEdited(idx, 'Total'); }
+                exitEditMode(idx); renderEditMaster(); saveToLocalStorage(); if (hasChanges) alert(`✅ Row ${idx + 1} updated and saved to database!`);
+            };
+            window.cancelEditRow = function(idx) { exitEditMode(idx); renderEditMaster(); };
+            function exitEditMode(idx) { const row = document.getElementById(`edit-row-${idx}`); if (!row) return; row.querySelectorAll('td[data-field]').forEach(cell => { cell.querySelector('.cell-display').classList.remove('hidden'); cell.querySelector('.edit-input').classList.add('hidden'); }); row.querySelector('.edit-btn').classList.remove('hidden'); row.querySelector('.delete-btn').classList.remove('hidden'); row.querySelector('.save-btn').classList.add('hidden'); row.querySelector('.cancel-btn').classList.add('hidden'); }
+            window.deleteRow = function(idx) { const row = rawData[idx]; const empId = row['Emp ID'] || ''; const name = row.Name || ''; if (!confirm(`Delete record for ${empId} - ${name}?`)) return; rawData.splice(idx, 1); rawData.forEach((r, i) => r._index = i);
+                const newEditedCells = new Set(); editedCells.forEach(key => { const [rowNum, field] = key.split('-'); const rn = parseInt(rowNum); if (rn < idx) newEditedCells.add(key); else if (rn > idx) newEditedCells.add(`${rn-1}-${field}`); }); editedCells = newEditedCells;
+                saveToLocalStorage(); processData(); renderEditMaster(); alert('🗑️ Record deleted!');
             };
 
-            window.saveEditRow = function(idx) {
-                const row = document.getElementById(`edit-row-${idx}`);
-                const fields = ['Emp ID','Name','Project','Basic','TA','FA','NA','OT','IN','Total','Month','Year'];
-                let hasChanges = false;
-                
-                fields.forEach(field => {
-                    const cell = row.querySelector(`td[data-field="${field}"]`);
-                    if (!cell) return;
-                    const input = cell.querySelector('.edit-input');
-                    const newValue = input.value.trim();
-                    const oldValue = rawData[idx][field];
-                    
-                    if (String(newValue) !== String(oldValue)) {
-                        hasChanges = true;
-                        const isCurrency = cell.dataset.currency === 'true';
-                        rawData[idx][field] = isCurrency ? parseRupee(newValue) : newValue;
-                        markCellEdited(idx, field);
-                    }
-                });
-                
-                // Auto-recalculate Total if components changed
-                const r = rawData[idx];
-                const newTotal = parseRupee(r.Basic) + parseRupee(r.TA) + parseRupee(r.FA) + parseRupee(r.NA) + parseRupee(r.OT) + parseRupee(r.IN);
-                if (Math.abs(newTotal - parseRupee(r.Total)) > 0.01) {
-                    rawData[idx].Total = newTotal;
-                    markCellEdited(idx, 'Total');
-                }
-                
-                exitEditMode(idx);
-                renderEditMaster();
-                
-                if (hasChanges) {
-                    alert(`✅ Row ${idx + 1} updated successfully! Changes reflected across all tabs.`);
-                }
-            };
-
-            window.cancelEditRow = function(idx) {
-                exitEditMode(idx);
-                renderEditMaster();
-            };
-
-            function exitEditMode(idx) {
-                const row = document.getElementById(`edit-row-${idx}`);
-                if (!row) return;
-                row.querySelectorAll('td[data-field]').forEach(cell => {
-                    cell.querySelector('.cell-display').classList.remove('hidden');
-                    cell.querySelector('.edit-input').classList.add('hidden');
-                });
-                row.querySelector('.edit-btn').classList.remove('hidden');
-                row.querySelector('.delete-btn').classList.remove('hidden');
-                row.querySelector('.save-btn').classList.add('hidden');
-                row.querySelector('.cancel-btn').classList.add('hidden');
-            }
-
-            window.deleteRow = function(idx) {
-                const row = rawData[idx];
-                const empId = row['Emp ID'] || '';
-                const name = row.Name || '';
-                if (!confirm(`Are you sure you want to delete record for ${empId} - ${name}?\n\nThis action cannot be undone.`)) return;
-                
-                rawData.splice(idx, 1);
-                rawData.forEach((r, i) => r._index = i);
-                
-                // Clean up edited cells for shifted indices
-                const newEditedCells = new Set();
-                editedCells.forEach(key => {
-                    const [rowNum, field] = key.split('-');
-                    const rn = parseInt(rowNum);
-                    if (rn < idx) newEditedCells.add(key);
-                    else if (rn > idx) newEditedCells.add(`${rn-1}-${field}`);
-                });
-                editedCells = newEditedCells;
-                
-                processData();
-                renderEditMaster();
-                alert('🗑️ Record deleted successfully!');
-            };
-
-            function exportToExcel() {
-                const exportData = rawData.map((row, idx) => {
-                    const exportRow = { ...row };
-                    exportRow._Edited = editableFields.some(f => isCellEdited(idx, f)) ? 'Yes' : 'No';
-                    return exportRow;
-                });
-                
-                const ws = XLSX.utils.json_to_sheet(exportData);
-                const wb = XLSX.utils.book_new();
-                XLSX.utils.book_append_sheet(wb, ws, 'Payroll Data');
-                XLSX.writeFile(wb, `Expense_Tracker_Export_${new Date().toISOString().split('T')[0]}.xlsx`);
-            }
+            function exportToExcel() { const exportData = rawData.map((row, idx) => { const exportRow = { ...row }; exportRow._Edited = ['Basic','TA','FA','NA','OT','IN','Total','Emp ID','Name','Project','Month','Year'].some(f => isCellEdited(idx, f)) ? 'Yes' : 'No'; return exportRow; }); const ws = XLSX.utils.json_to_sheet(exportData); const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, 'Payroll Data'); XLSX.writeFile(wb, `Expense_Tracker_Export_${new Date().toISOString().split('T')[0]}.xlsx`); }
         });
     </script>
 </body>
