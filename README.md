@@ -6,7 +6,7 @@
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)
 ![Chart.js](https://img.shields.io/badge/Chart.js-FF6384?style=for-the-badge&logo=chartdotjs&logoColor=white)
 
-**Live Demo:** [Click here to view the live application](https://mrayan2024.github.io/expense-tracker) *(Replace with your actual link)*
+**Live Demo:** [Click here to view the live application](https://mrayan2024.github.io/Enprise_Exp_Tracker/)
 
 ---
 
