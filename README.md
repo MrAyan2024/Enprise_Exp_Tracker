@@ -60,7 +60,9 @@ For the application to parse data correctly, your uploaded `.xlsx`, `.xls`, or `
 
 Since this is a purely client-side application, no Node.js, npm, or backend server is required.
 
-1. **Clone the repository:**
-   ```bash
-   git clone https://github.com/your-username/expense-tracker.git
-   cd expense-tracker
+👨‍💻 Author & Credits
+Developed by: Ayan Paul
+
+If you found this project helpful, please consider giving it a ⭐ on GitHub!
+
+THANK YOU
