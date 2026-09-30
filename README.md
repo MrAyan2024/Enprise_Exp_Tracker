@@ -60,8 +60,9 @@ For the application to parse data correctly, your uploaded `.xlsx`, `.xls`, or `
 
 Since this is a purely client-side application, no Node.js, npm, or backend server is required.
 
-👨‍💻 Author & Credits
-Developed by: Ayan Paul
+**👨‍💻 Author & Credits**
+
+Developed by:: Ayan Paul
 
 If you found this project helpful, please consider giving it a ⭐ on GitHub!
 
